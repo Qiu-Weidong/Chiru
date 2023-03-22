@@ -5,6 +5,7 @@ use std::any::Any;
 
 
 pub trait ASTContext: Any {
+  // 父节点可能为空，因此使用 Option
   fn get_parent(&self) -> Option<Rc<dyn RuleContext>>;
 
   fn set_parent(&mut self, parent: &dyn RuleContext);
@@ -18,6 +19,7 @@ pub trait ASTContext: Any {
 
   fn as_any_mut(&mut self) -> &mut dyn Any;
 
+  // 为了在 ASTContext 这个 trait 里面声明 accept, visitor 的返回值使用 Any 而不是泛型
   fn accept(&self, visitor: &dyn ASTVisitor) -> Rc<dyn Any>;
 }
 
@@ -82,7 +84,7 @@ impl ASTContext for TerminalContext {
   }
 
   fn accept(&self, _visitor: &dyn ASTVisitor) -> Rc<dyn Any> {
-    todo!()
+    _visitor.visit_terminal(self)
   }
 
 }
@@ -116,7 +118,7 @@ impl ASTContext for ErrorContext {
     self as &mut dyn Any 
   }
 
-  fn accept(&self, _visitor: &dyn ASTVisitor) -> Rc<dyn Any> { todo!() }
+  fn accept(&self, _visitor: &dyn ASTVisitor) -> Rc<dyn Any> { _visitor.visit_errornode(self) }
 
 }
 
@@ -124,9 +126,10 @@ impl ASTContext for ErrorContext {
 
 
 pub trait ASTVisitor {
+  // 虽然有默认实现，但是无法直接在 trait 里面编写
   fn visit(&self, ast: &dyn ASTContext) -> Rc<dyn Any> ;
 
-  fn visit_children(&self, context: &dyn RuleContext) -> Rc<dyn Any>;
+  fn visit_children(&self, context: &dyn RuleContext) -> Rc<dyn Any> ;
 
   fn visit_terminal(&self, _terminal: &TerminalContext) -> Rc<dyn Any> { self.default_result() }
 
@@ -134,7 +137,7 @@ pub trait ASTVisitor {
 
   fn default_result(&self) -> Rc<dyn Any>;
 
-  fn aggregate_result<'a>(&self, _aggregate: &'a dyn Any, next_result: &'a dyn Any) -> Rc<dyn Any + 'a> { Rc::new(next_result) }
+  fn aggregate_result(&self, _aggregate: Rc<dyn Any>, next_result: Rc<dyn Any>) -> Rc<dyn Any> { next_result }
 
   fn should_visit_next_child(&self, _context: &dyn RuleContext, _current_result: &dyn Any) -> bool {true}
 }
@@ -147,6 +150,44 @@ pub trait ASTListener {
   fn enter_every_rule(&self, context: Rc<dyn RuleContext>);
 
   fn exit_every_rule(&self, context: Rc<dyn RuleContext>);
+}
+
+
+
+
+
+
+
+
+struct DotVisitor;
+
+
+impl ASTVisitor for DotVisitor {
+  fn visit(&self, ast: &dyn ASTContext) -> Rc<dyn Any> {
+    ast.accept(self)
+  }
+
+  fn visit_children(&self, context: &dyn RuleContext) -> Rc<dyn Any> {
+    let mut result = self.default_result();
+    for child in context.get_children().iter() {
+      if ! self.should_visit_next_child(context, &result) {
+        break;
+      }
+      let child_result = child.accept(self);
+      result = self.aggregate_result(result, child_result);
+    }
+    result
+  }
+
+  fn default_result(&self) -> Rc<dyn Any> {
+    // 必须提供一个默认值
+    todo!()
+  }
+
+}
+
+impl DotVisitor {
+  
 }
 
 
