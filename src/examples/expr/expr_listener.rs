@@ -1,41 +1,41 @@
-use std::any::Any;
+// use std::any::Any;
 
-use crate::syntaxis::ast::ASTListener;
-use super::expr_parser::{ProgContext, StatContext, ExprContext};
-
-
-pub trait AbstractExprListener: ASTListener {
-  fn enter_prog(&self, _ctx: &dyn ProgContext) {}
-
-  fn enter_stat(&self, _ctx: &dyn StatContext) {}
-
-  fn enter_expr(&self, _ctx: &dyn ExprContext) {}
+// use crate::syntaxis::ast::ASTListener;
+// use super::expr_parser::{ProgContext, StatContext, ExprContext};
 
 
-  fn exit_prog(&self, _ctx: &dyn ProgContext) {}
+// pub trait AbstractExprListener: ASTListener {
+//   fn enter_prog(&self, _ctx: &dyn ProgContext) {}
 
-  fn exit_stat(&self, _ctx: &dyn StatContext) {}
+//   fn enter_stat(&self, _ctx: &dyn StatContext) {}
 
-  fn exit_expr(&self, _ctx: &dyn ExprContext) {}
-}
+//   fn enter_expr(&self, _ctx: &dyn ExprContext) {}
 
 
-pub struct ExprListener {
-  // 定义需要的数据结构
-}
+//   fn exit_prog(&self, _ctx: &dyn ProgContext) {}
 
-impl ASTListener for ExprListener {
-  fn as_any(&self) -> &dyn Any {
-    self as &dyn Any 
-  }
+//   fn exit_stat(&self, _ctx: &dyn StatContext) {}
 
-  fn as_any_mut(&mut self) -> &mut dyn Any {
-    self as &mut dyn Any 
-  }
+//   fn exit_expr(&self, _ctx: &dyn ExprContext) {}
+// }
 
-}
 
-impl AbstractExprListener for ExprListener {}
+// pub struct ExprListener {
+//   // 定义需要的数据结构
+// }
+
+// impl ASTListener for ExprListener {
+//   fn as_any(&self) -> &dyn Any {
+//     self as &dyn Any 
+//   }
+
+//   fn as_any_mut(&mut self) -> &mut dyn Any {
+//     self as &mut dyn Any 
+//   }
+
+// }
+
+// impl AbstractExprListener for ExprListener {}
 
 
 
