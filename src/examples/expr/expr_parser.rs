@@ -2,12 +2,11 @@
 
 use std::{rc::Rc, any::Any};
 
-use crate::examples::expr::expr_listener::ExprListener;
-use crate::syntaxis::ast::{ASTContext, RuleContext, ASTListener, ASTVisitor, TerminalContext};
-use super::expr_listener::AbstractExprListener;
-use super::expr_visitor::{ExprVisitor, AbstractExprVisitor};
+use crate::syntaxis::ast::{Acceptable, ASTListener, ASTVisitor, TerminalContext, RuleContext};
 
-pub trait ProgContext: ASTContext {
+use super::{expr_listener::{ExprListener, AbstractExprListener}, expr_visitor::{ExprVisitor, AbstractExprVisitor}};
+
+pub trait ProgContext: Acceptable {
   fn stat_list(&self) -> Vec<Rc<dyn StatContext>>;
 
   fn stat(&self, i: usize) -> Rc<dyn StatContext>;
@@ -18,10 +17,10 @@ pub trait ProgContext: ASTContext {
 
   fn exit_rule(&self, listener: &dyn ASTListener);
 
-  fn accept(&self, visitor: &dyn ASTVisitor) -> Rc<dyn Any>;
+  fn accept(&self, visitor: &dyn ASTVisitor) -> Box<dyn Any>;
 }
 
-pub trait StatContext: ASTContext {
+pub trait StatContext: Acceptable {
   fn expr(&self) -> Rc<dyn ExprContext>;
 
   fn newline(&self) -> Rc<TerminalContext>;
@@ -34,10 +33,10 @@ pub trait StatContext: ASTContext {
 
   fn exit_rule(&self, listener: &dyn ASTListener);
 
-  fn accept(&self, visitor: &dyn ASTVisitor) -> Rc<dyn Any>;
+  fn accept(&self, visitor: &dyn ASTVisitor) -> Box<dyn Any>;
 }
 
-pub trait ExprContext: ASTContext {
+pub trait ExprContext: Acceptable {
   fn int(&self) -> Rc<TerminalContext>;
 
   fn id(&self) -> Rc<TerminalContext>;
@@ -52,7 +51,7 @@ pub trait ExprContext: ASTContext {
 
   fn exit_rule(&self, listener: &dyn ASTListener);
 
-  fn accept(&self, visitor: &dyn ASTVisitor) -> Rc<dyn Any>;
+  fn accept(&self, visitor: &dyn ASTVisitor) -> Box<dyn Any>;
 }
 
 
@@ -79,7 +78,7 @@ impl ProgContext for RuleContext {
     }
   }
 
-  fn accept(&self, visitor: &dyn ASTVisitor) -> Rc<dyn Any> { 
+  fn accept(&self, visitor: &dyn ASTVisitor) -> Box<dyn Any> { 
     if visitor.as_any().is::<ExprVisitor>() {
       visitor.as_any().downcast_ref::<ExprVisitor>().unwrap().visit_prog(self)
     } else {
@@ -107,7 +106,7 @@ impl StatContext for RuleContext {
     }
   }
 
-  fn accept(&self, visitor: &dyn ASTVisitor) -> Rc<dyn Any> { 
+  fn accept(&self, visitor: &dyn ASTVisitor) -> Box<dyn Any> { 
     if visitor.as_any().is::<ExprVisitor>() {
       visitor.as_any().downcast_ref::<ExprVisitor>().unwrap().visit_stat(self)
     } else {
@@ -139,7 +138,7 @@ impl ExprContext for RuleContext {
     }
   }
 
-  fn accept(&self, visitor: &dyn ASTVisitor) -> Rc<dyn Any> { 
+  fn accept(&self, visitor: &dyn ASTVisitor) -> Box<dyn Any> { 
     if visitor.as_any().is::<ExprVisitor>() {
       visitor.as_any().downcast_ref::<ExprVisitor>().unwrap().visit_expr(self)
     } else {

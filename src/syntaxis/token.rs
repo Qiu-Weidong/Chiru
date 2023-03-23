@@ -1,6 +1,7 @@
 
 pub struct Position {
-  line: usize, char_position: usize
+  line: usize, 
+  char_position: usize,
 }
 
 
@@ -22,7 +23,7 @@ pub struct Token {
 
   // token 开始的字符序号和最后一个字符的序号，左闭右开
   pub char_start_index: usize,
-  pub char_stop_index: usize
+  pub char_stop_index: usize,
 }
 
 
