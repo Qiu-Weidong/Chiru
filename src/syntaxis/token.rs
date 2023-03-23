@@ -1,7 +1,7 @@
 
 pub struct Position {
-  line: usize, 
-  char_position: usize,
+  pub line: usize, 
+  pub char_position: usize,
 }
 
 
