@@ -1,6 +1,6 @@
 use std::any::Any;
 
-use super::{to_any::ToAny, ast::{rule_context::RuleContext, terminal_context::TerminalContext, error_context::ErrorContext, acceptable::Acceptable}};
+use super::{to_any::ToAny, ast::{rule_context::RuleContext, terminal_context::TerminalContext, error_context::ErrorContext}};
 
 pub trait ASTVisitor: ToAny {
   /**
@@ -10,7 +10,7 @@ pub trait ASTVisitor: ToAny {
    * 
    * 这里的 visit 函数手动实现了多态的功能, 当需要多态的时候, 都可以调用该函数
    */
-  fn visit(&self, ast: &dyn Acceptable) -> Box<dyn Any>;
+  fn visit(&self, ast: &dyn Any) -> Box<dyn Any>;
 
   fn visit_children(&self, context: &RuleContext) -> Box<dyn Any>;
 

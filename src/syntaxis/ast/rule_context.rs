@@ -2,7 +2,7 @@ use std::{rc::Rc, any::Any};
 
 use crate::syntaxis::{to_any::ToAny, listener::ASTListener};
 
-use super::{terminal_context::TerminalContext, error_context::ErrorContext, acceptable::Acceptable};
+use super::{terminal_context::TerminalContext, error_context::ErrorContext};
 
 
 pub struct RuleContext {
@@ -20,16 +20,13 @@ impl ToAny for RuleContext {
 }
 
 
-impl Acceptable for RuleContext {
-  fn accept(&self, visitor: &dyn crate::syntaxis::visitor::ASTVisitor) -> Box<dyn Any> {
-    // 不要调用 visit_children, 调用 visit, visit会根据 ctx 的类型调用对应的 visit_xxx 函数
-    visitor.visit(self)
-  }
-}
-
-
 // 其他函数
 impl RuleContext {
+  pub fn accept(&self, visitor: &dyn crate::syntaxis::visitor::ASTVisitor) -> Box<dyn Any> {
+    // 不要调用 visit_children, 调用 visit, visit会根据 ctx 的类型调用对应的 visit_xxx 函数
+    visitor.visit(self.as_any())
+  }
+
   pub fn add_child(&mut self, child: Rc<dyn Any>) { self.children.push(child) }
 
   pub fn get_child(&self, index: usize) -> Option<Rc<dyn Any>> { 

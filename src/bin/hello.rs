@@ -1,6 +1,6 @@
 use std::{rc::Rc, any::Any};
 
-use syntaxis::syntaxis::{ast::{acceptable::Acceptable, rule_context::RuleContext, terminal_context::TerminalContext, error_context::ErrorContext}, listener::ASTListener, visitor::ASTVisitor, to_any::ToAny};
+use syntaxis::syntaxis::{ast::{rule_context::RuleContext, terminal_context::TerminalContext, error_context::ErrorContext}, listener::ASTListener, visitor::ASTVisitor, to_any::ToAny};
 
 /*
  * 定义一个 expr 语法来测试
@@ -22,11 +22,25 @@ impl ExprParser {
   fn expr(&self) -> Rc<dyn ExprContext> {
     todo!()
   }
+
+  fn stat(&self) -> Rc<dyn StatContext> {
+    todo!()
+  }
 }
 
-pub trait ExprContext: Acceptable {
+pub trait ExprContext: ToAny {
   fn expr_list(&self) -> Vec<Rc<dyn ExprContext>>;
 
+  fn get_rule_index(&self) -> usize { ExprParser::RULE_EXPR }
+
+  fn enter_rule(&self, listener: &dyn ASTListener);
+
+  fn exit_rule(&self, listener: &dyn ASTListener);
+
+  fn accept(&self, visitor: &dyn ASTVisitor) -> Box<dyn Any>;
+}
+
+pub trait StatContext: ToAny {
   fn get_rule_index(&self) -> usize { ExprParser::RULE_EXPR }
 
   fn enter_rule(&self, listener: &dyn ASTListener);
@@ -64,6 +78,19 @@ impl ExprContext for RuleContext {
   }
 }
 
+impl StatContext for RuleContext {
+  fn enter_rule(&self, listener: &dyn ASTListener) {
+    todo!()
+  }
+
+  fn exit_rule(&self, listener: &dyn ASTListener) {
+    todo!()
+  }
+
+  fn accept(&self, visitor: &dyn ASTVisitor) -> Box<dyn Any> {
+    todo!()
+  }
+}
 
 // expr_listener.rs
 pub struct ExprListener {}
@@ -96,9 +123,7 @@ impl ToAny for ExprVisitor {
 }
 
 impl ASTVisitor for ExprVisitor {
-  fn visit(&self, ast: &dyn Acceptable) -> Box<dyn Any> {
-    // 首先转换为 any
-    let ast = ast.as_any();
+  fn visit(&self, ast: &dyn Any) -> Box<dyn Any> {
 
     if ast.is::<TerminalContext>() {
       let ast = ast.downcast_ref::<TerminalContext>().unwrap();
@@ -112,7 +137,7 @@ impl ASTVisitor for ExprVisitor {
       let ast = ast.downcast_ref::<RuleContext>().unwrap();
       return match ast.get_rule_index() {
         // 根据 rule index 选择合适的 visit 函数
-        ExprParser::RULE_EXPR => ExprContext::accept(ast, self),
+        ExprParser::RULE_EXPR => (ast as &dyn ExprContext).accept(self),
         _ => todo!()
       }
     }
@@ -159,13 +184,17 @@ fn main() {
   let parser = ExprParser {};
 
 
-  // let ast: &dyn Acceptable = parser.expr().as_ref();
+  let ast = parser.expr();
 
   let visitor = ExprVisitor {};
 
+  ast.accept(&visitor);
 
-  // ast.accept(&visitor);
-  // visitor.visit(ast);
+  let ast = parser.stat();
+  ast.accept(&visitor);
+
+  let ast = ast.as_any().downcast_ref::<RuleContext>().unwrap();
+  ast.accept(&visitor);
 
 }
 

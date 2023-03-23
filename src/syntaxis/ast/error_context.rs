@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use crate::syntaxis::{token::Token, to_any::ToAny};
 
-use super::{rule_context::RuleContext, acceptable::Acceptable};
+use super::{rule_context::RuleContext};
 
 
 
@@ -20,8 +20,8 @@ impl ToAny for ErrorContext {
   fn as_any_mut(&mut self) ->  &mut dyn std::any::Any { self }
 }
 
-impl Acceptable for ErrorContext {
-  fn accept(&self, visitor: &dyn crate::syntaxis::visitor::ASTVisitor) -> Box<dyn std::any::Any> {
+impl ErrorContext {
+  pub fn accept(&self, visitor: &dyn crate::syntaxis::visitor::ASTVisitor) -> Box<dyn std::any::Any> {
     visitor.visit_errornode(self)
   }
 }
