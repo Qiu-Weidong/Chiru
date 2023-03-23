@@ -6,6 +6,18 @@ use crate::syntaxis::ast::{Acceptable, ASTListener, ASTVisitor, TerminalContext,
 
 use super::{expr_listener::{ExprListener, AbstractExprListener}, expr_visitor::{ExprVisitor, AbstractExprVisitor}};
 
+pub struct ExprParser {
+
+}
+
+impl ExprParser {
+  const RULE_PROG: usize = 0; 
+  const RULE_STAT: usize = 1; 
+  const RULE_EXPR: usize = 2;
+}
+
+
+
 pub trait ProgContext: Acceptable {
   fn stat_list(&self) -> Vec<Rc<dyn StatContext>>;
 
@@ -64,7 +76,7 @@ impl ProgContext for RuleContext {
 
   fn stat(&self, _i: usize) -> Rc<dyn StatContext> { todo!() }
 
-  fn get_rule_index(&self) -> usize { todo!() }
+  fn get_rule_index(&self) -> usize { ExprParser::RULE_PROG }
 
   fn enter_rule(&self, listener: &dyn ASTListener) { 
     if listener.as_any().is::<ExprListener>() {
@@ -92,7 +104,7 @@ impl StatContext for RuleContext {
   fn newline(&self) -> Rc<TerminalContext> { todo!() }
   fn id(&self) -> Rc<TerminalContext> { todo!() }
 
-  fn get_rule_index(&self) -> usize { todo!() }
+  fn get_rule_index(&self) -> usize { ExprParser::RULE_STAT }
 
   fn enter_rule(&self, listener: &dyn ASTListener) { 
     if listener.as_any().is::<ExprListener>() {
@@ -124,7 +136,7 @@ impl ExprContext for RuleContext {
 
   fn expr(&self, _i: usize) -> Rc<dyn ExprContext> { todo!() }
 
-  fn get_rule_index(&self) -> usize { todo!() }
+  fn get_rule_index(&self) -> usize { ExprParser::RULE_EXPR }
 
   fn enter_rule(&self, listener: &dyn ASTListener) { 
     if listener.as_any().is::<ExprListener>() {

@@ -1,31 +1,44 @@
 // use regex::Regex;
-use std::{rc::Rc, any::Any};
+// use std::{rc::Rc, any::Any};
 
-pub trait Trait: Any {
-  fn as_any(&self) -> &dyn Any;
 
-  fn as_any_mut(&mut self) -> &mut dyn Any;
+pub trait Animal {
+  fn eat(&self) {  
+    println!("animal eat.")
+  }
+
+  // fn eat(&self);
 }
 
-pub struct Hello {}
-
-impl Trait for Hello {
-  fn as_any(&self) -> &dyn Any {
-    self as &dyn Any 
+pub trait Cat: Animal {
+  fn eat(&self) {
+    println!("cat eat.")
   }
+}
 
-  fn as_any_mut(&mut self) -> &mut dyn Any {
-    self as &mut dyn Any 
+pub trait Tiger: Animal {
+  fn eat(&self) { 
+    println!("tiger eat.")
   }
+}
 
+pub struct Tom;
+impl Animal for Tom {}
+
+impl Cat for Tom {}
+impl Tiger for Tom {}
+
+impl Tom {
+  fn eat(&self) {
+    println!("Tom eat.")
+  }
 }
 
 
 fn main() {
 
-  let hello = Hello {};
-  let rc1 = Rc::new(hello);
-  let rc2: Rc<dyn Trait> = Rc::new(Hello {});
+  let animal: &dyn Animal = &Tom {};
+  animal.eat();
 
   // let s = String::from("hello world!");
   // println!("{}", s);

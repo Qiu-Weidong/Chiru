@@ -34,8 +34,8 @@ impl ASTVisitor for ExprVisitor {
       // 只能够分别判断是否是 RuleContext, TernimalContext, ErrorContext 。
       if child.is::<RuleContext>() {
         let child = Rc::clone(child).downcast::<RuleContext>().unwrap();
-        // result = child.accept(self);
-        todo!()
+        // 虽然这里用不了 accept ，但是可以用 visit 。
+        result = self.visit(child.as_ref());
       }
       else if child.is::<TerminalContext>() {
         let child = Rc::clone(child).downcast::<TerminalContext>().unwrap();
@@ -50,9 +50,7 @@ impl ASTVisitor for ExprVisitor {
     result
   }
 
-  fn default_result(&self) -> Box<dyn Any> {
-    todo!()
-  }
+  fn default_result(&self) -> Box<dyn Any> { Box::new(()) }
 
   fn as_any(&self) -> &dyn Any {
     self as &dyn Any 
