@@ -1,5 +1,5 @@
 pub mod syntaxis;
-pub mod examples;
+// pub mod examples;
 
 
 
