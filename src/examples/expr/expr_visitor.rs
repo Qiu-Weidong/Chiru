@@ -22,7 +22,17 @@ pub struct ExprVisitor {
 }
 
 impl ASTVisitor for ExprVisitor {
-  fn visit(&self, ast: &dyn Acceptable) -> Box<dyn Any> { ast.accept(self) }
+  /*
+   * 这个函数需要能够传入 TerminalContext, ErrorContext以及RuleContext 
+   * xxx_visitor.visit(xxx_context) 需要和 xxx_context.accept(xxx_visitor) 等价
+   */
+
+  fn visit(&self, ast: &dyn Acceptable) -> Box<dyn Any> { 
+    // 使用 if 做条件判断，从而调用相应的 visit_xxx 函数。
+
+    // 对于 Terminal 和 Error 可以正确调用，但对于 Rule 则会调用 visit_children，而不会进行相关处理。
+    ast.accept(self) 
+  }
 
   fn visit_children(&self, context: &crate::syntaxis::ast::RuleContext) -> Box<dyn Any>  {
     let mut result = self.default_result();

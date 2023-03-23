@@ -2,43 +2,14 @@
 // use std::{rc::Rc, any::Any};
 
 
-pub trait Animal {
-  fn eat(&self) {  
-    println!("animal eat.")
-  }
-
-  // fn eat(&self);
-}
-
-pub trait Cat: Animal {
-  fn eat(&self) {
-    println!("cat eat.")
-  }
-}
-
-pub trait Tiger: Animal {
-  fn eat(&self) { 
-    println!("tiger eat.")
-  }
-}
-
-pub struct Tom;
-impl Animal for Tom {}
-
-impl Cat for Tom {}
-impl Tiger for Tom {}
-
-impl Tom {
-  fn eat(&self) {
-    println!("Tom eat.")
-  }
-}
 
 
 fn main() {
 
-  let animal: &dyn Animal = &Tom {};
-  animal.eat();
+
+  // 必须要明确指定调用哪个函数
+  // cat.eat();
+
 
   // let s = String::from("hello world!");
   // println!("{}", s);
