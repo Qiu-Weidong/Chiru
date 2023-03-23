@@ -1,5 +1,6 @@
 
-use super::{to_any::ToAny, ast::{rule_context::RuleContext, terminal_context::TerminalContext, error_context::ErrorContext}};
+
+use crate::syntaxis::{ast::{terminal_context::TerminalContext, error_context::ErrorContext, rule_context::RuleContext}, to_any::ToAny};
 
 
 pub trait ASTListener: ToAny {

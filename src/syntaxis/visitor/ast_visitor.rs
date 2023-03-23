@@ -1,6 +1,7 @@
 use std::any::Any;
 
-use super::{to_any::ToAny, ast::{rule_context::RuleContext, terminal_context::TerminalContext, error_context::ErrorContext}};
+
+use crate::syntaxis::{to_any::ToAny, ast::{rule_context::RuleContext, terminal_context::TerminalContext, error_context::ErrorContext}};
 
 pub trait ASTVisitor: ToAny {
   /**

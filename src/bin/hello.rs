@@ -1,6 +1,6 @@
 use std::{rc::Rc, any::Any};
 
-use syntaxis::syntaxis::{ast::{rule_context::RuleContext, terminal_context::TerminalContext, error_context::ErrorContext}, listener::ASTListener, visitor::ASTVisitor, to_any::ToAny};
+use syntaxis::syntaxis::{ast::{rule_context::RuleContext, terminal_context::TerminalContext, error_context::ErrorContext}, to_any::ToAny, listener::ast_listener::ASTListener, visitor::ast_visitor::ASTVisitor};
 
 /*
  * 定义一个 expr 语法来测试
@@ -190,11 +190,19 @@ fn main() {
 
   ast.accept(&visitor);
 
+  visitor.visit(ast.as_any());
+
   let ast = parser.stat();
   ast.accept(&visitor);
 
+  visitor.visit(ast.as_any());
+
   let ast = ast.as_any().downcast_ref::<RuleContext>().unwrap();
   ast.accept(&visitor);
+
+  visitor.visit(ast.as_any());
+
+
 
 }
 

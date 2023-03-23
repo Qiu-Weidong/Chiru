@@ -1,6 +1,6 @@
 use std::{rc::Rc, any::Any};
 
-use crate::syntaxis::{to_any::ToAny, listener::ASTListener};
+use crate::syntaxis::{to_any::ToAny, listener::ast_listener::ASTListener, visitor::ast_visitor::ASTVisitor};
 
 use super::{terminal_context::TerminalContext, error_context::ErrorContext};
 
@@ -22,7 +22,7 @@ impl ToAny for RuleContext {
 
 // 其他函数
 impl RuleContext {
-  pub fn accept(&self, visitor: &dyn crate::syntaxis::visitor::ASTVisitor) -> Box<dyn Any> {
+  pub fn accept(&self, visitor: &dyn ASTVisitor) -> Box<dyn Any> {
     // 不要调用 visit_children, 调用 visit, visit会根据 ctx 的类型调用对应的 visit_xxx 函数
     visitor.visit(self.as_any())
   }
@@ -121,5 +121,12 @@ impl RuleContext {
     result
   }
 
+}
+
+
+impl ToString for RuleContext {
+  fn to_string(&self) -> String {
+    todo!()
+  }
 }
 

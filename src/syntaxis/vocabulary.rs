@@ -7,16 +7,16 @@ pub struct Vocabulary {
 }
 
 impl Vocabulary {
-  fn get_literal_name(&self, token_type: usize) -> &str {
-    todo!()
+  pub fn get_literal_name(&self, token_type: usize) -> &str {
+    &self.literal_names[token_type]
   }
 
-  fn get_symbolic_name(&self, token_type: usize) -> &str {
-    todo!()
+  pub fn get_symbolic_name(&self, token_type: usize) -> &str {
+    &self.symbolic_names[token_type]
   }
 
-  fn get_display_name(&self, token_type: usize) -> &str {
-    todo!()
+  pub fn get_display_name(&self, token_type: usize) -> &str {
+    &self.display_names[token_type]
   }
 }
 
