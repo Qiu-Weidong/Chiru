@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::syntaxis::{token::Token, to_any::ToAny, visitor::ast_visitor::ASTVisitor};
+use crate::syntaxis::{token::Token, to_any::ToAny};
 
 use super::rule_context::RuleContext;
 
@@ -20,11 +20,11 @@ impl ToAny for ErrorContext {
   fn as_any_mut(&mut self) ->  &mut dyn std::any::Any { self }
 }
 
-impl ErrorContext {
-  pub fn accept(&self, visitor: &dyn ASTVisitor) -> Box<dyn std::any::Any> {
-    visitor.visit_errornode(self)
-  }
-}
+// impl ErrorContext {
+//   pub fn accept(&self, visitor: &dyn ASTVisitor) -> Box<dyn std::any::Any> {
+//     visitor.visit_errornode(self)
+//   }
+// }
 
 
 impl ToString for ErrorContext {

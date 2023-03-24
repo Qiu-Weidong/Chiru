@@ -1,4 +1,4 @@
-use crate::syntaxis::{token::Token, to_any::ToAny, visitor::ast_visitor::ASTVisitor};
+use crate::syntaxis::{token::Token, to_any::ToAny};
 use std::rc::Rc;
 
 use super::rule_context::RuleContext;
@@ -17,11 +17,11 @@ impl ToAny for TerminalContext {
   fn as_any_mut(&mut self) ->  &mut dyn std::any::Any { self }
 }
 
-impl TerminalContext {
-  pub fn accept(&self, visitor: &dyn ASTVisitor) -> Box<dyn std::any::Any> {
-    visitor.visit_terminal(self)
-  }
-}
+// impl TerminalContext {
+//   pub fn accept(&self, visitor: &dyn ASTVisitor) -> Box<dyn std::any::Any> {
+//     visitor.visit_terminal(self)
+//   }
+// }
 
 impl ToString for TerminalContext {
   fn to_string(&self) -> String {
