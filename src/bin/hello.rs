@@ -52,7 +52,11 @@ pub trait StatContext: ToAny {
 
 impl ExprContext for RuleContext {
   fn expr_list(&self) -> Vec<Rc<dyn ExprContext>> {
-    todo!()
+    let mut result = Vec::new();
+    for context in self.get_rule_contexts(ExprParser::RULE_EXPR).iter() {
+      result.push(Rc::clone(context) as Rc<dyn ExprContext>);
+    }
+    result
   }
 
   fn enter_rule(&self, listener: &dyn ASTListener) {
