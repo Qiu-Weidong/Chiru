@@ -1,8 +1,6 @@
 use std::{rc::Rc, any::Any};
 
-use syntaxis::syntaxis::ast::{rule_context::RuleContext, terminal_context::TerminalContext, error_context::ErrorContext};
-
-
+use syntaxis::syntaxis::ast::{rule_context::RuleContext, terminal_context::TerminalContext, error_context::ErrorContext, ast_context::ASTContext};
 
 /*
  * 定义一个 expr 语法来测试
@@ -14,6 +12,8 @@ use syntaxis::syntaxis::ast::{rule_context::RuleContext, terminal_context::Termi
  *   | Number
  * ;
  */
+
+
 
 // expr_parser.rs
 pub struct HelloParser {}
@@ -31,7 +31,15 @@ impl HelloParser {
   }
 }
 
-pub trait ExprContext {
+
+
+
+
+
+
+
+
+pub trait ExprContext: HelloAcceptable + HelloWalkable {
   fn expr_list(&self) -> Vec<Rc<dyn ExprContext>>;
 
 
@@ -40,14 +48,9 @@ pub trait ExprContext {
 
   fn get_rule_index(&self) -> usize { HelloParser::RULE_EXPR }
 
-  fn enter_rule(&self, listener: &dyn HelloListener);
-
-  fn exit_rule(&self, listener: &dyn HelloListener);
-
-  fn accept(&self, visitor: &dyn HelloVisitor) -> Box<dyn Any>;
 }
 
-pub trait StatContext {
+pub trait StatContext: HelloAcceptable + HelloWalkable {
 
 
 
@@ -55,11 +58,6 @@ pub trait StatContext {
 
   fn get_rule_index(&self) -> usize { HelloParser::RULE_EXPR }
 
-  fn enter_rule(&self, listener: &dyn HelloListener);
-
-  fn exit_rule(&self, listener: &dyn HelloListener);
-
-  fn accept(&self, visitor: &dyn HelloVisitor) -> Box<dyn Any>;
 }
 
 impl ExprContext for RuleContext {
@@ -72,36 +70,52 @@ impl ExprContext for RuleContext {
   }
 
   fn as_rule_context(&self) -> &RuleContext { self }
-
-  fn enter_rule(&self, listener: &dyn HelloListener) {
-    listener.enter_expr(self)
-  }
-
-  fn exit_rule(&self, listener: &dyn HelloListener) {
-    listener.exit_expr(self)
-  }
-
-  fn accept(&self, visitor: &dyn HelloVisitor) -> Box<dyn Any> {
-    visitor.visit_expr(self)
-  }
 }
 
 impl StatContext for RuleContext {
   fn as_rule_context(&self) -> &RuleContext { self }
 
-  fn enter_rule(&self, _listener: &dyn HelloListener) {
-    todo!()
-  }
 
-  fn exit_rule(&self, _listener: &dyn HelloListener) {
-    todo!()
-  }
-
-  fn accept(&self, visitor: &dyn HelloVisitor) -> Box<dyn Any> {
-    visitor.visit_stat(self)
-  }
 }
 
+
+
+
+
+
+pub trait HelloWalkable {
+  fn enter(&self, listener: &dyn HelloListener) ;
+
+  fn exit(&self, listener: &dyn HelloListener) ;
+}
+
+impl HelloWalkable for RuleContext {
+  fn enter(&self, listener: &dyn HelloListener)  {
+    listener.enter_rule(self)
+  }
+
+  fn exit(&self, listener: &dyn HelloListener)  {
+    listener.exit_rule(self)
+  }
+}
+impl HelloWalkable for TerminalContext {
+  fn enter(&self, listener: &dyn HelloListener)  {
+    listener.enter_terminal(self)
+  }
+
+  fn exit(&self, listener: &dyn HelloListener)  {
+    listener.exit_terminal(self)
+  }
+}
+impl HelloWalkable for ErrorContext {
+  fn enter(&self, listener: &dyn HelloListener) {
+    listener.enter_errornode(self)
+  }
+
+  fn exit(&self, listener: &dyn HelloListener) {
+    listener.exit_errornode(self)
+  }
+}
 
 // expr_listener.rs
 pub trait HelloListener {
@@ -110,9 +124,45 @@ pub trait HelloListener {
   fn exit_expr(&self, _ctx: &dyn ExprContext) {}
 
 
+
+
   fn enter_every_rule(&self, _ctx: &RuleContext) {}
 
   fn exit_every_rule(&self, _ctx: &RuleContext) {}
+
+
+
+  fn enter_rule(&self, ctx: &RuleContext) {
+    // 在这里进行派发即可
+  }
+
+  fn exit_rule(&self, ctx: &RuleContext) {}
+
+  fn enter_terminal(&self, ctx: &TerminalContext) {}
+
+  fn exit_terminal(&self, ctx: &TerminalContext) {}
+
+  fn enter_errornode(&self, ctx: &ErrorContext) {}
+
+  fn exit_errornode(&self, ctx: &ErrorContext) {}
+}
+
+
+
+pub trait HelloWalker {
+  // 类似于 visit 
+  fn walk(&self, listener: &dyn HelloListener, ast: &dyn HelloWalkable) {
+    // listener.enter_every_rule(ast)
+    ast.enter(listener);
+
+
+    ast.exit(listener);
+  }
+
+  // 提供前序遍历和后序遍历
+
+  // fn enter(&self, rule: &dyn HelloWalkable, listener: &dyn HelloListener);
+  // fn exit(&self, rule: &dyn HelloWalkable, listener: &dyn HelloListener);
 }
 
 
@@ -122,24 +172,20 @@ pub trait HelloListener {
 
 
 
-
-
-
-
-pub trait HelloAcceptor {
+pub trait HelloAcceptable {
   fn accept(&self, visitor: &dyn HelloVisitor) -> Box<dyn Any>;
 }
-impl HelloAcceptor for RuleContext {
+impl HelloAcceptable for RuleContext {
   fn accept(&self, visitor: &dyn HelloVisitor) -> Box<dyn Any> {
     visitor.visit_rule(self)
   }
 }
-impl HelloAcceptor for TerminalContext {
+impl HelloAcceptable for TerminalContext {
   fn accept(&self, visitor: &dyn HelloVisitor) -> Box<dyn Any> {
     visitor.visit_terminal(self)
   }
 }
-impl HelloAcceptor for ErrorContext {
+impl HelloAcceptable for ErrorContext {
   fn accept(&self, visitor: &dyn HelloVisitor) -> Box<dyn Any> {
     visitor.visit_errornode(self)
   }
@@ -173,12 +219,20 @@ pub trait HelloVisitor {
 
   fn visit_errornode(&self, _errornode: &ErrorContext) -> Box<dyn Any>  { self.default_result() }
 
-  fn visit(&self, ctx: &dyn HelloAcceptor) -> Box<dyn Any> ;
+  fn visit(&self, ctx: &dyn HelloAcceptable) -> Box<dyn Any> ;
 
   fn visit_children(&self, ctx: &RuleContext) -> Box<dyn Any> {
     let mut result = self.default_result();
     for child in ctx.children.iter() {
-      
+      if ! self.should_visit_next_child(ctx, &result) { break; }
+
+      let child_result = match child {
+        ASTContext::Ternimal(ctx) => self.visit_terminal(ctx),
+        ASTContext::Rule(ctx) => self.visit_rule(ctx),
+        ASTContext::Error(ctx) => self.visit_errornode(ctx),
+      };
+
+      result = self.aggregate_result(result, child_result);
     }
     result
   }
@@ -197,7 +251,7 @@ pub struct HelloBaseVisitor {
 }
 
 impl HelloVisitor for HelloBaseVisitor {
-  fn visit(&self, ctx: &dyn HelloAcceptor) -> Box<dyn Any> {
+  fn visit(&self, ctx: &dyn HelloAcceptable) -> Box<dyn Any> {
     ctx.accept(self)
   }
 }
@@ -217,19 +271,6 @@ fn main() {
   ast.accept(&visitor);
 
   visitor.visit_expr(ast.as_ref());
-  // ExprContext::accept(&ast, &visitor);
-
-  // visitor.visit(ast.as_any());
-
-  // let ast = parser.stat();
-  // ast.accept(&visitor);
-
-  // visitor.visit(ast.as_any());
-
-  // let ast = ast.as_any().downcast_ref::<RuleContext>().unwrap();
-  // ast.accept(&visitor);
-
-  // visitor.visit(ast.as_any());
 
 
 

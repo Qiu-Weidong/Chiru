@@ -2,39 +2,40 @@
 
 use std::rc::Rc;
 
-pub trait Animal {
-  fn eat(&self) { println!("animal eat.") }
+pub trait Animal { // Acceptor
+  fn eat(&self); // { println!("animal eat.") }
 }
 
-struct Cat;
-impl Animal for Cat {
+pub trait Cat: Animal {
+  // fn eat(&self) { println!("cat eat.") }
+}
+
+pub struct Tiger;
+impl Cat for Tiger {}
+impl Animal for Tiger {
   fn eat(&self) {
-    println!("cat eat.")
+    println!("animal eat.")
   }
 }
+
+impl Tiger {
+  fn eat(&self) { println!("tiger eat.") }
+}
+
+// trait 中不要包含 supertrait 中相同的函数。
 
 
 
 fn main() {
 
-  // let s = String::from("hello world!");
-  // println!("{}", s);
-
-
-  // let rc1 = Rc::new(s);
-  // let rc2 = Rc:: 
-
-
-  // let re: Regex = Regex::new(r"
-  // (?xs)
-  //   (?P<login>login) |
-  //   (?P<register>register) |
-  //   (?P<fuck>fuck) | 
-  //   (?<comment>/* .*? */)
-  // ").unwrap();
-
   // 可以实现多态
-  let animal: Rc<dyn Animal> = Rc::new(Cat {});
+  let animal: Rc<dyn Animal> = Rc::new(Tiger {});
+  animal.eat();
+
+  let animal: Rc<dyn Cat> = Rc::new(Tiger {});
+  animal.eat();
+
+  let animal = Rc::new(Tiger {});
   animal.eat();
 }
 
