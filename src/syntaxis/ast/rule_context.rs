@@ -24,7 +24,7 @@ impl ToAny for RuleContext {
 impl RuleContext {
   pub fn accept(&self, visitor: &dyn ASTVisitor) -> Box<dyn Any> {
     // 不要调用 visit_children, 调用 visit, visit会根据 ctx 的类型调用对应的 visit_xxx 函数
-    visitor.visit(self.as_any())
+    visitor.visit_rule(self)
   }
 
   pub fn add_child(&mut self, child: Rc<dyn Any>) { self.children.push(child) }

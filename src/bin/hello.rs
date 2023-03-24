@@ -127,51 +127,15 @@ impl ToAny for ExprVisitor {
 }
 
 impl ASTVisitor for ExprVisitor {
-  fn visit(&self, ast: &dyn Any) -> Box<dyn Any> {
 
-    if ast.is::<TerminalContext>() {
-      let ast = ast.downcast_ref::<TerminalContext>().unwrap();
-      ast.accept(self)
+  // 由 tool 自动生成。
+  fn visit_rule(&self, rule: &RuleContext) -> Box<dyn Any> {
+    match rule.get_rule_index() {
+      // 根据 rule index 选择合适的 visit 函数
+      ExprParser::RULE_EXPR => (rule as &dyn ExprContext).accept(self),
+      _ => self.visit_children(rule),
     }
-    else if ast.is::<ErrorContext>() {
-      let ast = ast.downcast_ref::<ErrorContext>().unwrap();
-      ast.accept(self)
-    }
-    else if ast.is::<RuleContext>() {
-      let ast = ast.downcast_ref::<RuleContext>().unwrap();
-      return match ast.get_rule_index() {
-        // 根据 rule index 选择合适的 visit 函数
-        ExprParser::RULE_EXPR => (ast as &dyn ExprContext).accept(self),
-        _ => todo!()
-      }
-    }
-    else {
-      todo!()
-    }
-    
   }
-
-  fn visit_children(&self, context: &RuleContext) -> Box<dyn Any> {
-    let mut result = self.default_result();
-    
-    for child in context.children.iter() {
-      if child.is::<TerminalContext>() {  
-        let child = Rc::clone(child).downcast::<TerminalContext>().unwrap();
-        result = child.accept(self);
-      }
-      else if child.is::<ErrorContext>() {
-        let child = Rc::clone(child).downcast::<ErrorContext>().unwrap();
-        result = child.accept(self);
-      }
-      else if child.is::<RuleContext>() {
-        let child = Rc::clone(child).downcast::<RuleContext>().unwrap();
-        result = self.visit(child.as_ref());
-      }
-    }
-    
-    result
-  }
-
 }
 
 impl ExprVisitor {

@@ -1,5 +1,19 @@
 // use regex::Regex;
 
+use std::rc::Rc;
+
+pub trait Animal {
+  fn eat(&self) { println!("animal eat.") }
+}
+
+struct Cat;
+impl Animal for Cat {
+  fn eat(&self) {
+    println!("cat eat.")
+  }
+}
+
+
 
 fn main() {
 
@@ -19,12 +33,9 @@ fn main() {
   //   (?<comment>/* .*? */)
   // ").unwrap();
 
-
-  // [1,].len();
-
-  // re.c
-  // let k = 0..1;
-
+  // 可以实现多态
+  let animal: Rc<dyn Animal> = Rc::new(Cat {});
+  animal.eat();
 }
 
 

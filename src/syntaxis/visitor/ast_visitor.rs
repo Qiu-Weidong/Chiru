@@ -11,9 +11,35 @@ pub trait ASTVisitor: ToAny {
    * 
    * 这里的 visit 函数手动实现了多态的功能, 当需要多态的时候, 都可以调用该函数
    */
-  fn visit(&self, ast: &dyn Any) -> Box<dyn Any>;
+  fn visit(&self, ast: &dyn Any) -> Box<dyn Any> {
 
-  fn visit_children(&self, context: &RuleContext) -> Box<dyn Any>;
+    if ast.is::<TerminalContext>() {
+      let ast = ast.downcast_ref::<TerminalContext>().unwrap();
+      self.visit_terminal(ast)
+    }
+    else if ast.is::<ErrorContext>() {
+      let ast = ast.downcast_ref::<ErrorContext>().unwrap();
+      self.visit_errornode(ast)
+    }
+    else if ast.is::<RuleContext>() {
+      let ast = ast.downcast_ref::<RuleContext>().unwrap();
+      self.visit_rule(ast)
+    }
+    else {
+      todo!()
+    }
+    
+  }
+
+  fn visit_children(&self, context: &RuleContext) -> Box<dyn Any> {
+    let mut result = self.default_result();
+    for child in context.children.iter() {
+      result = self.visit(child);
+    }
+    result
+  }
+
+  fn visit_rule(&self, rule: &RuleContext) -> Box<dyn Any>;
 
   fn visit_terminal(&self, _terminal: &TerminalContext) -> Box<dyn Any>  { self.default_result() }
 
