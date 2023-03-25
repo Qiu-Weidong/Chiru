@@ -9,6 +9,11 @@ pub struct ErrorContext {
 }
 
 
+impl ErrorContext {
+  pub fn get_text(&self) -> &str {
+    &self.symbol.text
+  }
+}
 
 impl ToString for ErrorContext {
   fn to_string(&self) -> String {

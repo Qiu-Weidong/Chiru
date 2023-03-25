@@ -1,5 +1,7 @@
-use std::rc::Rc;
+use std::{rc::Rc, fmt::Display};
 
+
+use crate::syntaxis::token::Token;
 
 use super::{terminal_context::TerminalContext, error_context::ErrorContext, ast_context::ASTContext, to_rule::ToRule};
 
@@ -31,22 +33,41 @@ impl RuleContext {
 
   pub fn get_rule_index(&self) -> usize { self.rule_index }
 
-  pub fn get_start_token(&self) -> Option<Rc<TerminalContext>> { 
+  pub fn get_first_terminal(&self) -> Option<Rc<TerminalContext>> { 
     if self.children.len() <= 0 { return None }
     match &self.children[0] {
       ASTContext::Ternimal(ctx) => Some(Rc::clone(ctx)),
-      ASTContext::Rule(ctx) => ctx.get_start_token(),
+      ASTContext::Rule(ctx) => ctx.get_first_terminal(),
       ASTContext::Error(_) => None,
     }
 
   }
 
-  pub fn get_stop_token(&self) -> Option<Rc<TerminalContext>> { 
+  pub fn get_last_terminal(&self) -> Option<Rc<TerminalContext>> { 
     if self.children.len() <= 0 { return None }
     match &self.children.last().unwrap() {
       ASTContext::Ternimal(ctx) => Some(Rc::clone(ctx)),
-      ASTContext::Rule(ctx) => ctx.get_start_token(),
+      ASTContext::Rule(ctx) => ctx.get_last_terminal(),
       ASTContext::Error(_) => None,
+    }
+  }
+
+  pub fn get_start_token(&self) -> Option<Token> {
+    if self.children.len() <= 0 { return None }
+    match &self.children[0] {
+      ASTContext::Ternimal(ctx) => Some(ctx.symbol.clone()),
+      ASTContext::Rule(ctx) => ctx.get_start_token(),
+      ASTContext::Error(ctx) => Some(ctx.symbol.clone()),
+    }
+
+  }
+
+  pub fn get_stop_token(&self) -> Option<Token> {
+    if self.children.len() <= 0 { return None }
+    match self.children.last().unwrap() {
+      ASTContext::Ternimal(ctx) => Some(ctx.symbol.clone()),
+      ASTContext::Rule(ctx) => ctx.get_stop_token(),
+      ASTContext::Error(ctx) => Some(ctx.symbol.clone()),
     }
   }
 
@@ -95,12 +116,27 @@ impl RuleContext {
     result
   }
 
-}
 
-
-impl ToString for RuleContext {
-  fn to_string(&self) -> String {
-    todo!()
+  pub fn get_text<'a>(&self, input: &'a str) -> &'a str { 
+    let start = self.get_start_token();
+    if let None = start { return &input[0..0] }
+    let start = start.unwrap();
+    let stop = self.get_stop_token();
+    if let None = stop { return &input[0..0] }
+    let stop = stop.unwrap();
+    &input[start.char_start_index .. stop.char_stop_index]
   }
 }
 
+
+// impl ToString for RuleContext {
+//   fn to_string(&self) -> String {
+//     todo!()
+//   }
+// }
+
+impl Display for RuleContext {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    todo!()
+  }
+}

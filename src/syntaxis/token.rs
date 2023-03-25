@@ -1,10 +1,12 @@
+use std::fmt::Display;
 
+#[derive(Clone)]
 pub struct Position {
   pub line: usize, 
   pub char_position: usize,
 }
 
-
+#[derive(Clone)]
 pub struct Token {
   pub token_type: usize, 
 
@@ -27,14 +29,12 @@ pub struct Token {
 }
 
 
-impl ToString for Token {
-  fn to_string(&self) -> String {
+impl Display for Token {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    // write!(f, "[@{}")
     todo!()
   }
 }
-
-
-
 
 
 
