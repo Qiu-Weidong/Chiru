@@ -1,7 +1,7 @@
 use std::{rc::Rc, fmt::Display};
 
 
-use crate::syntaxis::token::Token;
+use crate::runtime::token::Token;
 
 use super::{terminal_context::TerminalContext, error_context::ErrorContext, ast_context::ASTContext, to_rule::ToRule};
 
