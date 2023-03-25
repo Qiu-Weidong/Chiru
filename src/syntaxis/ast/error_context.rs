@@ -1,4 +1,6 @@
 
+use std::fmt::Display;
+
 use crate::syntaxis::token::Token;
 
 
@@ -15,10 +17,8 @@ impl ErrorContext {
   }
 }
 
-impl ToString for ErrorContext {
-  fn to_string(&self) -> String {
-    todo!()
+impl Display for ErrorContext {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "{}", self.symbol.token_name)
   }
 }
-
-

@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::syntaxis::token::Token;
 
 
@@ -12,9 +14,8 @@ impl TerminalContext {
 }
 
 
-impl ToString for TerminalContext {
-  fn to_string(&self) -> String {
-    todo!()
+impl Display for TerminalContext {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "{}", self.symbol.token_name)
   }
 }
-

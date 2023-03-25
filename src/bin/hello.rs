@@ -26,9 +26,9 @@ impl HelloParser {
     todo!()
   }
 
-  fn stat(&self) -> Rc<dyn StatContext> {
-    todo!()
-  }
+  // fn stat(&self) -> Rc<dyn StatContext> {
+  //   todo!()
+  // }
 }
 
 

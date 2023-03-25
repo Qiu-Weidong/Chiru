@@ -7,6 +7,7 @@ use super::{terminal_context::TerminalContext, error_context::ErrorContext, ast_
 
 
 pub struct RuleContext {
+  pub rule_name: String,
   pub children: Vec<ASTContext>,
 
   // 可能需要添加一个 rule id
@@ -71,12 +72,12 @@ impl RuleContext {
     }
   }
 
-  pub fn get_token(&self, token_type: usize, i: usize) -> Option<Rc<TerminalContext>> {
-    let tokens = self.get_tokens(token_type);
+  pub fn get_terminal(&self, token_type: usize, i: usize) -> Option<Rc<TerminalContext>> {
+    let tokens = self.get_terminals(token_type);
     if i < tokens.len() { Some(Rc::clone(&tokens[i])) } else { None }
   }
 
-  pub fn get_tokens(&self, token_type: usize) -> Vec<Rc<TerminalContext>> { 
+  pub fn get_terminals(&self, token_type: usize) -> Vec<Rc<TerminalContext>> { 
     let mut result = Vec::new();
     for child in self.children.iter() {
       if let ASTContext::Ternimal(child) = child {
@@ -128,15 +129,14 @@ impl RuleContext {
   }
 }
 
-
-// impl ToString for RuleContext {
-//   fn to_string(&self) -> String {
-//     todo!()
-//   }
-// }
-
 impl Display for RuleContext {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    todo!()
+    let mut result = String::new();
+    for child in self.children.iter() {
+      result += &format!("{} ", child);
+    }
+
+
+    write!(f, "{} ({})", self.rule_name, result)
   }
 }

@@ -6,9 +6,16 @@ pub struct Position {
   pub char_position: usize,
 }
 
+impl Display for Position {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "line: {}, position: {}", self.line, self.char_position)
+  }
+}
+
 #[derive(Clone)]
 pub struct Token {
   pub token_type: usize, 
+  pub token_name: String,
 
   // 起始位置和结束位置，左闭右开，行号从0开始编号
   pub start: Position,
@@ -31,8 +38,15 @@ pub struct Token {
 
 impl Display for Token {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    // write!(f, "[@{}")
-    todo!()
+    write!(f, "[@{}, {}:{}='{}', <{}>, start: <{}>, stop: <{}>]", 
+      self.token_index, 
+      self.char_start_index, 
+      self.char_stop_index,
+      self.text,
+      self.token_type,
+      self.start,
+      self.stop
+    )
   }
 }
 
