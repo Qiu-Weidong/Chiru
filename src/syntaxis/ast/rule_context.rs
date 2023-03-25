@@ -1,42 +1,30 @@
 use std::rc::Rc;
 
-use crate::syntaxis::to_any::ToAny;
 
-use super::{terminal_context::TerminalContext, error_context::ErrorContext, ast_context::ASTContext};
+use super::{terminal_context::TerminalContext, error_context::ErrorContext, ast_context::ASTContext, to_rule::ToRule};
 
 
 pub struct RuleContext {
-  pub parent: Option<Rc<RuleContext>>, 
   pub children: Vec<ASTContext>,
 
   // 可能需要添加一个 rule id
   pub rule_index: usize,
 }
 
-impl ToAny for RuleContext {
-  fn as_any(&self) -> &dyn std::any::Any { self }
+impl ToRule for RuleContext {
+  fn as_mut_rule(&mut self) -> &mut RuleContext {
+    self
+  }
 
-  fn as_any_mut(&mut self) ->  &mut dyn std::any::Any { self }
+  fn as_rule(&self) -> &RuleContext {
+    self
+  }
+
 }
 
 
 // 其他函数
 impl RuleContext {
-  // pub fn accept(&self, visitor: &dyn ASTVisitor) -> Box<dyn Any> {
-  //   // 不要调用 visit_children, 调用 visit, visit会根据 ctx 的类型调用对应的 visit_xxx 函数
-  //   visitor.visit_rule(self)
-  // }
-
-  // pub fn add_child(&mut self, child: Rc<dyn Any>) { self.children.push(child) }
-
-  // pub fn get_child(&self, index: usize) -> Option<Rc<dyn Any>> { 
-  //   if self.children.len() <= index {None} 
-  //   else { 
-  //     let result = Rc::clone( &self.children[index]);
-  //     Some(result)
-  //   }  
-  // }
-
   pub fn get_children(&self) -> &Vec<ASTContext> { &self.children }
 
   pub fn get_child_count(&self) -> usize { self.children.len() }
@@ -91,10 +79,6 @@ impl RuleContext {
     }
     result
   }
-
-  // pub fn enter_rule(&self, _listener: &dyn ASTListener) {}
-
-  // pub fn exit_rule(&self, _listener: &dyn ASTListener) {}
 
   pub fn get_rule_context(&self, rule_type: usize, index: usize) -> Option<Rc<RuleContext>> {  
     let rules = self.get_rule_contexts(rule_type);

@@ -1,6 +1,6 @@
 use std::{rc::Rc, any::Any};
 
-use syntaxis::syntaxis::ast::{rule_context::RuleContext, terminal_context::TerminalContext, error_context::ErrorContext, ast_context::ASTContext};
+use syntaxis::syntaxis::ast::{rule_context::RuleContext, terminal_context::TerminalContext, error_context::ErrorContext, ast_context::ASTContext, to_rule::ToRule};
 
 /*
  * 定义一个 expr 语法来测试
@@ -39,22 +39,17 @@ impl HelloParser {
 
 
 
-pub trait ExprContext: HelloAcceptable + HelloWalkable {
+pub trait ExprContext: HelloAcceptor + ToRule {
   fn expr_list(&self) -> Vec<Rc<dyn ExprContext>>;
 
-
-
-  fn as_rule_context(&self) -> &RuleContext;
 
   fn get_rule_index(&self) -> usize { HelloParser::RULE_EXPR }
 
 }
 
-pub trait StatContext: HelloAcceptable + HelloWalkable {
+pub trait StatContext: HelloAcceptor + ToRule {
 
 
-
-  fn as_rule_context(&self) -> &RuleContext ;
 
   fn get_rule_index(&self) -> usize { HelloParser::RULE_EXPR }
 
@@ -69,53 +64,16 @@ impl ExprContext for RuleContext {
     result
   }
 
-  fn as_rule_context(&self) -> &RuleContext { self }
+  // fn as_rule_context(&self) -> &RuleContext { self }
 }
 
 impl StatContext for RuleContext {
-  fn as_rule_context(&self) -> &RuleContext { self }
 
+  // fn as_rule_context(&self) -> &RuleContext { self }
 
 }
 
 
-
-
-
-
-pub trait HelloWalkable {
-  fn enter(&self, listener: &dyn HelloListener) ;
-
-  fn exit(&self, listener: &dyn HelloListener) ;
-}
-
-impl HelloWalkable for RuleContext {
-  fn enter(&self, listener: &dyn HelloListener)  {
-    listener.enter_rule(self)
-  }
-
-  fn exit(&self, listener: &dyn HelloListener)  {
-    listener.exit_rule(self)
-  }
-}
-impl HelloWalkable for TerminalContext {
-  fn enter(&self, listener: &dyn HelloListener)  {
-    listener.enter_terminal(self)
-  }
-
-  fn exit(&self, listener: &dyn HelloListener)  {
-    listener.exit_terminal(self)
-  }
-}
-impl HelloWalkable for ErrorContext {
-  fn enter(&self, listener: &dyn HelloListener) {
-    listener.enter_errornode(self)
-  }
-
-  fn exit(&self, listener: &dyn HelloListener) {
-    listener.exit_errornode(self)
-  }
-}
 
 // expr_listener.rs
 pub trait HelloListener {
@@ -126,66 +84,102 @@ pub trait HelloListener {
 
 
 
+
+
+
   fn enter_every_rule(&self, _ctx: &RuleContext) {}
 
   fn exit_every_rule(&self, _ctx: &RuleContext) {}
 
 
 
+
+
+
   fn enter_rule(&self, ctx: &RuleContext) {
     // 在这里进行派发即可
+    match ctx.get_rule_index() {
+      HelloParser::RULE_EXPR => self.enter_expr(ctx),
+
+
+      _ => todo!()
+    }
   }
 
-  fn exit_rule(&self, ctx: &RuleContext) {}
+  fn exit_rule(&self, ctx: &RuleContext) {
+    match ctx.get_rule_index() {
+      HelloParser::RULE_EXPR => self.exit_expr(ctx),
 
-  fn enter_terminal(&self, ctx: &TerminalContext) {}
 
-  fn exit_terminal(&self, ctx: &TerminalContext) {}
+      _ => todo!()
+    }
+  }
 
-  fn enter_errornode(&self, ctx: &ErrorContext) {}
+  fn enter_terminal(&self, _ctx: &TerminalContext) {}
 
-  fn exit_errornode(&self, ctx: &ErrorContext) {}
+  fn exit_terminal(&self, _ctx: &TerminalContext) {}
+
+  fn enter_errornode(&self, _ctx: &ErrorContext) {}
+
+  fn exit_errornode(&self, _ctx: &ErrorContext) {}
 }
 
 
 
+// 不如直接将 walker 定义为 struct 。
 pub trait HelloWalker {
-  // 类似于 visit 
-  fn walk(&self, listener: &dyn HelloListener, ast: &dyn HelloWalkable) {
-    // listener.enter_every_rule(ast)
-    ast.enter(listener);
+  // 类似于 visit , 使用 Walkerable 的好处是 xxxContext 都可以作为参数传入, 而不一定都是 RuleContext 。
+  fn walk(&self, listener: &dyn HelloListener, ast: &RuleContext) {
+    let ast = ast.as_rule();
 
+    listener.enter_every_rule(ast);
+    listener.enter_rule(ast);
 
-    ast.exit(listener);
+    for child in ast.children.iter() {
+      match child {
+        ASTContext::Ternimal(ctx) => {
+          listener.enter_terminal(ctx);
+          listener.exit_terminal(ctx);
+        },
+        ASTContext::Rule(ctx) => self.walk(listener, ctx),
+        ASTContext::Error(ctx) => {
+          listener.enter_errornode(ctx);
+          listener.exit_errornode(ctx);
+        },
+      }
+    }
+
+    listener.exit_rule(ast);
+    listener.exit_every_rule(ast);
   }
 
-  // 提供前序遍历和后序遍历
-
-  // fn enter(&self, rule: &dyn HelloWalkable, listener: &dyn HelloListener);
-  // fn exit(&self, rule: &dyn HelloWalkable, listener: &dyn HelloListener);
 }
 
 
+pub struct HelloBaseListener;
+impl HelloListener for HelloBaseListener {}
+pub struct HelloBaseWalker;
+impl HelloWalker for HelloBaseWalker {}
 
 
 
 
 
 
-pub trait HelloAcceptable {
+pub trait HelloAcceptor {
   fn accept(&self, visitor: &dyn HelloVisitor) -> Box<dyn Any>;
 }
-impl HelloAcceptable for RuleContext {
+impl HelloAcceptor for RuleContext {
   fn accept(&self, visitor: &dyn HelloVisitor) -> Box<dyn Any> {
     visitor.visit_rule(self)
   }
 }
-impl HelloAcceptable for TerminalContext {
+impl HelloAcceptor for TerminalContext {
   fn accept(&self, visitor: &dyn HelloVisitor) -> Box<dyn Any> {
     visitor.visit_terminal(self)
   }
 }
-impl HelloAcceptable for ErrorContext {
+impl HelloAcceptor for ErrorContext {
   fn accept(&self, visitor: &dyn HelloVisitor) -> Box<dyn Any> {
     visitor.visit_errornode(self)
   }
@@ -196,12 +190,17 @@ impl HelloAcceptable for ErrorContext {
 // visitor
 pub trait HelloVisitor {
   fn visit_expr(&self, ctx: &dyn ExprContext) -> Box<dyn Any> {
-    self.visit_children(ctx.as_rule_context())
+    self.visit_children(ctx.as_rule())
   }
 
   fn visit_stat(&self, ctx: &dyn StatContext) -> Box<dyn Any> {
-    self.visit_children(ctx.as_rule_context())
+    self.visit_children(ctx.as_rule())
   }
+
+
+  
+  
+  fn visit(&self, _ctx: &dyn HelloAcceptor) -> Box<dyn Any>  { todo!() }
 
 
 
@@ -218,8 +217,6 @@ pub trait HelloVisitor {
   fn visit_terminal(&self, _terminal: &TerminalContext) -> Box<dyn Any>  { self.default_result() }
 
   fn visit_errornode(&self, _errornode: &ErrorContext) -> Box<dyn Any>  { self.default_result() }
-
-  fn visit(&self, ctx: &dyn HelloAcceptable) -> Box<dyn Any> ;
 
   fn visit_children(&self, ctx: &RuleContext) -> Box<dyn Any> {
     let mut result = self.default_result();
@@ -249,9 +246,8 @@ pub trait HelloVisitor {
 pub struct HelloBaseVisitor {
   // 定义需要的数据结构
 }
-
 impl HelloVisitor for HelloBaseVisitor {
-  fn visit(&self, ctx: &dyn HelloAcceptable) -> Box<dyn Any> {
+  fn visit(&self, ctx: &dyn HelloAcceptor) -> Box<dyn Any> {
     ctx.accept(self)
   }
 }
@@ -272,7 +268,10 @@ fn main() {
 
   visitor.visit_expr(ast.as_ref());
 
+  let walker = HelloBaseWalker {};
+  let listener = HelloBaseListener {};
 
+  walker.walk(&listener, ast.as_rule());
 
 }
 
