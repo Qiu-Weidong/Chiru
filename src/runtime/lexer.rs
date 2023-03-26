@@ -1,7 +1,4 @@
 
-
-// use super::{token::Token, token_stream::TokenStream};
-
 use super::token::Token;
 
 // 定义一个词法分析的错误
