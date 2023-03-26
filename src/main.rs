@@ -1,38 +1,30 @@
+use std::io::Write;
+
+use serde::Serialize;
 // use regex::Regex;
-// use std::{rc::Rc, any::Any};
+use tera::{Context, Tera};
+
+pub mod tool;
+pub mod runtime;
 
 
-
+#[derive(Serialize)]
+struct Product {
+  name: String,
+}
 
 fn main() {
+  let mut tera = Tera::new("src/tool/templates/**/*.html").unwrap();
+  tera.autoescape_on(vec![".html"]);
 
-
-  // 必须要明确指定调用哪个函数
-  // cat.eat();
-
-
-  // let s = String::from("hello world!");
-  // println!("{}", s);
-
-
-  // let rc1 = Rc::new(s);
-  // let rc2 = Rc:: 
-
-
-  // let re: Regex = Regex::new(r"
-  // (?xs)
-  //   (?P<login>login) |
-  //   (?P<register>register) |
-  //   (?P<fuck>fuck) | 
-  //   (?<comment>/* .*? */)
-  // ").unwrap();
-
-
-  // [1,].len();
-
-  // re.c
-  // let k = 0..1;
-
+  let product = Product { name: String::from("邱维东") };
+  let mut context = Context::new();
+  context.insert("product", &product);
+  context.insert("vat_rate", &0.20);
+  let result = tera.render("gui/product.html", &context).unwrap();
+  
+  let mut file = std::fs::File::create("data.txt").expect("create failed");
+  file.write(result.as_bytes()).expect("write failed");
 }
 
 
