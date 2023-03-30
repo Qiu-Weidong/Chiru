@@ -19,21 +19,26 @@ impl ASTDrawer {
     ASTDrawer { tera }
   }
 
+  fn escape(s: &str) -> String {
+    s.replace("\\", "\\\\").replace("`", "\\`")
+  }
 
   fn dump(ast: &RuleContext) -> String {
   
     let mut children = String::from("[");
     for child in ast.children.iter() {
       match child {
-        ASTContext::Ternimal(ctx) => children += &format!("{{ name:`{}`}}", ctx.symbol.token_name),
+        ASTContext::Ternimal(ctx) => children += &format!("{{ name:`{}`, text: `{}`}}", 
+          ASTDrawer::escape(&ctx.symbol.token_name), ASTDrawer::escape(&ctx.symbol.text)),
         ASTContext::Rule(ctx) => children += &ASTDrawer::dump(ctx),
-        ASTContext::Error(ctx) => children += &format!("{{ name:`{}`}}", ctx.symbol.token_name),
+        ASTContext::Error(ctx) => children += &format!("{{ name:`{}`, text: `{}`}}", 
+          ASTDrawer::escape(&ctx.symbol.token_name), ASTDrawer::escape(&ctx.symbol.text)),
       }
 
       children += ",";
     }
     children += "]";
-    format!("{{ name:`{}`, children:{},}}", ast.rule_name, children)
+    format!("{{ name:`{}`, children:{},}}", ASTDrawer::escape(&ast.rule_name), children)
   }
 
   pub fn draw(&self, ast: &RuleContext, name: &str, filename: &str) {

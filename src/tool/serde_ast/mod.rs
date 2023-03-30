@@ -6,7 +6,7 @@ use std::io::Read;
 use crate::runtime::{ast::{rule_context::RuleContext, terminal_context::TerminalContext, ast_context::ASTContext}, token};
 
 /**
- * { rule_index: 0, rule_name: "expr", children: [{ token_type: 1, token_name: "xxx" }] }
+ * { rule_index: 0, rule_name: "expr", children: [{ token_type: 1, token_name: "xxx", text: "xxx" }] }
  */
 
 #[derive(Debug)]
@@ -55,13 +55,16 @@ fn parse_rule(value: &serde_json::Value) -> Result<Rc<RuleContext>, Error> {
 fn parse_terminal(value: &serde_json::Value) -> Result<Rc<TerminalContext>, Error> {
   let token_type = value["token_type"].as_u64();
   let token_name = value["token_name"].as_str();
+  let text = value["text"].as_str();
 
   if token_type == None || token_name == None { return Err(Error {}); }
   let token_type = token_type.unwrap() as usize;
   let token_name = token_name.unwrap();
+  let text = if let Some(text) = text { text } else { "<no text>" };
+
 
   Ok(Rc::new(TerminalContext {
-    symbol: token::Token::new(token_type, token_name)
+    symbol: token::Token::new(token_type, token_name, text)
   }))
   
   

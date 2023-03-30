@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ name }}</title>
+  <title>foo</title>
   <style>
     * {
       margin: 0 0;
@@ -42,31 +42,23 @@
     <div id="content"
       style="overflow-x: hidden; position: fixed; height: 100vh; overflow-y: auto;  background-color: rgb(244, 237, 237); width: 255px; z-index: 100;">
     </div>
-    <div id="super" style="position: relative; overflow-y: auto; height: 100vh; overflow-x: auto; margin-left: 255px;">
+    <div style="position: relative; overflow-y: auto; height: 100vh; overflow-x: auto; margin-left: 255px;">
 
       <div id="container"
         style="overflow: visible; height: 100%; background-color: transparent; display: flex;justify-content: center; z-index: 1;">
         <div id="tree" style="overflow: visible;"></div>
       </div>
 
-      <!-- <div style="position: absolute; left: 0; top: 0;">
+      <div style="position: absolute; left: 0; top: 0;">
         <button id="reset">复位</button>
         <button id="switch">转换为 cluster</button>
-        <input id="slider" type="range" min="0" max="550" step="1"  /> 
-      </div> -->
-
-
-    </div>
-    <div style="position: absolute; left: 255px; top: 0;">
-      <button id="reset">复位</button>
-      <button id="switch">转换为 cluster</button>
-      <input id="slider" type="range" min="0" max="550" step="1"  /> 
+      </div>
     </div>
 
   </div>
 
   <script type="module">
-    {{ ast }}
+    const ast = { name:`start`, children:[{ name:`stmt`, children:[{ name:`expr`, children:[{ name:`'('`},{ name:`Number`},{ name:`')'`},],},{ name:`';'`},],},],};
 
     import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 
@@ -275,7 +267,7 @@
           .attr("stroke-opacity", 0);
 
         nodeEnter.append("title")
-        .text(d => d.data.name);
+          .text(d => d.data.name);
 
         nodeEnter.append("text")
           .attr("y", 0)
@@ -284,7 +276,7 @@
           .attr("cursor", d => d._children ? "pointer" : "default")
           .attr('fill', d => d._children ? "#333" : "#999")
           .attr("text-anchor", "middle")
-          .text(d => d._children ? d.data.name: d.data.text)
+          .text(d => d.data.name)
           .on("pointerdown", (event, d) => {
             d.children = d.children ? null : d._children;
             update(d, d.x, d.y);
@@ -348,20 +340,19 @@
     document.getElementById('tree').appendChild(tree);
 
     // 增加一些拖拽和缩放功能。
-    bindEvents(document.getElementById('super'), document.getElementById('container'));
+    bindEvents(document.getElementById('container'));
 
     let scale = 1.0, maxScale = 4, minScale = 0.05;
     let isPointerdown = false, lastPointermove = { x: 0, y: 0 };
     let x = 0, y = 0;
 
-    function bindEvents(parent, element) {
+    function bindEvents(element) {
       document.body.onresize = () => {
         // console.log('body resized!');
         setSize(element);
       }
-      
       // 绑定滚轮缩放
-      parent.addEventListener('wheel', (e) => {
+      element.addEventListener('wheel', (e) => {
         let ratio = 1.1;
         // 缩小
         if (e.deltaY > 0) {
@@ -380,7 +371,7 @@
       });
 
       // 绑定拖拽功能
-      parent.addEventListener('pointerdown', (e) => {
+      element.addEventListener('pointerdown', (e) => {
         if (e.button == 0) {
           isPointerdown = true;
           element.setPointerCapture(e.pointerId);
@@ -389,7 +380,7 @@
         }
       });
 
-      parent.addEventListener('pointerup', (e) => {
+      element.addEventListener('pointerup', (e) => {
         if (e.button == 0) {
           isPointerdown = false;
           // e.preventDefault();
@@ -397,7 +388,7 @@
 
       });
 
-      parent.addEventListener('pointermove', (e) => {
+      element.addEventListener('pointermove', (e) => {
         if (isPointerdown) {
           const current = { x: e.clientX, y: e.clientY };
           const dx = current.x - lastPointermove.x;
@@ -428,9 +419,7 @@
       isPointerdown = false, lastPointermove = { x: 0, y: 0 };
       x = 0, y = 0;
       // element.style.transform = 'translateX(0px) translateY(0px) scale(1)';
-      const element = document.getElementById('container');
-      element.style.transform = 'translateX(0px) translateY(0px) scale(1)';
-      // console.log(element.style.transform);
+      document.getElementById('container').style.transform = 'translateX(0px) translateY(0px) scale(1)';
     }
 
     function render() {
@@ -441,8 +430,8 @@
       reset();
     }
 
-    document.getElementById('reset').addEventListener('pointerdown', e => reset());
-    document.getElementById('switch').addEventListener('pointerdown', e => {
+    document.getElementById('reset').addEventListener('click', e => reset());
+    document.getElementById('switch').addEventListener('click', e => {
       console.log(e.target.innerHTML, typeof e.target.innerHTML);
       if (e.target.innerHTML.endsWith('cluster')) {
         tree_or_cluster = d3.cluster;
