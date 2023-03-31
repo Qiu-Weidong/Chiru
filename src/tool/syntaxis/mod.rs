@@ -5,5 +5,5 @@ pub mod syntaxis_parser;
 pub mod syntaxis_visitor;
 pub mod syntaxis_walker;
 
-
+// 模拟自动生成的文件
 

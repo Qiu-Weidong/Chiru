@@ -38,11 +38,12 @@ pub struct Token {
 
 impl Display for Token {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    write!(f, "[@{}, {}:{}='{}', <{}>, start: <{}>, stop: <{}>]", 
+    write!(f, "[@{}, {}:{}='{}', <{}>, <{}>, start: <{}>, stop: <{}>]", 
       self.token_index, 
       self.char_start_index, 
       self.char_stop_index,
       self.text,
+      self.token_name,
       self.token_type,
       self.start,
       self.stop

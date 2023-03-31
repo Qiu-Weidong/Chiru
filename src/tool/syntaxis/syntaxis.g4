@@ -55,7 +55,9 @@ regular: REGULAR_LITERAL;
   LPAREN: /\(/;
   RPAREN: /\)/;
   STRING_LITERAL: /"([^\a\d\n\r\t\f\v\\"]|(\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*"/;
- 
+  REGULAR_LITERAL: /\/([^/]|\\\/)+\//;
+
+
  对产生式需要进行改写，然后分析
  E -> ... T* ...; 需要添加 E -> ... T1 ...; T1 -> T T1 | epsilon;
  E -> ... T+ ...; 改写为 E -> ... T2 ...; T2 -> T T2 | T;
