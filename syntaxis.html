@@ -124,7 +124,7 @@
     bindEvents(document.getElementById('super'), document.getElementById('container'));
     document.getElementById('reset').addEventListener('click', e => reset());
     document.getElementById('switch').addEventListener('click', e => {
-      console.log(e.target.innerHTML, typeof e.target.innerHTML);
+      // console.log(e.target.innerHTML, typeof e.target.innerHTML);
       if (e.target.innerHTML.endsWith('(use cluster)')) {
         config.tree_or_cluster = d3.cluster;
         e.target.innerHTML = '转换为 tree (use tree)';

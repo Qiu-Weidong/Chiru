@@ -79,7 +79,7 @@
                       ]
                     },
                     {
-                      "token_type": 17,
+                      "token_type": 16,
                       "token_name": "RPAREN",
                       "text": ")"
                     },
@@ -261,7 +261,7 @@
                       ]
                     },
                     {
-                      "token_type": 17,
+                      "token_type": 16,
                       "token_name": "RPAREN",
                       "text": ")"
                     },
@@ -553,7 +553,7 @@
                       ]
                     },
                     {
-                      "token_type": 17,
+                      "token_type": 16,
                       "token_name": "RPAREN",
                       "text": ")"
                     }
@@ -691,7 +691,7 @@
                       ]
                     },
                     {
-                      "token_type": 17,
+                      "token_type": 16,
                       "token_name": "RPAREN",
                       "text": ")"
                     }
@@ -870,7 +870,7 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 22,
+              "token_type": 20,
               "token_name": "REGULAR_LITERAL",
               "text": "/[a-z][a-zA-Z0-9_]+/"
             }
@@ -902,7 +902,7 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 22,
+              "token_type": 20,
               "token_name": "REGULAR_LITERAL",
               "text": "/[A-Z][a-zA-Z0-9_]+/"
             }
@@ -934,7 +934,7 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 22,
+              "token_type": 20,
               "token_name": "REGULAR_LITERAL",
               "text": "/::=|:=|->|=>|:|=/"
             }
@@ -966,7 +966,7 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 22,
+              "token_type": 20,
               "token_name": "REGULAR_LITERAL",
               "text": "/;/"
             }
@@ -998,7 +998,7 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 22,
+              "token_type": 20,
               "token_name": "REGULAR_LITERAL",
               "text": "/\\|/"
             }
@@ -1030,7 +1030,7 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 22,
+              "token_type": 20,
               "token_name": "REGULAR_LITERAL",
               "text": "/ε|epsilon/"
             }
@@ -1062,7 +1062,7 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 22,
+              "token_type": 20,
               "token_name": "REGULAR_LITERAL",
               "text": "/\\*/"
             }
@@ -1094,7 +1094,7 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 22,
+              "token_type": 20,
               "token_name": "REGULAR_LITERAL",
               "text": "/\\+/"
             }
@@ -1126,7 +1126,7 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 22,
+              "token_type": 20,
               "token_name": "REGULAR_LITERAL",
               "text": "/\\?/"
             }
@@ -1158,7 +1158,7 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 22,
+              "token_type": 20,
               "token_name": "REGULAR_LITERAL",
               "text": "/\\(/"
             }
@@ -1190,7 +1190,7 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 22,
+              "token_type": 20,
               "token_name": "REGULAR_LITERAL",
               "text": "/\\)/"
             }
@@ -1222,7 +1222,7 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 22,
+              "token_type": 20,
               "token_name": "REGULAR_LITERAL",
               "text": "/\"([^\\a\\d\\n\\r\\t\\f\\v\\\\\"]|(\\\\\\\\|\\\\\"|\\\\a|\\\\d|\\\\n|\\\\r|\\\\t|\\\\f|\\\\v|\\\\u\\{(0x|0)?[a-f0-9]+\\})|\\d)*\"/"
             }

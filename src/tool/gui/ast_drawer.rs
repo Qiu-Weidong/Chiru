@@ -4,7 +4,12 @@ use tera::{Context, Tera};
 
 use crate::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext};
 
+/**
+ * let file = File::open("src/tool/ast.json").unwrap();
+ * let ast = serde_ast::from_reader(file).unwrap();
 
+ * ASTDrawer::new().draw(&ast, "syntaxis", "syntaxis.html");
+ */
 
 
 pub struct ASTDrawer {
