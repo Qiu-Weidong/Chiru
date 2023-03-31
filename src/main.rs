@@ -9,11 +9,6 @@ use syntaxis::{tool::syntaxis::syntaxis_lexer::SyntaxisLexer, runtime::lexer::Le
  */
 
 fn main() {
-  // let file = File::open("src/tool/syntaxis/syntaxis.json").unwrap();
-  // let ast = serde_ast::from_reader(file).unwrap();
- 
-  // ASTDrawer::new().draw(&ast, "syntaxis", "syntaxis.html");
-
   let input = r##"
   rule_list: (parser_rule | lexer_rule)*;
 
@@ -53,10 +48,11 @@ fn main() {
   let mut lexer = SyntaxisLexer::new(input);
   
   while let Ok(token) = lexer.scan() {
-    if token.token_type == 3 { continue; }
+    if token.token_type == 4 { continue; }
     println!("{}", token)
   }
 
+  // 出错了 不断将 cursor + 1 , 直到不再出错为止。
 }
 
 

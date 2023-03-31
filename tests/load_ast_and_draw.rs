@@ -5,7 +5,7 @@ use syntaxis::tool::serde_ast;
 
 #[test]
 fn load_ast_and_draw() {
-  let file = File::open("tests/ast/ast.json").unwrap();
+  let file = File::open("src/tool/syntaxis/syntaxis.json").unwrap();
   let ast = serde_ast::from_reader(file).unwrap();
 
   ASTDrawer::new().draw(&ast, "syntaxis", "syntaxis.html");

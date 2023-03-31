@@ -3,7 +3,7 @@
 
 use regex::Regex;
 
-use crate::runtime::{lexer::{Lexer, Error}, token::Token};
+use crate::runtime::{lexer::{Lexer, Error}, token::{Token, Position}};
 
 
 
@@ -13,36 +13,40 @@ pub struct SyntaxisLexer {
   pub regex_list: Vec<regex::Regex>,
   pub token_names: Vec<&'static str>,
   pub token_index: usize,
+  pub position: Position,
 }
 
 impl SyntaxisLexer {
+  // 前两个是开始符号和结束符号
   pub const _START: usize = 0;
-  pub const LINE_COMMENT: usize=1;
-  pub const BLOCK_COMMENT: usize=2;
-  pub const WS: usize=3;
-  pub const FRAGMENT: usize=4;
-  pub const TOKEN_REF: usize=5;
-  pub const RULE_REF: usize=6;
-  pub const COLON: usize=7;
-  pub const OR: usize=8;
-  pub const SEMI: usize=9;
-  pub const STAR: usize=10;
-  pub const PLUS: usize=11;
-  pub const QUESTION: usize=12;
-  pub const DOT: usize=13;
-  pub const NOT: usize=14;
-  pub const LPAREN: usize=15;
-  pub const RPAREN: usize=16;
-  pub const POUND: usize=17;
-  pub const STRING_LITERAL: usize=18;
-  pub const RANGE: usize=19;
-  pub const REGULAR_LITERAL: usize=20;
-  pub const EPSILON: usize=21;
+  pub const _STOP: usize = 1;
+
+  pub const LINE_COMMENT: usize=2;
+  pub const BLOCK_COMMENT: usize=3;
+  pub const WS: usize=4;
+  pub const FRAGMENT: usize=5;
+  pub const TOKEN_REF: usize=6;
+  pub const RULE_REF: usize=7;
+  pub const COLON: usize=8;
+  pub const OR: usize=9;
+  pub const SEMI: usize=10;
+  pub const STAR: usize=11;
+  pub const PLUS: usize=12;
+  pub const QUESTION: usize=13;
+  pub const DOT: usize=14;
+  pub const NOT: usize=15;
+  pub const LPAREN: usize=16;
+  pub const RPAREN: usize=17;
+  pub const POUND: usize=18;
+  pub const STRING_LITERAL: usize=19;
+  pub const RANGE: usize=20;
+  pub const REGULAR_LITERAL: usize=21;
+  pub const EPSILON: usize=22;
 
 
   pub fn new(input: &str) -> Self {
     let regex_list = vec![
-      Regex::new("<no text>").unwrap(), // 随便写一个占位即可
+
       Regex::new(r##"^//.*?\n"##).unwrap(), // LINE_COMMENT
       Regex::new(r##"^(?s)/\*.*?\*/"##).unwrap(), // BLOCK_COMMENT
       Regex::new(r##"^[ \t\r\n]+"##).unwrap(), // WS
@@ -67,12 +71,12 @@ impl SyntaxisLexer {
     ];
 
     let token_names = vec![
-      "_START", "LINE_COMMENT", "BLOCK_COMMENT", "WS", "FRAGMENT", "TOKEN_REF",
+      "_START", "_STOP", "LINE_COMMENT", "BLOCK_COMMENT", "WS", "FRAGMENT", "TOKEN_REF",
       "RULE_REF", "COLON", "OR", "SEMI", "STAR", "PLUS", "QUEStION", "DOT",
       "NOT", "LPAREN", "RPAREN", "POUND", "STRING_LITERAL", "RANGE", "REGULAR_LITERAL", "EPSILON"
     ];
 
-    SyntaxisLexer { input: input.to_owned(), cursor: 0, regex_list, token_names, token_index: 0 }
+    SyntaxisLexer { input: input.to_owned(), cursor: 0, regex_list, token_names, token_index: 0, position: Position { line: 0, char_position: 0 } }
   }
 
 
@@ -87,8 +91,8 @@ impl Lexer for SyntaxisLexer {
     let mut len = 0;
     let mut token_type = 0;
 
-    for i in 1..self.regex_list.len() {
-      let result = self.regex_list[i].find_at(&self.input[self.cursor..], 0) ;
+    for i in 2..self.regex_list.len() {
+      let result = self.regex_list[i-2].find_at(&self.input[self.cursor..], 0) ;
       if let Some(result) = result {
         if result.end() > len {
           len = result.end();
@@ -98,13 +102,35 @@ impl Lexer for SyntaxisLexer {
     }
 
     if token_type <= 0 { return Err(Error {}) }
+    let text = String::from(&self.input[self.cursor..self.cursor+len]);
+    let lines: Vec<_> = text.split("\n").collect();
+    let new_pos;
+    if lines.len() <= 1 {
+      // 没有跨行
+      new_pos = Position {
+        line: self.position.line,
+        char_position: self.position.char_position + len
+      }
+    }
+    else {
+      // 跨行
+      new_pos = Position {
+        line: self.position.line + lines.len()-1,
+        char_position: lines.last().unwrap().len(),
+      }
+    }
+
+
+
     let token = Token {
       token_type,
       token_name: String::from(self.token_names[token_type]),
-      start: crate::runtime::token::Position { line: 0, char_position: 0 },
-      stop: crate::runtime::token::Position { line: 0, char_position: 0 },
+
+      start: self.position.clone(),
+      stop: new_pos.clone(),
+      
       channel: 0,
-      text: String::from(&self.input[self.cursor..self.cursor+len]),
+      text,
       token_index: self.token_index,
       char_start_index: self.cursor,
       char_stop_index: self.cursor + len,
@@ -112,6 +138,7 @@ impl Lexer for SyntaxisLexer {
 
     self.cursor += len;
     self.token_index += 1;
+    self.position = new_pos;
     return Ok(token);
 
   }
