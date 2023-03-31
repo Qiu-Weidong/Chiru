@@ -57,10 +57,10 @@
 
 
     </div>
-    <div style="position: absolute; left: 255px; top: 0;">
+    <div style="position: absolute; left: 260px; top: 5px;">
       <button id="reset">复位</button>
       <button id="switch">转换为 cluster</button>
-      <input id="slider" type="range" min="0" max="550" step="1"  /> 
+      <input id="slider" type="range" min="0" max="1000" step="1"  /> 
     </div>
 
   </div>
@@ -69,6 +69,45 @@
     {{ ast }}
 
     import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+
+    let tree_or_cluster = d3.tree;
+    let current = ast;
+
+    let scale = 1.0, maxScale = 4, minScale = 0.05;
+    let isPointerdown = false, lastPointermove = { x: 0, y: 0 };
+    let x = 0, y = 0;
+
+    const content = indentTree(ast);
+    document.getElementById('content').appendChild(content);
+    const tree = collapsibleTree(ast, { tree: tree_or_cluster });
+    document.getElementById('tree').appendChild(tree);
+
+    // 增加一些拖拽和缩放功能。
+    bindEvents(document.getElementById('super'), document.getElementById('container'));
+    document.getElementById('reset').addEventListener('click', e => reset());
+    document.getElementById('switch').addEventListener('click', e => {
+      // console.log(e.target.innerHTML, typeof e.target.innerHTML);
+      if (e.target.innerHTML.endsWith('cluster')) {
+        tree_or_cluster = d3.cluster;
+        e.target.innerHTML = '转换为 tree';
+        render();
+      }
+      else {
+        tree_or_cluster = d3.tree;
+        e.target.innerHTML = '转换为 cluster';
+        render();
+      }
+    });
+
+
+
+
+
+
+
+
+
+
 
 
     function indentTree(data, { nodeSize = 25, minWidth = 255 } = {}) {
@@ -83,10 +122,10 @@
         d.y = i * nodeSize;
 
         // 如果需要在启动的时候就处于折叠状态，则将下面这行取消注释
-        // d.children = null;
+        d.children = null;
 
         // 计算最小尺寸, 假设一个字符占12个像素
-        const tmp = d.depth * nodeSize + d.data.name.length * 10 + 6;
+        const tmp = d.depth * nodeSize + d.data.name.length * 13 + 6;
         width = tmp > width ? tmp : width;
       });
 
@@ -334,26 +373,6 @@
       return svg.node();
     }
 
-
-    let tree_or_cluster = d3.tree;
-    let current = ast;
-
-
-
-    const content = indentTree(ast);
-
-    document.getElementById('content').appendChild(content);
-
-    const tree = collapsibleTree(ast, { tree: tree_or_cluster });
-    document.getElementById('tree').appendChild(tree);
-
-    // 增加一些拖拽和缩放功能。
-    bindEvents(document.getElementById('super'), document.getElementById('container'));
-
-    let scale = 1.0, maxScale = 4, minScale = 0.05;
-    let isPointerdown = false, lastPointermove = { x: 0, y: 0 };
-    let x = 0, y = 0;
-
     function bindEvents(parent, element) {
       document.body.onresize = () => {
         // console.log('body resized!');
@@ -392,7 +411,7 @@
       parent.addEventListener('pointerup', (e) => {
         if (e.button == 0) {
           isPointerdown = false;
-          // e.preventDefault();
+          e.preventDefault();
         }
 
       });
@@ -441,20 +460,7 @@
       reset();
     }
 
-    document.getElementById('reset').addEventListener('pointerdown', e => reset());
-    document.getElementById('switch').addEventListener('pointerdown', e => {
-      console.log(e.target.innerHTML, typeof e.target.innerHTML);
-      if (e.target.innerHTML.endsWith('cluster')) {
-        tree_or_cluster = d3.cluster;
-        e.target.innerHTML = '转换为 tree';
-        render();
-      }
-      else {
-        tree_or_cluster = d3.tree;
-        e.target.innerHTML = '转换为 cluster';
-        render();
-      }
-    })
+
   </script>
 
 </body>
