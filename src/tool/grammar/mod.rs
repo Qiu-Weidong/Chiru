@@ -1,13 +1,20 @@
 // 定义一个数据结构来表示文法
 
-use std::collections::{HashMap, HashSet};
+use std::{collections::{HashMap, HashSet}, fmt::Display};
 
 pub struct Grammar {
+  // 文法的名称
+  pub name: String,
+
   // 命名非终结符的查询缓存
   pub nonterminal_cache: HashMap<String, usize>,
 
   // 终结符的查询缓存
   pub terminal_cache: HashMap<String, usize>,
+
+  // 产生式的查询缓存(匿名)
+  pub production_cache: HashMap<Vec<Production>, usize>,
+
 
   // 所有非终结符，包括未命名
   pub nonterminals: HashMap<usize, Option<String>>,
@@ -17,36 +24,25 @@ pub struct Grammar {
 
   // 产生式, 显然不能重复
   pub productions: HashSet<Production>,
+
+  // 通过产生式的左部来管理产生式 产生式的优先级 产生式在 vec 中的顺序即为其优先级
+  // pub productions: HashMap<usize, Vec<Production> >
+  // 当需要查询是否由相同产生式的时候，只比较右部
 }
 
-impl Grammar {
-  pub fn get_productions_by_rule_name(&self, name: &str) -> Vec<Production> {
-    let mut result = Vec::new();
-    let id = self.nonterminal_cache[name];
-    for production in self.productions.iter() {
-      if production.left == id { result.push(production.clone()) }
-    }
-    result
+
+impl Display for Grammar {
+  /**
+   * 文法名称
+   * 所有非终结符以及id。
+   * 所有终结符以及id。
+   * 所有产生式。
+   */
+  fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    todo!()
   }
-
-  pub fn get_productions_by_rule_id(&self, id: usize) -> Vec<Production> {
-    let mut result = Vec::new();
-    for production in self.productions.iter() {
-      if production.left == id { result.push(production.clone()) }
-    }
-    result
-  }
-
-  // 通过产生式右部来查询该产生式是否已经存在
-  pub fn get_unnamed_production_by_right(&self, right: &Vec<ProductionItem>) -> Option<Production> {
-    for production in self.productions.iter() {
-      if production.right == *right { return Some(production.clone()) }
-    }
-    None
-  }
-
-
 }
+
 
 #[derive(PartialEq, Eq, Clone, Hash)]
 pub enum ProductionItem {
@@ -56,8 +52,10 @@ pub enum ProductionItem {
 
 #[derive(PartialEq, Eq, Clone, Hash)]
 pub struct Production {
-  pub left: usize, // 产生式的左部
+  pub left: usize, // 产生式的左部 删除
   pub right: Vec<ProductionItem>,
+
+  // 产生式的优先级
 }
 
 impl Production {

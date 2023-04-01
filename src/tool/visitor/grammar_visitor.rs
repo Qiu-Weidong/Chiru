@@ -84,6 +84,8 @@ impl SyntaxisVisitor for SymbolVisitor<'_> {
 pub struct ProductionVisitor<'a> {
   pub grammar: &'a mut Grammar,
   pub next_rule_id: usize,
+
+  // 先在 visitor 中维护一个匿名非终结符产生式的集合，最后再添加到 grammar 中去。
 }
 
 impl<'a> ProductionVisitor<'a> {
@@ -101,6 +103,7 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
     self.default_result()
   }
 
+  // 添加命名产生式
   fn visit_parser_rule(&mut self, ctx: &dyn ParserRuleContext) -> Box<dyn std::any::Any> {
     // 这个地方不要调用 block.accept
     let name = &ctx.rule_ref().unwrap().symbol.text;
@@ -116,6 +119,7 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
     self.default_result()
   }
 
+  // 返回一条产生式
   fn visit_alternative(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::AlternativeContext) -> Box<dyn std::any::Any> {
     if let Some(_) = ctx.epsilon() {
       return Box::new(Vec::<ProductionItem>::new());
@@ -131,6 +135,7 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
     Box::new(result)
   }
 
+  // 返回产生式的元素
   fn visit_element(&mut self, ctx: &dyn ElementContext) -> Box<dyn std::any::Any> {
     // 首先解析出一个 item
     let item: ProductionItem;
@@ -212,9 +217,9 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
     // 先不管合并，直接走
   }
 
-
+  // 返回产生式的元素
   fn visit_block(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::BlockContext) -> Box<dyn std::any::Any> {
-    // 添加一条产生式, 一个非终结符，并返回其 id 
+    // 添加一条产生式, 一个非终结符，并返回其 id  ( xx | xxx)  (xxx xxx)* 检查是否已经存在, 否则新建并返回 NonTerminal(id)。
     let id = self.next_rule_id;
     self.next_rule_id += 1;
 
