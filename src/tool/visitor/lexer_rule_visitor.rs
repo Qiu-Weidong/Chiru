@@ -94,6 +94,7 @@ impl SyntaxisVisitor for StringLiteralVisitor {
     self.default_result()
   }
 }
+
 impl StringLiteralVisitor {
   pub fn new() -> Self {
     Self {
