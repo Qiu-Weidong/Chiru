@@ -1,5 +1,7 @@
 
 
+use std::collections::HashMap;
+
 use crate::tool::{grammar::{Grammar, ProductionItem, Production}, syntaxis::{syntaxis_visitor::SyntaxisVisitor, syntaxis_context::{ElementContext, LexerRuleContext, ParserRuleContext}}};
 
 /**
@@ -88,12 +90,17 @@ pub struct ProductionVisitor<'a> {
   pub next_rule_id: usize,
 
   // 先在 visitor 中维护一个匿名非终结符产生式的集合，最后再添加到 grammar 中去。
-  // pub production_cache: HashMap<Vec<Production>, usize>,
+  block_cache: HashMap<Vec<Vec<ProductionItem>>, usize>,
+
+
+  star_cache: HashMap<usize, usize>,
+  plus_cache: HashMap<usize, usize>,
+  question_cache: HashMap<usize, usize>,
 }
 
 impl<'a> ProductionVisitor<'a> {
   pub fn new(grammar: &'a mut Grammar, first_rule_id: usize) -> Self {
-    Self { grammar, next_rule_id: first_rule_id,  }
+    Self { grammar, next_rule_id: first_rule_id, star_cache: HashMap::new(), plus_cache: HashMap::new(), question_cache: HashMap::new(), block_cache: HashMap::new(), }
   }
 }
 
@@ -143,22 +150,22 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
   // 返回产生式的元素
   fn visit_element(&mut self, ctx: &dyn ElementContext) -> Box<dyn std::any::Any> {
     // 首先解析出一个 item
-    let item: ProductionItem;
+    let item: ProductionItem; let id: usize;
     if let Some(token) = ctx.token_ref() {
-      let id = *self.grammar.terminal_cache.get(&token.symbol.text).unwrap();
+      id = *self.grammar.terminal_cache.get(&token.symbol.text).unwrap();
       item = ProductionItem::Terminal(id);
     }
     else if let Some(literal) = ctx.string_literal() {
-      let id = *self.grammar.terminal_cache.get(&literal.symbol.text).unwrap();
+      id = *self.grammar.terminal_cache.get(&literal.symbol.text).unwrap();
       item = ProductionItem::Terminal(id);
     }
     else if let Some(rule) = ctx.rule_ref() {
-      let id = *self.grammar.nonterminal_cache.get(&rule.symbol.text).unwrap();
+      id = *self.grammar.nonterminal_cache.get(&rule.symbol.text).unwrap();
       item = ProductionItem::NonTerminal(id);
     }
     else if let Some(block) = ctx.block() {
-      let id = block.accept(self).downcast::<usize>().unwrap();
-      item = ProductionItem::NonTerminal(id.as_ref().clone());
+      id = *block.accept(self).downcast::<usize>().unwrap();
+      item = ProductionItem::NonTerminal(id);
     }
     else {
       panic!("解析element出错");
@@ -170,6 +177,11 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
       if let Some(_) = suffix.star() {
         // item * => item2 -> item item2 | epsilon
 
+        // 查看是否已存在 item_id 即为 新产生式的 id。
+        if let Some(item_id) = self.star_cache.get(&id) {
+          return Box::new(ProductionItem::NonTerminal(*item_id));
+        }
+
         // 添加一个非终结符
         self.grammar.nonterminals.insert(self.next_rule_id, None);
         let item2 = ProductionItem::NonTerminal(self.next_rule_id);
@@ -179,11 +191,17 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
         let p2 = Production::new(self.next_rule_id, &vec![item, item2.clone()]);
 
         self.grammar.productions.insert(self.next_rule_id, vec![p1, p2]);
+
+        self.star_cache.insert(id, self.next_rule_id);
+
         self.next_rule_id += 1;
         return Box::new(item2);
       }
       else if let Some(_) = suffix.plus() {
         // item * => item2 -> item item2 | item
+        if let Some(item_id) = self.plus_cache.get(&id) {
+          return Box::new(ProductionItem::NonTerminal(*item_id));
+        }
 
         // 添加一个非终结符
         self.grammar.nonterminals.insert(self.next_rule_id, None);
@@ -194,11 +212,15 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
         let p2 = Production::new(self.next_rule_id, &vec![item, item2.clone()]);
 
         self.grammar.productions.insert(self.next_rule_id, vec![p1, p2]);
+        self.plus_cache.insert(id, self.next_rule_id);
         self.next_rule_id += 1;
         return Box::new(item2);
       }
       else {
         // item * => item2 -> item | epsilon
+        if let Some(item_id) = self.question_cache.get(&id) {
+          return Box::new(ProductionItem::NonTerminal(*item_id));
+        }
 
         // 添加一个非终结符
         self.grammar.nonterminals.insert(self.next_rule_id, None);
@@ -209,6 +231,8 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
         let p2 = Production::new(self.next_rule_id, &vec![item]);
 
         self.grammar.productions.insert(self.next_rule_id, vec![p1, p2]);
+
+        self.question_cache.insert(id, self.next_rule_id);
         self.next_rule_id += 1;
         return Box::new(item2);
       }
@@ -221,18 +245,34 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
 
   // 返回产生式的元素
   fn visit_block(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::BlockContext) -> Box<dyn std::any::Any> {
-    // 添加一条产生式, 一个非终结符，并返回其 id  ( xx | xxx)  (xxx xxx)* 检查是否已经存在, 否则新建并返回 NonTerminal(id)。
-    let id = self.next_rule_id;
-    self.next_rule_id += 1;
-
-    self.grammar.nonterminals.insert(id, None);
-    let mut productions = Vec::new();
-
+    // 先得出一个产生式右部的集合
+    let mut rights = Vec::new();
     for alternative in ctx.alternative_list().iter() {
       let right = alternative.accept(self).downcast::<Vec<ProductionItem>>().unwrap();
-      let production = Production::new(id, &right);
+      rights.push(right.as_ref().clone());
+    }
+
+    if let Some(id) = self.block_cache.get(&rights) {
+      return Box::new(*id);
+    }
+
+
+
+    // 添加一条产生式, 一个非终结符，并返回其 id  ( xx | xxx)  (xxx xxx)* 检查是否已经存在, 否则新建并返回 NonTerminal(id)。
+    let id = self.next_rule_id;
+    self.grammar.nonterminals.insert(id, None);
+    self.block_cache.insert(rights.clone(), id);
+
+    let mut productions = Vec::new();
+
+    for right in rights.iter() {
+      let production = Production::new(id, right);
       productions.push(production);
     } 
+
+
+    self.next_rule_id += 1;
+
     self.grammar.productions.insert(id, productions);
     Box::new(id)
   }
