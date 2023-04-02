@@ -82,13 +82,13 @@ impl Display for Grammar {
 }
 
 
-#[derive(PartialEq, Eq, Clone, Hash)]
+#[derive(PartialEq, Eq, Clone, Hash, Debug)]
 pub enum ProductionItem {
   NonTerminal(usize),
   Terminal(usize),
 }
 
-#[derive(PartialEq, Eq, Clone, Hash)]
+#[derive(PartialEq, Eq, Clone, Hash, Debug)]
 pub struct Production {
   pub left: usize, // 产生式的左部 删除
   pub right: Vec<ProductionItem>,

@@ -1,4 +1,13 @@
-use syntaxis::{tool::syntaxis::syntaxis_lexer::SyntaxisLexer, runtime::lexer::Lexer};
+use std::fs::File;
+use std::rc::Rc;
+
+use syntaxis::tool::grammar::Grammar;
+use syntaxis::tool::serde_ast;
+use syntaxis::tool::syntaxis::syntaxis_context::RuleListContext;
+// use syntaxis::tool::syntaxis::syntaxis_context::AlternativeContext;
+// use syntaxis::tool::grammar;
+use syntaxis::tool::visitor::grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor};
+
 
 
 
@@ -9,50 +18,43 @@ use syntaxis::{tool::syntaxis::syntaxis_lexer::SyntaxisLexer, runtime::lexer::Le
  */
 
 fn main() {
-  let input = r##"
-  rule_list: (parser_rule | lexer_rule)*;
+  let file = File::open("src/tool/syntaxis/syntaxis.json").unwrap();
+  let ast = serde_ast::from_reader(file).unwrap() as Rc<dyn RuleListContext>;
 
-  parser_rule: RULE_REF COLON block SEMI;
-  block: alternative (OR alternative)*;
+  let mut grammar = Grammar::new("我的文法");
+  let token_cnt;
+  {
+    let mut visitor = StringLiteralToTokenVisitor::new(
+      &mut grammar, 2
+    );
 
-  alternative: element+ | epsilon;
-  epsilon: EPSILON;
-  element: (
-      TOKEN_REF
-      | STRING_LITERAL
-      | RULE_REF
-      | LPAREN block RPAREN
-    ) ebnf_suffix?;
-
-  ebnf_suffix: (STAR | PLUS | QUESTION) QUESTION?;
-
-
-  lexer_rule: TOKEN_REF COLON regular SEMI;
-  regular: REGULAR_LITERAL;
-
-  RULE_REF: /[a-z][a-zA-Z0-9_]+/;
-  TOKEN_REF: /[A-Z][a-zA-Z0-9_]+/;
-  COLON: /::=|:=|->|=>|:|=/;
-  SEMI: /;/;
-  OR: /\|/;
-  EPSILON: /ε|epsilon/;
-  STAR: /\*/;
-  PLUS: /\+/;
-  QUESTION: /\?/;
-  LPAREN: /\(/;
-  RPAREN: /\)/;
-  STRING_LITERAL: /"([^\a\d\n\r\t\f\v\\"]|(\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*"/;
-  REGULAR_LITERAL: /\/([^/]|\\\/)+\//;
-  "##;
-  
-  let mut lexer = SyntaxisLexer::new(input);
-  
-  while let Ok(token) = lexer.scan() {
-    if token.token_type == 4 { continue; }
-    println!("{}", token)
+    ast.accept(&mut visitor);
+    token_cnt = visitor.next_token_id;
   }
+  
 
-  // 出错了 不断将 cursor + 1 , 直到不再出错为止。
+
+  
+
+  let rule_cnt; {
+    let mut visitor = SymbolVisitor::new(&mut grammar, token_cnt, 0);
+    ast.accept(&mut visitor);
+    rule_cnt = visitor.next_rule_id;
+  }
+  println!("{:?}", grammar.terminal_cache);
+
+  // println!("{}", rule_cnt);
+  println!("{:?}", grammar.nonterminals);
+
+  {
+    let mut visitor = ProductionVisitor::new(&mut grammar, rule_cnt);
+    ast.accept(&mut visitor);
+  }
+  println!("{}", rule_cnt);
+  println!("{:?}", grammar.nonterminals);
+  println!("{:?}", grammar.productions);
+
+  println!("fuck {}", grammar);
 }
 
 

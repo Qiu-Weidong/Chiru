@@ -1,8 +1,9 @@
 use std::fs::File;
+use std::rc::Rc;
 
 use syntaxis::tool::grammar::Grammar;
 use syntaxis::tool::serde_ast;
-use syntaxis::tool::syntaxis::syntaxis_context::AlternativeContext;
+use syntaxis::tool::syntaxis::syntaxis_context::RuleListContext;
 // use syntaxis::tool::grammar;
 use syntaxis::tool::visitor::grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor};
 
@@ -11,7 +12,7 @@ use syntaxis::tool::visitor::grammar_visitor::{StringLiteralToTokenVisitor, Symb
 #[test]
 fn grammar_test() {
   let file = File::open("src/tool/syntaxis/syntaxis.json").unwrap();
-  let ast = serde_ast::from_reader(file).unwrap();
+  let ast = serde_ast::from_reader(file).unwrap() as Rc<dyn RuleListContext>;
 
   let mut grammar = Grammar::new("我的文法");
   let token_cnt;
@@ -36,7 +37,7 @@ fn grammar_test() {
   }
 
 
-  println!("fuck {}", grammar);
+  println!("{}", grammar);
   
 
 

@@ -153,7 +153,7 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
       item = ProductionItem::Terminal(id);
     }
     else if let Some(rule) = ctx.rule_ref() {
-      let id = *self.grammar.terminal_cache.get(&rule.symbol.text).unwrap();
+      let id = *self.grammar.nonterminal_cache.get(&rule.symbol.text).unwrap();
       item = ProductionItem::NonTerminal(id);
     }
     else if let Some(block) = ctx.block() {
