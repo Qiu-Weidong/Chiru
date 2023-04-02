@@ -1,3 +1,5 @@
+
+
 use crate::tool::{grammar::{Grammar, ProductionItem, Production}, syntaxis::{syntaxis_visitor::SyntaxisVisitor, syntaxis_context::{ElementContext, LexerRuleContext, ParserRuleContext}}};
 
 /**
@@ -86,11 +88,12 @@ pub struct ProductionVisitor<'a> {
   pub next_rule_id: usize,
 
   // 先在 visitor 中维护一个匿名非终结符产生式的集合，最后再添加到 grammar 中去。
+  // pub production_cache: HashMap<Vec<Production>, usize>,
 }
 
 impl<'a> ProductionVisitor<'a> {
   pub fn new(grammar: &'a mut Grammar, first_rule_id: usize) -> Self {
-    Self { grammar, next_rule_id: first_rule_id }
+    Self { grammar, next_rule_id: first_rule_id,  }
   }
 }
 
@@ -108,14 +111,16 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
     // 这个地方不要调用 block.accept
     let name = &ctx.rule_ref().unwrap().symbol.text;
     let id = *self.grammar.nonterminal_cache.get(name).unwrap();
+    let mut productions = Vec::new();
     
     for alternative in ctx.block().unwrap().alternative_list().iter() {
       let right = alternative.accept(self);
       let right = right.downcast::<Vec<ProductionItem>>().unwrap();
       let production = Production::new(id, right.as_ref());
       
-      self.grammar.productions.insert(production);
+      productions.push(production);
     }
+    self.grammar.productions.insert(id, productions);
     self.default_result()
   }
 
@@ -173,8 +178,7 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
         let p1 = Production::new(self.next_rule_id, &vec![]);
         let p2 = Production::new(self.next_rule_id, &vec![item, item2.clone()]);
 
-        self.grammar.productions.insert(p1);
-        self.grammar.productions.insert(p2);
+        self.grammar.productions.insert(self.next_rule_id, vec![p1, p2]);
         self.next_rule_id += 1;
         return Box::new(item2);
       }
@@ -189,8 +193,7 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
         let p1 = Production::new(self.next_rule_id, &vec![item.clone()]);
         let p2 = Production::new(self.next_rule_id, &vec![item, item2.clone()]);
 
-        self.grammar.productions.insert(p1);
-        self.grammar.productions.insert(p2);
+        self.grammar.productions.insert(self.next_rule_id, vec![p1, p2]);
         self.next_rule_id += 1;
         return Box::new(item2);
       }
@@ -205,8 +208,7 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
         let p1 = Production::new(self.next_rule_id, &vec![]);
         let p2 = Production::new(self.next_rule_id, &vec![item]);
 
-        self.grammar.productions.insert(p1);
-        self.grammar.productions.insert(p2);
+        self.grammar.productions.insert(self.next_rule_id, vec![p1, p2]);
         self.next_rule_id += 1;
         return Box::new(item2);
       }
@@ -224,12 +226,14 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
     self.next_rule_id += 1;
 
     self.grammar.nonterminals.insert(id, None);
+    let mut productions = Vec::new();
 
     for alternative in ctx.alternative_list().iter() {
       let right = alternative.accept(self).downcast::<Vec<ProductionItem>>().unwrap();
       let production = Production::new(id, &right);
-      self.grammar.productions.insert(production);
+      productions.push(production);
     } 
+    self.grammar.productions.insert(id, productions);
     Box::new(id)
   }
 

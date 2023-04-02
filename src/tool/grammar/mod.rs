@@ -1,6 +1,6 @@
 // 定义一个数据结构来表示文法
 
-use std::{collections::{HashMap, HashSet}, fmt::Display};
+use std::{collections::HashMap, fmt::Display};
 
 pub struct Grammar {
   // 文法的名称
@@ -13,7 +13,7 @@ pub struct Grammar {
   pub terminal_cache: HashMap<String, usize>,
 
   // 产生式的查询缓存(匿名)
-  pub production_cache: HashMap<Vec<Production>, usize>,
+  // pub production_cache: HashMap<Vec<Production>, usize>,
 
 
   // 所有非终结符，包括未命名
@@ -22,12 +22,22 @@ pub struct Grammar {
   // 所有终结符
   pub terminals: HashMap<usize, String>,
 
-  // 产生式, 显然不能重复
-  pub productions: HashSet<Production>,
-
   // 通过产生式的左部来管理产生式 产生式的优先级 产生式在 vec 中的顺序即为其优先级
-  // pub productions: HashMap<usize, Vec<Production> >
+  pub productions: HashMap<usize, Vec<Production> >
   // 当需要查询是否由相同产生式的时候，只比较右部
+}
+
+impl Grammar {
+  pub fn new(name: &str) -> Self {
+    Self {
+      name: name.to_owned(),
+      nonterminal_cache: HashMap::new(),
+      terminal_cache: HashMap::new(), 
+      nonterminals: HashMap::new(),
+      terminals: HashMap::new(),
+      productions: HashMap::new(),
+    }
+  }
 }
 
 
@@ -38,8 +48,36 @@ impl Display for Grammar {
    * 所有终结符以及id。
    * 所有产生式。
    */
-  fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    todo!()
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    for (id, productions) in self.productions.iter() {
+      let name = match self.nonterminals.get(id).unwrap() {
+        Some(name) => name.to_string(), 
+        None => id.to_string(),
+      };
+
+      for production in productions.iter() {
+        write!(f, "{} ->", name)?;
+
+        for item in production.right.iter() {
+          match item {
+            ProductionItem::NonTerminal(id) => {
+              match self.nonterminals.get(id).unwrap() {
+                Some(name) => { write!(f, " {}", name)?; },
+                None => { write!(f, " {}", id)?; },
+              }
+            },
+            ProductionItem::Terminal(id) => {
+              let name = self.terminals.get(id).unwrap();
+              write!(f, " {}", name)?;
+            },
+          }
+        }
+        
+        write!(f, ";\n")?;
+      }
+    }
+
+    Ok(())
   }
 }
 
