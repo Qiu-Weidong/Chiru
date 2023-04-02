@@ -124,7 +124,7 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
     self.default_result()
   }
 
-  // 返回一条产生式
+  // 返回一条产生式的右部分
   fn visit_alternative(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::AlternativeContext) -> Box<dyn std::any::Any> {
     if let Some(_) = ctx.epsilon() {
       return Box::new(Vec::<ProductionItem>::new());
@@ -149,6 +149,7 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
       item = ProductionItem::Terminal(id);
     }
     else if let Some(literal) = ctx.string_literal() {
+      // 注意先将 literal 转义
       let id = *self.grammar.terminal_cache.get(&literal.symbol.text).unwrap();
       item = ProductionItem::Terminal(id);
     }
@@ -183,7 +184,7 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
         return Box::new(item2);
       }
       else if let Some(_) = suffix.plus() {
-        // item * => item2 -> item item2 | item
+        // item + => item2 -> item item2 | item
 
         // 添加一个非终结符
         self.grammar.nonterminals.insert(self.next_rule_id, None);
@@ -198,7 +199,7 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
         return Box::new(item2);
       }
       else {
-        // item * => item2 -> item | epsilon
+        // item ? => item2 -> item | epsilon
 
         // 添加一个非终结符
         self.grammar.nonterminals.insert(self.next_rule_id, None);
