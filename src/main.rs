@@ -41,20 +41,19 @@ fn main() {
     ast.accept(&mut visitor);
     rule_cnt = visitor.next_rule_id;
   }
-  println!("{:?}", grammar.terminal_cache);
+  // println!("{:?}", grammar.terminal_cache);
 
   // println!("{}", rule_cnt);
-  println!("{:?}", grammar.nonterminals);
+  // println!("{:?}", grammar.nonterminals);
 
   {
     let mut visitor = ProductionVisitor::new(&mut grammar, rule_cnt);
     ast.accept(&mut visitor);
   }
-  println!("{}", rule_cnt);
-  println!("{:?}", grammar.nonterminals);
-  println!("{:?}", grammar.productions);
+  // println!("{:?}", grammar.nonterminals);
+  // println!("{:?}", grammar.productions);
 
-  println!("fuck {}", grammar);
+  println!("{}", grammar);
 }
 
 
