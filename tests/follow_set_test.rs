@@ -47,46 +47,61 @@ ebnf_suffix -> 16 17;
  */
 
 /**
-element:
-{STRING_LITERAL, TOKEN_REF, RULE_REF, LPAREN, }
-epsilon:
-{EPSILON, }
-16:
-{QUESTION, PLUS, STAR, }
-14:
-{TOKEN_REF, RULE_REF, LPAREN, STRING_LITERAL, }
-regular:
-{REGULAR_LITERAL, }
-17:
-{QUESTION, ε}
-ebnf_suffix:
-{QUESTION, PLUS, STAR, }
-9:
-{TOKEN_REF, RULE_REF, }
-11:
-{OR, }
+
 rule_list:
-{RULE_REF, TOKEN_REF, ε}
-parser_rule:
-{RULE_REF, }
-15:
-{QUESTION, STAR, PLUS, ε}
-13:
-{TOKEN_REF, LPAREN, STRING_LITERAL, RULE_REF, }
-block:
-{TOKEN_REF, STRING_LITERAL, RULE_REF, EPSILON, LPAREN, }
+{_STOP, }
+
 alternative:
-{EPSILON, TOKEN_REF, RULE_REF, STRING_LITERAL, LPAREN, }
-10:
-{TOKEN_REF, RULE_REF, ε}
+{OR, SEMI, RPAREN, }
+
+parser_rule:
+{_STOP, TOKEN_REF, RULE_REF, }
+
+block:
+{SEMI, RPAREN, }
+
+epsilon:
+{SEMI, RPAREN, OR, }
+
+element:
+{RPAREN, SEMI, LPAREN, OR, STRING_LITERAL, TOKEN_REF, RULE_REF, }
+
+regular:
+{SEMI, }
+
+ebnf_suffix:
+{TOKEN_REF, RULE_REF, LPAREN, STRING_LITERAL, OR, RPAREN, SEMI, }
+
 lexer_rule:
-{TOKEN_REF, }
+{_STOP, TOKEN_REF, RULE_REF, }
+
+16:
+{RPAREN, SEMI, QUESTION, RULE_REF, OR, TOKEN_REF, LPAREN, STRING_LITERAL, }
+
+9:
+{TOKEN_REF, _STOP, RULE_REF, }
+
+14:
+{STRING_LITERAL, STAR, RULE_REF, RPAREN, SEMI, OR, QUESTION, LPAREN, PLUS, TOKEN_REF, }
+
 12:
-{OR, ε}
+{SEMI, RPAREN, }
+11:
+{RPAREN, OR, SEMI, }
+17:
+{TOKEN_REF, RPAREN, SEMI, STRING_LITERAL, OR, RULE_REF, LPAREN, }
+15:
+{OR, RPAREN, SEMI, LPAREN, TOKEN_REF, RULE_REF, STRING_LITERAL, }
+10:
+{_STOP, }
+13:
+{SEMI, RPAREN, OR, }
+
+
  */
 
 #[test]
-fn first_set_test() {
+fn follow_set_test() {
   // 测试求 first 集合
 
 

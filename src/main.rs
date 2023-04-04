@@ -49,7 +49,7 @@ use syntaxis::tool::visitor::grammar_visitor::{StringLiteralToTokenVisitor, Symb
 
   println!("{}", grammar);
 
-  let first = grammar.first_set();
+  let (first, _) = grammar.first_set();
   
   for (id, collection) in first.iter() {
     let name = grammar.nonterminals.get(id).unwrap();
