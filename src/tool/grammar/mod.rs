@@ -1,6 +1,6 @@
 // 定义一个数据结构来表示文法
 
-use std::{collections::HashMap, fmt::Display};
+use std::{collections::{HashMap, HashSet}, fmt::Display};
 
 pub struct Grammar {
   // 文法的名称
@@ -12,19 +12,24 @@ pub struct Grammar {
   // 终结符的查询缓存
   pub terminal_cache: HashMap<String, usize>,
 
-  // 产生式的查询缓存(匿名)
-  // pub production_cache: HashMap<Vec<Production>, usize>,
-
-
   // 所有非终结符，包括未命名
   pub nonterminals: HashMap<usize, Option<String>>,
 
   // 所有终结符
   pub terminals: HashMap<usize, String>,
 
+
+
+
   // 通过产生式的左部来管理产生式 产生式的优先级 产生式在 vec 中的顺序即为其优先级
   pub productions: HashMap<usize, Vec<Production> >
   // 当需要查询是否由相同产生式的时候，只比较右部
+}
+
+// 定义一个存放 first、follow 集合的数据结构
+pub struct Collection {
+  pub allow_epsilon: bool,
+  pub set: HashSet<usize>,
 }
 
 impl Grammar {
@@ -38,6 +43,32 @@ impl Grammar {
       productions: HashMap::new(),
     }
   }
+
+  pub fn first_set(&self) -> HashMap<usize, Collection> {
+    // 求 first 集合
+    let mut result = HashMap::new();  
+    for (id, _) in self.productions.iter() {
+      result.insert(*id, Collection { allow_epsilon: false, set: HashSet::new() });
+    }
+
+    let mut done = false;
+    
+    while ! done {
+      for (id, productions) in self.productions.iter() {
+        // 再
+      }
+    }
+
+    result
+  }
+
+  pub fn follow_set(&self) -> HashMap<usize, Collection> {
+    // 求 first 集合
+    
+    todo!()
+  }
+
+
 }
 
 
