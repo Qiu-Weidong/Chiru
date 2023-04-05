@@ -4,6 +4,8 @@ use std::collections::HashMap;
 
 use crate::tool::{grammar::{Grammar, ProductionItem, Production}, syntaxis::{syntaxis_visitor::SyntaxisVisitor, syntaxis_context::{ElementContext, LexerRuleContext, ParserRuleContext}}};
 
+use super::lexer_rule_visitor::LexerRuleData;
+
 /**
  * 第一遍 将所有的语法规则中的字符串字面量转换为 token
  * 第二遍 将所有词法符号和语法符号编号并填表
@@ -14,13 +16,18 @@ use crate::tool::{grammar::{Grammar, ProductionItem, Production}, syntaxis::{syn
 pub struct StringLiteralToTokenVisitor<'a> {
   pub grammar: &'a mut Grammar,
   pub next_token_id: usize,
+  pub data: Vec<LexerRuleData>,
 }
 
 impl<'a> StringLiteralToTokenVisitor<'a> {
+  // 将字符串字面量转义为对应的实际字符串
   fn escape(_input: &str) -> String { todo!() }
+  
+  // 将字符串字面量转义为识别它的正则表达式
+  fn regular_escape(_input: &str) -> String { todo!() }
 
   pub fn new(grammar: &'a mut Grammar, first_token_id: usize) -> Self {
-    Self { grammar, next_token_id: first_token_id }
+    Self { grammar, next_token_id: first_token_id, data: Vec::new(), }
   }
 }
 
@@ -33,9 +40,14 @@ impl SyntaxisVisitor for StringLiteralToTokenVisitor<'_> {
       // 检查该字符串是否已经定义
       if self.grammar.terminal_cache.contains_key(&text) { return self.default_result(); } 
       
+      let token_name = format!("_T_{}", self.next_token_id);
       // 定义之
       self.grammar.terminal_cache.insert(text, self.next_token_id);
-      self.grammar.terminals.insert(self.next_token_id, format!("_T_{}", self.next_token_id));
+      self.grammar.terminals.insert(self.next_token_id, token_name.clone());
+      
+      // 将字符串对应的正则表达式放入 data 中，首先需要进行正则表达式的转义
+      let regular_string = StringLiteralToTokenVisitor::regular_escape(&value.symbol.text);
+      self.data.push(LexerRuleData { token_type: self.next_token_id, token_name, regex: regular_string, });
       self.next_token_id += 1;
     }
     self.default_result()
@@ -46,13 +58,15 @@ impl SyntaxisVisitor for StringLiteralToTokenVisitor<'_> {
 
 pub struct SymbolVisitor<'a> {
   pub grammar: &'a mut Grammar,
+  pub data: Vec<LexerRuleData>,
   pub next_token_id: usize,
   pub next_rule_id: usize,
 }
 
 impl<'a> SymbolVisitor<'a> {
-  pub fn new(grammar: &'a mut Grammar, first_token_id: usize, first_rule_id: usize) -> Self {
-    Self { grammar, next_rule_id: first_rule_id, next_token_id: first_token_id }
+  pub fn new(grammar: &'a mut Grammar, first_token_id: usize, first_rule_id: usize, 
+    data: Vec<LexerRuleData>) -> Self {
+    Self { grammar, next_rule_id: first_rule_id, next_token_id: first_token_id, data }
   }
 }
 
@@ -64,6 +78,16 @@ impl SyntaxisVisitor for SymbolVisitor<'_> {
       println!("重复定义 token: {}", name);
       return self.default_result();
     }
+
+    let regular = &ctx.regular().unwrap().regular_literal().unwrap().symbol.text; // .replace("\\/", "/");
+    if regular.len() < 2 {
+      println!("非法正则表达式");
+      return self.default_result();
+    }
+    let regular = &regular[1..regular.len()-1].replace("\\/", "/");
+    self.data.push( LexerRuleData { token_type: self.next_token_id, token_name: name.to_owned(), regex: format!("^({})", regular) });
+    
+
     self.grammar.terminal_cache.insert(name.clone(), self.next_token_id);
     self.grammar.terminals.insert(self.next_token_id, name.clone());
     self.next_token_id += 1;

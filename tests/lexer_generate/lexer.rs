@@ -7,7 +7,7 @@ use syntaxis::runtime::{lexer::{Lexer, Error}, token::{Token, Position}};
 
 
 
-pub struct GreetLexer {
+pub struct SyntaxisLexer {
   pub input: String,
   pub cursor: usize, // 每次都匹配 input[cursor..]
   pub regex_list: Vec<regex::Regex>,
@@ -17,22 +17,26 @@ pub struct GreetLexer {
 }
 
 #[allow(dead_code)]
-impl GreetLexer {
+impl SyntaxisLexer {
   // 前两个是开始符号和结束符号
   pub const _START: usize = 0;
   pub const _STOP: usize = 1;
 
   // 从这里开始使用模板
   
-  pub const T_2: usize = 2;
-  pub const T_3: usize = 3;
-  pub const T_4: usize = 4;
-  pub const T_5: usize = 5;
-  pub const T_6: usize = 6;
-  pub const T_7: usize = 7;
-  pub const WHITE_SPACE: usize = 8;
-  pub const NUMBER: usize = 9;
-  pub const IDENTIFY: usize = 10;
+  pub const RULE_REF: usize = 2;
+  pub const TOKEN_REF: usize = 3;
+  pub const COLON: usize = 4;
+  pub const SEMI: usize = 5;
+  pub const OR: usize = 6;
+  pub const EPSILON: usize = 7;
+  pub const STAR: usize = 8;
+  pub const PLUS: usize = 9;
+  pub const QUESTION: usize = 10;
+  pub const LPAREN: usize = 11;
+  pub const RPAREN: usize = 12;
+  pub const STRING_LITERAL: usize = 13;
+  pub const REGULAR_LITERAL: usize = 14;
 
 
   pub fn new(input: &str) -> Self {
@@ -40,25 +44,29 @@ impl GreetLexer {
 
       // 这里也需要使用模板
       
-      Regex::new(r####"^(hello)"####).unwrap(), // T_2
-      Regex::new(r####"^(if)"####).unwrap(), // T_3
-      Regex::new(r####"^(while)"####).unwrap(), // T_4
-      Regex::new(r####"^(do)"####).unwrap(), // T_5
-      Regex::new(r####"^(const)"####).unwrap(), // T_6
-      Regex::new(r####"^(\+)"####).unwrap(), // T_7
-      Regex::new(r####"^([ \r\t\n]+)"####).unwrap(), // WHITE_SPACE
-      Regex::new(r####"^([0-9]+)"####).unwrap(), // NUMBER
-      Regex::new(r####"^([a-zA-Z_]+)"####).unwrap(), // IDENTIFY
+      Regex::new(r####"^([a-z][a-zA-Z0-9_]+)"####).unwrap(), // RULE_REF
+      Regex::new(r####"^([A-Z][a-zA-Z0-9_]+)"####).unwrap(), // TOKEN_REF
+      Regex::new(r####"^(::=|:=|->|=>|:|=)"####).unwrap(), // COLON
+      Regex::new(r####"^(;)"####).unwrap(), // SEMI
+      Regex::new(r####"^(\|)"####).unwrap(), // OR
+      Regex::new(r####"^(ε|epsilon)"####).unwrap(), // EPSILON
+      Regex::new(r####"^(\*)"####).unwrap(), // STAR
+      Regex::new(r####"^(\+)"####).unwrap(), // PLUS
+      Regex::new(r####"^(\?)"####).unwrap(), // QUESTION
+      Regex::new(r####"^(\()"####).unwrap(), // LPAREN
+      Regex::new(r####"^(\))"####).unwrap(), // RPAREN
+      Regex::new(r####"^('([^\a\d\n\r\t\f\v\\']|(\\\\|\\'|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*')"####).unwrap(), // STRING_LITERAL
+      Regex::new(r####"^(/([^/]|\\/)+/)"####).unwrap(), // REGULAR_LITERAL
     
     ];
     
     // 同样使用模板
     let token_names = vec![
       "_START", "_STOP", 
-      "T_2", "T_3", "T_4", "T_5", "T_6", "T_7", "WHITE_SPACE", "NUMBER", "IDENTIFY", 
+      "RULE_REF", "TOKEN_REF", "COLON", "SEMI", "OR", "EPSILON", "STAR", "PLUS", "QUESTION", "LPAREN", "RPAREN", "STRING_LITERAL", "REGULAR_LITERAL", 
     ];
 
-    GreetLexer { input: input.to_owned(), cursor: 0, regex_list, token_names, token_index: 0, position: Position { line: 0, char_position: 0 } }
+    SyntaxisLexer { input: input.to_owned(), cursor: 0, regex_list, token_names, token_index: 0, position: Position { line: 0, char_position: 0 } }
   }
 
 
@@ -66,7 +74,7 @@ impl GreetLexer {
 }
 
 
-impl Lexer for GreetLexer {
+impl Lexer for SyntaxisLexer {
 
 
   fn scan(&mut self) -> Result<Token, Error> {
@@ -123,10 +131,6 @@ impl Lexer for GreetLexer {
     self.position = new_pos;
     return Ok(token);
 
-  }
-
-  fn scan_all_on_channel_tokens(&mut self, _channel: usize) -> Vec<Token> {
-    todo!()
   }
 }
 
