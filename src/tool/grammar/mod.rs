@@ -1,6 +1,6 @@
 // 定义一个数据结构来表示文法
 
-use std::{collections::{HashMap, HashSet}, fmt::Display};
+use std::{collections::{HashMap, HashSet}, fmt::Display, rc::Rc};
 
 pub struct Grammar {
   // 文法的名称
@@ -204,7 +204,32 @@ impl Grammar {
     result
   }
 
+  // 构造预测分析表
+  pub fn ll1_table(&self, first_set: &HashMap<Production, Collection>, follow_set: &HashMap<usize, HashSet<usize>>) -> HashMap<(usize, usize), Rc<Production>> {
+    let mut result: HashMap<(usize, usize), Rc<Production>> = HashMap::new();
+    let productions: Vec<Rc<Production>> = self.productions.iter().map(|p| { Rc::new(p.clone()) }).collect();
+    for production in productions.iter() {
+      let first = first_set.get(&production).unwrap();
+      let rule_id = production.left;
+      
+      // 将 first 集合中的所有元素
+      for token_type in first.set.iter() {
+        if let Some(p) = result.insert((rule_id, *token_type), Rc::clone(production)) {
+          println!("{:?}, {:?}", production, p);
+        }
+      }
 
+      if first.allow_epsilon {
+        let follow = follow_set.get(&rule_id).unwrap();
+        for token_type in follow.iter() {
+          if let Some(p) = result.insert((rule_id, *token_type), Rc::clone(production)) {
+            println!("{:?}, {:?}", production, p);
+          }
+        }
+      }
+    }
+    result
+  }
 }
 
 

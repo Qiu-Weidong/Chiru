@@ -152,6 +152,9 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
     // 首先解析出一个 item
     let item: ProductionItem; let id: usize;
     if let Some(token) = ctx.token_ref() {
+      // if let None = self.grammar.terminal_cache.get(&token.symbol.text) {
+      //   println!("{}", token.symbol.text);
+      // }
       id = *self.grammar.terminal_cache.get(&token.symbol.text).unwrap();
       item = ProductionItem::Terminal(id);
     }

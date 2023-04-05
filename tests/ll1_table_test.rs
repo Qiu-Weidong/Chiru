@@ -4,23 +4,11 @@ use std::rc::Rc;
 use syntaxis::tool::grammar::Grammar;
 use syntaxis::tool::serde_ast;
 use syntaxis::tool::syntaxis::syntaxis_context::RuleListContext;
-// use syntaxis::tool::syntaxis::syntaxis_context::AlternativeContext;
 // use syntaxis::tool::grammar;
 use syntaxis::tool::visitor::grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor};
 
-
-
-
-/**
- * syntaxis <grammar-filename> [-o 输出目录] [-encoding 编码] [-listener] [-visitor] [-package 模块名称] [-language 目标语言]
- *
- * syntaxis <grammar-filename> [-tokens] [-tree] [-gui] [-encoding 编码]
- */
-
- fn main() {
-  // 测试求 first 集合
-
-
+#[test]
+fn ll1_table_test() {
   let file = File::open("src/tool/syntaxis/syntaxis2.json").unwrap();
   let ast = serde_ast::from_reader(file).unwrap() as Rc<dyn RuleListContext>;
 
@@ -49,22 +37,13 @@ use syntaxis::tool::visitor::grammar_visitor::{StringLiteralToTokenVisitor, Symb
 
   println!("{}", grammar);
 
-  let (first, _) = grammar.first_set();
-  
-  for (id, collection) in first.iter() {
-    let name = grammar.nonterminals.get(id).unwrap();
-    let name = match name {
-      Some(name) => name.clone(),
-      None => id.to_string(),
-    };
-    println!("{}:", name);
-    println!("{{");
-    for item in collection.set.iter() {
-      print!("{}, ", item);
-    }
-    if collection.allow_epsilon { print!("ε") }
-    println!("}}");
-  }
+  let (first, first_set) = grammar.first_set();
+  grammar.terminals.insert(1, "_STOP".to_owned());
+
+  let follow = grammar.follow_set(&first);
+
+  let table = grammar.ll1_table(&first_set, &follow);
+
+  println!("{:?}", table);
+
 }
-
-
