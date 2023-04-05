@@ -1,4 +1,4 @@
-use syntaxis::runtime::lexer::Lexer;
+use syntaxis::{runtime::lexer::Lexer, tool::parser::ll1_parser::LL1Parser};
 mod lexer_generate;
 mod ast_loader;
 
@@ -74,8 +74,12 @@ fn parser_test() {
 
   let table = grammar.ll1_table(&first_set, &follow);
 
-  // println!("{:?}", grammar.terminals);
-  
+  let mut parser = LL1Parser::new(tokens, table, grammar);
+  let productions = parser.parse();
+  println!("{:?}", productions);
+
+
+  // 根据产生式构造 ast
 
 }
 
