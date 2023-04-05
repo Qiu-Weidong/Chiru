@@ -55,7 +55,7 @@ regular: REGULAR_LITERAL;
   LPAREN: /\(/;
   RPAREN: /\)/;
   STRING_LITERAL: /"([^\a\d\n\r\t\f\v\\"]|(\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*"/;
-  REGULAR_LITERAL: /\/([^/]|\\\/)+\//;
+  REGULAR_LITERAL: /\/(\\\/|[^\/])+\//;
 
 
  对产生式需要进行改写，然后分析

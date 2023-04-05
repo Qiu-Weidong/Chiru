@@ -4,6 +4,7 @@ use syntaxis::{tool::syntaxis::syntaxis_lexer::SyntaxisLexer, runtime::lexer::Le
 
 fn lexer_test() {
   let input = r####"
+  'string123\'\''
   rule_list: (parser_rule | lexer_rule)*;
 
   parser_rule: RULE_REF COLON block SEMI;
@@ -35,8 +36,8 @@ fn lexer_test() {
   QUESTION: /\?/;
   LPAREN: /\(/;
   RPAREN: /\)/;
-  STRING_LITERAL: /"([^\a\d\n\r\t\f\v\\"]|(\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*"/;
-  REGULAR_LITERAL: /\/([^/]|\\\/)+\//;
+  STRING_LITERAL: /"((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*"/;
+  REGULAR_LITERAL: /\/(\\\/|[^\/])+\//;
   
   "####;
 

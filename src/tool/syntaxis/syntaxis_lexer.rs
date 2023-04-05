@@ -64,7 +64,7 @@ impl SyntaxisLexer {
       Regex::new(r##"^\("##).unwrap(), // LPAREN
       Regex::new(r##"^\)"##).unwrap(), // RPAREN
       Regex::new(r##"^#"##).unwrap(), // POUND
-      Regex::new(r##"^'([^\a\d\n\r\t\f\v\\']|(\\\\|\\'|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*'"##).unwrap(), // STRING_LITERAL
+      Regex::new(r##"^'((\\\\|\\'|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\'])*'"##).unwrap(), // STRING_LITERAL
       Regex::new(r##"^\.\."##).unwrap(), // RANGE
       Regex::new(r##"^/(\\/|[^/])+/"##).unwrap(), // REGULAR_LITERAL
       Regex::new(r##"^(ε|epsilon)"##).unwrap(), // EPSILON
