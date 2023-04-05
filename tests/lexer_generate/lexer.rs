@@ -124,6 +124,10 @@ impl Lexer for GreetLexer {
     return Ok(token);
 
   }
+
+  fn scan_all_on_channel_tokens(&mut self, _channel: usize) -> Vec<Token> {
+    todo!()
+  }
 }
 
 

@@ -1,12 +1,10 @@
-use std::fs::File;
-use std::rc::Rc;
 
-use syntaxis::tool::grammar::Grammar;
-use syntaxis::tool::serde_ast;
-use syntaxis::tool::syntaxis::syntaxis_context::RuleListContext;
+
+use syntaxis::runtime::lexer::Lexer;
+use syntaxis::tool::syntaxis::syntaxis_lexer::SyntaxisLexer;
 // use syntaxis::tool::syntaxis::syntaxis_context::AlternativeContext;
 // use syntaxis::tool::grammar;
-use syntaxis::tool::visitor::grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor};
+
 
 
 
@@ -18,52 +16,29 @@ use syntaxis::tool::visitor::grammar_visitor::{StringLiteralToTokenVisitor, Symb
  */
 
  fn main() {
-  // 测试求 first 集合
-
-
-  let file = File::open("src/tool/syntaxis/syntaxis2.json").unwrap();
-  let ast = serde_ast::from_reader(file).unwrap() as Rc<dyn RuleListContext>;
-
-  let mut grammar = Grammar::new("我的文法");
-  let token_cnt;
-  {
-    let mut visitor = StringLiteralToTokenVisitor::new(
-      &mut grammar, 2
-    );
-
-    ast.accept(&mut visitor);
-    token_cnt = visitor.next_token_id;
-  }
+  let input = r####"/[a-z][a-zA-Z0-9_]+/;
+  TOKEN_REF: /[A-Z][a-zA-Z0-9_]+/;
+  COLON: /::=|:=|->|=>|:|=/;
+  SEMI: /;/;
+  OR: /\|/;
+  EPSILON: /ε|epsilon/;
+  STAR: /\* /;
+  PLUS: /\+/;
+  QUESTION: /\?/;
+  LPAREN: /\(/;
+  RPAREN: /\)/;
+  STRING_LITERAL: /"([^\a\d\n\r\t\f\v\\"]|(\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*"/;
+  REGULAR_LITERAL: /\/(\\\/|[^\/])+\//;
   
-  let rule_cnt; {
-    let mut visitor = SymbolVisitor::new(&mut grammar, token_cnt, 0);
-    ast.accept(&mut visitor);
-    rule_cnt = visitor.next_rule_id;
-  }
-
-  {
-    let mut visitor = ProductionVisitor::new(&mut grammar, rule_cnt);
-    ast.accept(&mut visitor);
-  }
+  "####;
 
 
-  println!("{}", grammar);
+  let mut lexer = SyntaxisLexer::new(input);
+  let tokens = lexer.scan_all_on_channel_tokens(0);
 
-  let (first, _) = grammar.first_set();
   
-  for (id, collection) in first.iter() {
-    let name = grammar.nonterminals.get(id).unwrap();
-    let name = match name {
-      Some(name) => name.clone(),
-      None => id.to_string(),
-    };
-    println!("{}:", name);
-    println!("{{");
-    for item in collection.set.iter() {
-      print!("{}, ", item);
-    }
-    if collection.allow_epsilon { print!("ε") }
-    println!("}}");
+  for token in tokens {
+    println!("{}, {}", token.text, token.token_name);
   }
 }
 

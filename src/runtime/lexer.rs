@@ -8,6 +8,8 @@ pub trait Lexer {
   // scan 的过程中会直接丢弃掉 skip 和 ignore 的 token 。
   fn scan(&mut self) -> Result<Token, Error>;
 
+  fn scan_all_on_channel_tokens(&mut self, channel: usize) -> Vec<Token>;
+
 
 /*
   fn scan_on_channel(&self, channel: usize) -> Result<Token, Error>;

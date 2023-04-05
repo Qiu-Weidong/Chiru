@@ -66,7 +66,7 @@ impl SyntaxisLexer {
       Regex::new(r##"^#"##).unwrap(), // POUND
       Regex::new(r##"^'([^\a\d\n\r\t\f\v\\']|(\\\\|\\'|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*'"##).unwrap(), // STRING_LITERAL
       Regex::new(r##"^\.\."##).unwrap(), // RANGE
-      Regex::new(r##"^/([^/]|\\/)+/"##).unwrap(), // REGULAR_LITERAL
+      Regex::new(r##"^/(\\/|[^/])+/"##).unwrap(), // REGULAR_LITERAL
       Regex::new(r##"^(ε|epsilon)"##).unwrap(), // EPSILON
     ];
 
@@ -91,12 +91,12 @@ impl Lexer for SyntaxisLexer {
     let mut len = 0;
     let mut token_type = 0;
 
-    for i in 2..self.regex_list.len() {
-      let result = self.regex_list[i-2].find_at(&self.input[self.cursor..], 0) ;
+    for i in 0..self.regex_list.len() {
+      let result = self.regex_list[i].find_at(&self.input[self.cursor..], 0) ;
       if let Some(result) = result {
         if result.end() > len {
           len = result.end();
-          token_type = i;
+          token_type = i + 2;
         }
       }
     }
@@ -141,6 +141,19 @@ impl Lexer for SyntaxisLexer {
     self.position = new_pos;
     return Ok(token);
 
+  }
+
+  fn scan_all_on_channel_tokens(&mut self, channel: usize) -> Vec<Token> {
+    let mut result = Vec::new();
+    while let Ok(token) = self.scan() {
+      if token.token_type == SyntaxisLexer::LINE_COMMENT || token.token_type == SyntaxisLexer::BLOCK_COMMENT
+        || token.token_type == SyntaxisLexer::WS { continue; }
+      if token.channel == channel {
+        result.push(token);
+      }
+    }
+    println!("{}", &self.input[self.cursor..]);
+    result
   }
 }
 

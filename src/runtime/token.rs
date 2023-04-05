@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Position {
   pub line: usize, 
   pub char_position: usize,
@@ -12,7 +12,7 @@ impl Display for Position {
   }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Token {
   pub token_type: usize, 
   pub token_name: String,

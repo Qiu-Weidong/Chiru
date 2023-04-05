@@ -1,21 +1,26 @@
 // 专门用来确认语法特性
-
+use regex::Regex;
 
 #[test]
 fn rust_test() {
-  let v1 = vec![1, 2, 3, 3, 4];
+  let re = Regex::new(r##"^/([^/]|\\/)+/"##).unwrap();
 
-  let mut v2 = Vec::new();
-
-
-  v2.push(1);
-  v2.push(2);
-  v2.push(3);
-  v2.push(3);
-  v2.push(4);
-
-  assert_eq!(v1, v2);
-  assert!(v1 == v2);
+  let ma = re.find_at(r####"/[a-z][a-zA-Z0-9_]+/;
+  TOKEN_REF: /[A-Z][a-zA-Z0-9_]+/;
+  COLON: /::=|:=|->|=>|:|=/;
+  SEMI: /;/;
+  OR: /\|/;
+  EPSILON: /ε|epsilon/;
+  STAR: /\* /;
+  PLUS: /\+/;
+  QUESTION: /\?/;
+  LPAREN: /\(/;
+  RPAREN: /\)/;
+  STRING_LITERAL: /"([^\a\d\n\r\t\f\v\\"]|(\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*"/;
+  REGULAR_LITERAL: /\/([^\/]|\\\/)+\//;"####, 0);
+  
+  let ma = ma.unwrap();
+  println!("{:?}", ma);
 }
 
 
