@@ -35,12 +35,16 @@ pub struct Collection {
 
 impl Grammar {
   pub fn new(name: &str) -> Self {
+    let mut terminals = HashMap::new();
+    terminals.insert(0, "_START".to_owned());
+    terminals.insert(1, "_STOP".to_owned());
+    
     Self {
       name: name.to_owned(),
       nonterminal_cache: HashMap::new(),
       terminal_cache: HashMap::new(), 
       nonterminals: HashMap::new(),
-      terminals: HashMap::new(),
+      terminals,
       productions: HashSet::new(),
     }
   }
