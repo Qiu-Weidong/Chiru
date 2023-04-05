@@ -1,10 +1,10 @@
-use syntaxis::{tool::syntaxis::syntaxis_lexer::SyntaxisLexer, runtime::lexer::Lexer};
+use syntaxis::runtime::lexer::Lexer;
+mod lexer_generate;
 
 #[test]
 
 fn lexer_test() {
   let input = r####"
-  'string123\'\''
   rule_list: (parser_rule | lexer_rule)*;
 
   parser_rule: RULE_REF COLON block SEMI;
@@ -38,11 +38,12 @@ fn lexer_test() {
   RPAREN: /\)/;
   STRING_LITERAL: /"((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*"/;
   REGULAR_LITERAL: /\/(\\\/|[^\/])+\//;
+  WHITE_SPACE: /[ \r\n\t\f]+/;
   
   "####;
 
 
-  let mut lexer = SyntaxisLexer::new(input);
+  let mut lexer = lexer_generate::lexer::SyntaxisLexer::new(input);
   let tokens = lexer.scan_all_on_channel_tokens(0);
 
   

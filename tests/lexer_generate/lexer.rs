@@ -37,6 +37,7 @@ impl SyntaxisLexer {
   pub const RPAREN: usize = 12;
   pub const STRING_LITERAL: usize = 13;
   pub const REGULAR_LITERAL: usize = 14;
+  pub const WHITE_SPACE: usize = 15;
 
 
   pub fn new(input: &str) -> Self {
@@ -56,14 +57,15 @@ impl SyntaxisLexer {
       Regex::new(r####"^(\()"####).unwrap(), // LPAREN
       Regex::new(r####"^(\))"####).unwrap(), // RPAREN
       Regex::new(r####"^('([^\a\d\n\r\t\f\v\\']|(\\\\|\\'|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*')"####).unwrap(), // STRING_LITERAL
-      Regex::new(r####"^(/([^/]|\\/)+/)"####).unwrap(), // REGULAR_LITERAL
+      Regex::new(r####"^(/(\\/|[^/])+/)"####).unwrap(), // REGULAR_LITERAL
+      Regex::new(r####"^([ \r\n\t\f]+)"####).unwrap(), // WHITE_SPACE
     
     ];
     
     // 同样使用模板
     let token_names = vec![
       "_START", "_STOP", 
-      "RULE_REF", "TOKEN_REF", "COLON", "SEMI", "OR", "EPSILON", "STAR", "PLUS", "QUESTION", "LPAREN", "RPAREN", "STRING_LITERAL", "REGULAR_LITERAL", 
+      "RULE_REF", "TOKEN_REF", "COLON", "SEMI", "OR", "EPSILON", "STAR", "PLUS", "QUESTION", "LPAREN", "RPAREN", "STRING_LITERAL", "REGULAR_LITERAL", "WHITE_SPACE", 
     ];
 
     SyntaxisLexer { input: input.to_owned(), cursor: 0, regex_list, token_names, token_index: 0, position: Position { line: 0, char_position: 0 } }
@@ -131,6 +133,18 @@ impl Lexer for SyntaxisLexer {
     self.position = new_pos;
     return Ok(token);
 
+  }
+
+  fn scan_all_on_channel_tokens(&mut self, channel: usize) -> Vec<Token> {
+    let mut result = Vec::new();
+    while let Ok(token) = self.scan() {
+      if token.token_type == SyntaxisLexer::WHITE_SPACE { continue; }
+      if token.channel == channel {
+        result.push(token);
+      }
+    }
+    println!("{}", &self.input[self.cursor..]);
+    result
   }
 }
 

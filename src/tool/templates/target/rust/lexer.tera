@@ -108,6 +108,18 @@ impl Lexer for {{name}}Lexer {
     return Ok(token);
 
   }
+
+  fn scan_all_on_channel_tokens(&mut self, channel: usize) -> Vec<Token> {
+    let mut result = Vec::new();
+    while let Ok(token) = self.scan() {
+      if token.token_type == {{name}}Lexer::WHITE_SPACE { continue; }
+      if token.channel == channel {
+        result.push(token);
+      }
+    }
+    println!("{}", &self.input[self.cursor..]);
+    result
+  }
 }
 
 

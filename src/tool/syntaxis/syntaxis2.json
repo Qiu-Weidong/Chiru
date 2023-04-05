@@ -1267,7 +1267,39 @@
             {
               "token_type": 21,
               "token_name": "REGULAR_LITERAL",
-              "text": "/\\/([^/]|\\\\\\/)+\\//"
+              "text": "/\\/(\\\\\\/|[^\\/])+\\//"
+            }
+          ]
+        },
+        {
+          "token_type": 10,
+          "token_name": "SEMI",
+          "text": ";"
+        }
+      ]
+    },
+    {
+      "rule_index": 7,
+      "rule_name": "lexer_rule",
+      "children": [
+        {
+          "token_type": 6,
+          "token_name": "TOKEN_REF",
+          "text": "WHITE_SPACE"
+        },
+        {
+          "token_type": 8,
+          "token_name": "COLON",
+          "text": ":"
+        },
+        {
+          "rule_index": 8,
+          "rule_name": "regular",
+          "children": [
+            {
+              "token_type": 21,
+              "token_name": "REGULAR_LITERAL",
+              "text": "/[ \\r\\n\\t\\f]+/"
             }
           ]
         },
