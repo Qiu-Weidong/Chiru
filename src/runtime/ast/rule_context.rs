@@ -1,16 +1,16 @@
-use std::{rc::Rc, fmt::Display};
+use std::fmt::Display;
 
 
 use crate::runtime::token::Token;
 
 use super::{terminal_context::TerminalContext, error_context::ErrorContext, ast_context::ASTContext, to_rule::ToRule};
 
-
+#[derive(Clone)]
 pub struct RuleContext {
   pub rule_name: String,
   pub children: Vec<ASTContext>,
 
-  // 可能需要添加一个 rule id
+  // 非终结符 rule 的编号
   pub rule_index: usize,
 }
 
@@ -34,20 +34,20 @@ impl RuleContext {
 
   pub fn get_rule_index(&self) -> usize { self.rule_index }
 
-  pub fn get_first_terminal(&self) -> Option<Rc<TerminalContext>> { 
+  pub fn get_first_terminal(&self) -> Option<&TerminalContext> { 
     if self.children.len() <= 0 { return None }
     match &self.children[0] {
-      ASTContext::Ternimal(ctx) => Some(Rc::clone(ctx)),
+      ASTContext::Terminal(ctx) => Some(ctx),
       ASTContext::Rule(ctx) => ctx.get_first_terminal(),
       ASTContext::Error(_) => None,
     }
 
   }
 
-  pub fn get_last_terminal(&self) -> Option<Rc<TerminalContext>> { 
+  pub fn get_last_terminal(&self) -> Option<&TerminalContext> { 
     if self.children.len() <= 0 { return None }
     match &self.children.last().unwrap() {
-      ASTContext::Ternimal(ctx) => Some(Rc::clone(ctx)),
+      ASTContext::Terminal(ctx) => Some(ctx),
       ASTContext::Rule(ctx) => ctx.get_last_terminal(),
       ASTContext::Error(_) => None,
     }
@@ -56,7 +56,7 @@ impl RuleContext {
   pub fn get_start_token(&self) -> Option<Token> {
     if self.children.len() <= 0 { return None }
     match &self.children[0] {
-      ASTContext::Ternimal(ctx) => Some(ctx.symbol.clone()),
+      ASTContext::Terminal(ctx) => Some(ctx.symbol.clone()),
       ASTContext::Rule(ctx) => ctx.get_start_token(),
       ASTContext::Error(ctx) => Some(ctx.symbol.clone()),
     }
@@ -66,52 +66,52 @@ impl RuleContext {
   pub fn get_stop_token(&self) -> Option<Token> {
     if self.children.len() <= 0 { return None }
     match self.children.last().unwrap() {
-      ASTContext::Ternimal(ctx) => Some(ctx.symbol.clone()),
+      ASTContext::Terminal(ctx) => Some(ctx.symbol.clone()),
       ASTContext::Rule(ctx) => ctx.get_stop_token(),
       ASTContext::Error(ctx) => Some(ctx.symbol.clone()),
     }
   }
 
-  pub fn get_terminal(&self, token_type: usize, i: usize) -> Option<Rc<TerminalContext>> {
+  pub fn get_terminal(&self, token_type: usize, i: usize) -> Option<&TerminalContext> {
     let tokens = self.get_terminals(token_type);
-    if i < tokens.len() { Some(Rc::clone(&tokens[i])) } else { None }
+    if i < tokens.len() { Some(&tokens[i]) } else { None }
   }
 
-  pub fn get_terminals(&self, token_type: usize) -> Vec<Rc<TerminalContext>> { 
+  pub fn get_terminals(&self, token_type: usize) -> Vec<&TerminalContext> { 
     let mut result = Vec::new();
     for child in self.children.iter() {
-      if let ASTContext::Ternimal(child) = child {
-        if child.symbol.token_type == token_type { result.push(Rc::clone(child)) }
+      if let ASTContext::Terminal(child) = child {
+        if child.symbol.token_type == token_type { result.push(child) }
       }
     }
     result
   }
 
-  pub fn get_errornode(&self, token_type: usize, i: usize) -> Option<Rc<ErrorContext>> { 
+  pub fn get_errornode(&self, token_type: usize, i: usize) -> Option<&ErrorContext> { 
     let errors = self.get_errornodes(token_type);
-    if i < errors.len() { Some(Rc::clone(&errors[i])) } else { None }
+    if i < errors.len() { Some(&errors[i]) } else { None }
   }
 
-  pub fn get_errornodes(&self, token_type: usize) -> Vec<Rc<ErrorContext>> { 
+  pub fn get_errornodes(&self, token_type: usize) -> Vec<&ErrorContext> { 
     let mut result = Vec::new();
     for child in self.children.iter() {
       if let ASTContext::Error(child) = child {
-        if child.symbol.token_type == token_type { result.push(Rc::clone(child)) }
+        if child.symbol.token_type == token_type { result.push(child) }
       }
     }
     result
   }
 
-  pub fn get_rule_context(&self, rule_type: usize, index: usize) -> Option<Rc<RuleContext>> {  
+  pub fn get_rule_context(&self, rule_type: usize, index: usize) -> Option<&RuleContext> {  
     let rules = self.get_rule_contexts(rule_type);
-    if index < rules.len() { Some(Rc::clone(&rules[index])) } else { None }
+    if index < rules.len() { Some(&rules[index]) } else { None }
   }
 
-  pub fn get_rule_contexts(&self, rule_type: usize) -> Vec<Rc<RuleContext>> { 
+  pub fn get_rule_contexts(&self, rule_type: usize) -> Vec<&RuleContext> { 
     let mut result = Vec::new();
     for child in self.children.iter() {
       if let ASTContext::Rule(child) = child {
-        if child.get_rule_index() == rule_type { result.push(Rc::clone(child)) }
+        if child.get_rule_index() == rule_type { result.push(child) }
       }
     }
     result

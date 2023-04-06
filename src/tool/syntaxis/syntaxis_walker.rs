@@ -11,7 +11,7 @@ pub trait SyntaxisWalker {
 
     for child in ast.children.iter() {
       match child {
-        ASTContext::Ternimal(ctx) => {
+        ASTContext::Terminal(ctx) => {
           listener.enter_terminal(ctx);
           listener.exit_terminal(ctx);
         },

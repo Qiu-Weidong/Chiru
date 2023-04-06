@@ -22,7 +22,7 @@
   
  */
 
-use std::{fs::File, rc::Rc};
+use std::fs::File;
 
 use regex::Regex;
 use syntaxis::{tool::{parser::ll1_parser::LL1Parser, visitor::{grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor}, lexer_rule_visitor::LexerRuleData}, grammar::Grammar, serde_ast, syntaxis::syntaxis_context::RuleListContext, gui::ast_drawer::ASTDrawer}, runtime::{token::{Token, Position}, lexer::{Lexer, Error}}};
@@ -63,7 +63,7 @@ TOKEN_REF COLON REGULAR_LITERAL SEMI
 
 pub fn load_ast() -> (Grammar, Vec<LexerRuleData>) {
   let file = File::open("src/tool/syntaxis/syntaxis2.json").unwrap();
-  let ast = serde_ast::from_reader(file).unwrap() as Rc<dyn RuleListContext>;
+  let ast = serde_ast::from_reader(file).unwrap();
 
   let mut grammar = Grammar::new("我的文法");
   let token_cnt;

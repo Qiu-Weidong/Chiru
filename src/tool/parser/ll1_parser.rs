@@ -30,17 +30,6 @@ id
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 pub struct LL1Parser {
   pub tokens: Vec<Token>,
   pub table: HashMap<(usize, usize), Rc<Production>>,
@@ -57,9 +46,8 @@ impl LL1Parser {
     }
   }
 
-  pub fn parse(&mut self) -> Rc<RuleContext> {
+  pub fn parse(&mut self) -> RuleContext {
     let mut stack: Vec<ProductionItem> = Vec::new();
-    let mut terminals: Vec<ASTContext> = Vec::new();
     let mut cursor = 0;
 
     // 将 _START 放入栈中
@@ -67,7 +55,7 @@ impl LL1Parser {
     // 首先第一步将开始符号放入栈中
     stack.push(ProductionItem::NonTerminal(0));
 
-    let mut result = Vec::new();
+    // let mut result = Vec::new();
 
     loop {
       if let ProductionItem::Terminal(token) = stack.last().unwrap() {
@@ -78,7 +66,6 @@ impl LL1Parser {
       match stack.last().unwrap() {
         ProductionItem::Terminal(token_type) => {
           if *token_type != self.tokens[cursor].token_type { panic!("终结符不匹配") }
-          terminals.push( ASTContext::Ternimal(Rc::new(TerminalContext { symbol: self.tokens[cursor].clone() })));
           cursor += 1;
 
           stack.pop();
@@ -91,7 +78,9 @@ impl LL1Parser {
           for item in production.right.iter().rev() {
             stack.push(item.clone());
           }
-          result.push(Rc::clone(production));
+
+
+          // result.push(Rc::clone(production));
         },
       }
     }
@@ -99,44 +88,44 @@ impl LL1Parser {
 
 
 
+    todo!()
+    // let mut non_terminals: Vec<Rc<RuleContext>> = Vec::new();
 
-    let mut non_terminals: Vec<Rc<RuleContext>> = Vec::new();
+    // for production in result.iter().rev() {
 
-    for production in result.iter().rev() {
+    //   let name = match self.grammar.nonterminals.get(&production.left).unwrap() {
+    //     Some(name) => name.clone(),
+    //     None => production.left.to_string(),
+    //   };
 
-      let name = match self.grammar.nonterminals.get(&production.left).unwrap() {
-        Some(name) => name.clone(),
-        None => production.left.to_string(),
-      };
+    //   let mut tree = RuleContext { rule_index: production.left, rule_name: name, children: Vec::new(), };
+    //   for item in production.right.iter() {
+    //     match item {
+    //       ProductionItem::Terminal(_) => {
+    //         tree.children.push(terminals.pop().unwrap());
+    //       },
+    //       ProductionItem::NonTerminal(_) => {
+    //         let rule = non_terminals.pop().unwrap();
+    //         // tree.children.push(ASTContext::Rule(rule));
+    //         // if let Some(_) = self.grammar.nonterminals.get(&rule.rule_index) {
+    //         //   tree.children.push(ASTContext::Rule(rule));
+    //         // } else {
+    //         //   // 将 rule 的 children 全部添加
+    //         //   for child in rule.children.iter() { 
+    //         //     let child = child.clone();
+    //         //     tree.children.push(child); 
+    //         //   }
+    //         // } 
+    //       },
+    //     }
+    //   }
 
-      let mut tree = RuleContext { rule_index: production.left, rule_name: name, children: Vec::new(), };
-      for item in production.right.iter() {
-        match item {
-          ProductionItem::Terminal(_) => {
-            tree.children.push(terminals.pop().unwrap());
-          },
-          ProductionItem::NonTerminal(_) => {
-            let rule = non_terminals.pop().unwrap();
-            tree.children.push(ASTContext::Rule(rule));
-            // if let Some(_) = self.grammar.nonterminals.get(&rule.rule_index) {
-            //   tree.children.push(ASTContext::Rule(rule));
-            // } else {
-            //   // 将 rule 的 children 全部添加
-            //   for child in rule.children.iter() { 
-            //     let child = child.clone();
-            //     tree.children.push(child); 
-            //   }
-            // } 
-          },
-        }
-      }
-
-      tree.children.reverse();
-      non_terminals.push(Rc::new(tree));
-    }
+    //   tree.children.reverse();
+    //   non_terminals.push(Rc::new(tree));
+    // }
     
 
-    non_terminals.pop().unwrap()
+    // non_terminals.pop().unwrap()
   }
 
 

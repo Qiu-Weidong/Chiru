@@ -10,7 +10,7 @@ use syntaxis::tool::visitor::lexer_rule_visitor::LexerRuleData;
 #[allow(dead_code)]
 pub fn load_ast() -> (Grammar, Vec<LexerRuleData>) {
   let file = File::open("src/tool/syntaxis/syntaxis2.json").unwrap();
-  let ast = serde_ast::from_reader(file).unwrap() as Rc<dyn RuleListContext>;
+  let ast = serde_ast::from_reader(file).unwrap();
 
   let mut grammar = Grammar::new("我的文法");
   let token_cnt;

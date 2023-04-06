@@ -3,7 +3,7 @@ use std::fmt::Display;
 
 use crate::runtime::token::Token;
 
-
+#[derive(Clone)]
 pub struct ErrorContext {
   pub symbol: Token,
 

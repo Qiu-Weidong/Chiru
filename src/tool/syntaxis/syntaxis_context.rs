@@ -1,5 +1,4 @@
 use std::any::Any;
-use std::rc::Rc;
 
 
 use crate::runtime::ast::rule_context::RuleContext;
@@ -12,9 +11,9 @@ use super::syntaxis_parser::SyntaxisParser;
 use super::syntaxis_visitor::SyntaxisVisitor;
 
 pub trait RuleListContext: ToRule {
-  fn parser_rule_list(&self) -> Vec<Rc<dyn ParserRuleContext>>;
+  fn parser_rule_list(&self) -> Vec<&dyn ParserRuleContext>;
 
-  fn lexer_rule_list(&self) -> Vec<Rc<dyn LexerRuleContext>>;
+  fn lexer_rule_list(&self) -> Vec<&dyn LexerRuleContext>;
 
   fn accept(&self, visitor: &mut dyn SyntaxisVisitor) -> Box<dyn Any>;
 
@@ -23,13 +22,13 @@ pub trait RuleListContext: ToRule {
 }
 
 pub trait ParserRuleContext: ToRule {
-  fn rule_ref(&self) -> Option<Rc<TerminalContext>>;
+  fn rule_ref(&self) -> Option<&TerminalContext>;
 
-  fn colon(&self) -> Option<Rc<TerminalContext>>;
+  fn colon(&self) -> Option<&TerminalContext>;
 
-  fn block(&self) -> Option<Rc<dyn BlockContext>>;
+  fn block(&self) -> Option<&dyn BlockContext>;
 
-  fn semi(&self) -> Option<Rc<TerminalContext>>;
+  fn semi(&self) -> Option<&TerminalContext>;
 
   fn accept(&self, visitor: &mut dyn SyntaxisVisitor) -> Box<dyn Any>;
   fn enter(&self, listener: &mut dyn SyntaxisListener);
@@ -37,9 +36,9 @@ pub trait ParserRuleContext: ToRule {
 }
 
 pub trait BlockContext: ToRule {
-  fn alternative_list(&self) -> Vec<Rc<dyn AlternativeContext>>;
+  fn alternative_list(&self) -> Vec<&dyn AlternativeContext>;
   
-  fn or_list(&self) -> Vec<Rc<TerminalContext>>;
+  fn or_list(&self) -> Vec<&TerminalContext>;
 
   fn accept(&self, visitor: &mut dyn SyntaxisVisitor) -> Box<dyn Any>;
   fn enter(&self, listener: &mut dyn SyntaxisListener);
@@ -47,9 +46,9 @@ pub trait BlockContext: ToRule {
 }
 
 pub trait AlternativeContext: ToRule {
-  fn element_list(&self) -> Vec<Rc<dyn ElementContext>>;
+  fn element_list(&self) -> Vec<&dyn ElementContext>;
 
-  fn epsilon(&self) -> Option<Rc<dyn EpsilonContext>>;
+  fn epsilon(&self) -> Option<&dyn EpsilonContext>;
 
   fn accept(&self, visitor: &mut dyn SyntaxisVisitor) -> Box<dyn Any>;
   fn enter(&self, listener: &mut dyn SyntaxisListener);
@@ -57,7 +56,7 @@ pub trait AlternativeContext: ToRule {
 }
 
 pub trait EpsilonContext: ToRule {
-  fn epsilon(&self) -> Option<Rc<TerminalContext>>;
+  fn epsilon(&self) -> Option<&TerminalContext>;
 
   fn accept(&self, visitor: &mut dyn SyntaxisVisitor) -> Box<dyn Any>;
   fn enter(&self, listener: &mut dyn SyntaxisListener);
@@ -65,14 +64,14 @@ pub trait EpsilonContext: ToRule {
 }
 
 pub trait ElementContext: ToRule {
-  fn token_ref(&self) -> Option<Rc<TerminalContext>>;
-  fn string_literal(&self) -> Option<Rc<TerminalContext>>;
-  fn rule_ref(&self) -> Option<Rc<TerminalContext>>;
-  fn lparen(&self) -> Option<Rc<TerminalContext>>;
-  fn rparen(&self) -> Option<Rc<TerminalContext>>;
+  fn token_ref(&self) -> Option<&TerminalContext>;
+  fn string_literal(&self) -> Option<&TerminalContext>;
+  fn rule_ref(&self) -> Option<&TerminalContext>;
+  fn lparen(&self) -> Option<&TerminalContext>;
+  fn rparen(&self) -> Option<&TerminalContext>;
 
-  fn block(&self) -> Option<Rc<dyn BlockContext>>;
-  fn ebnf_suffix(&self) -> Option<Rc<dyn EbnfSuffixContext>>;
+  fn block(&self) -> Option<&dyn BlockContext>;
+  fn ebnf_suffix(&self) -> Option<&dyn EbnfSuffixContext>;
 
   fn accept(&self, visitor: &mut dyn SyntaxisVisitor) -> Box<dyn Any>;
   fn enter(&self, listener: &mut dyn SyntaxisListener);
@@ -80,9 +79,9 @@ pub trait ElementContext: ToRule {
 }
 
 pub trait EbnfSuffixContext: ToRule {
-  fn star(&self) -> Option<Rc<TerminalContext>>;
-  fn plus(&self) -> Option<Rc<TerminalContext>>;
-  fn question_list(&self) -> Vec<Rc<TerminalContext>>;
+  fn star(&self) -> Option<&TerminalContext>;
+  fn plus(&self) -> Option<&TerminalContext>;
+  fn question_list(&self) -> Vec<&TerminalContext>;
 
   fn accept(&self, visitor: &mut dyn SyntaxisVisitor) -> Box<dyn Any>;
   fn enter(&self, listener: &mut dyn SyntaxisListener);
@@ -90,11 +89,11 @@ pub trait EbnfSuffixContext: ToRule {
 }
 
 pub trait LexerRuleContext: ToRule {
-  fn token_ref(&self) -> Option<Rc<TerminalContext>>;
-  fn colon(&self) -> Option<Rc<TerminalContext>>;
-  fn semi(&self) -> Option<Rc<TerminalContext>>;
+  fn token_ref(&self) -> Option<&TerminalContext>;
+  fn colon(&self) -> Option<&TerminalContext>;
+  fn semi(&self) -> Option<&TerminalContext>;
 
-  fn regular(&self) -> Option<Rc<dyn RegularContext>>;
+  fn regular(&self) -> Option<&dyn RegularContext>;
 
   fn accept(&self, visitor: &mut dyn SyntaxisVisitor) -> Box<dyn Any>;
   fn enter(&self, listener: &mut dyn SyntaxisListener);
@@ -102,7 +101,7 @@ pub trait LexerRuleContext: ToRule {
 }
 
 pub trait RegularContext: ToRule {
-  fn regular_literal(&self) -> Option<Rc<TerminalContext>>;
+  fn regular_literal(&self) -> Option<&TerminalContext>;
 
   fn accept(&self, visitor: &mut dyn SyntaxisVisitor) -> Box<dyn Any>;
   fn enter(&self, listener: &mut dyn SyntaxisListener);
@@ -115,18 +114,18 @@ pub trait RegularContext: ToRule {
 
 
 impl RuleListContext for RuleContext {
-  fn parser_rule_list(&self) -> Vec<Rc<dyn ParserRuleContext>> {
+  fn parser_rule_list(&self) -> Vec<&dyn ParserRuleContext> {
     let mut result = Vec::new();
     for ctx in self.get_rule_contexts(SyntaxisParser::PARSER_RULE).iter() {
-      result.push(Rc::clone(ctx) as Rc<dyn ParserRuleContext>);
+      result.push(*ctx as &dyn ParserRuleContext);
     }
     result
   }
 
-  fn lexer_rule_list(&self) -> Vec<Rc<dyn LexerRuleContext>> {
+  fn lexer_rule_list(&self) -> Vec<&dyn LexerRuleContext> {
     let mut result = Vec::new();
     for ctx in self.get_rule_contexts(SyntaxisParser::LEXER_RULE).iter() {
-      result.push(Rc::clone(ctx) as Rc<dyn LexerRuleContext>);
+      result.push(*ctx as &dyn LexerRuleContext);
     }
     result
   }
@@ -145,21 +144,21 @@ impl RuleListContext for RuleContext {
 }
 
 impl ParserRuleContext for RuleContext {
-  fn rule_ref(&self) -> Option<Rc<TerminalContext>> {
+  fn rule_ref(&self) -> Option<&TerminalContext> {
     self.get_terminal(SyntaxisLexer::RULE_REF, 0)
   }
 
-  fn colon(&self) -> Option<Rc<TerminalContext>> {
+  fn colon(&self) -> Option<&TerminalContext> {
     self.get_terminal(SyntaxisLexer::COLON, 0)
   }
 
-  fn block(&self) -> Option<Rc<dyn BlockContext>> {
+  fn block(&self) -> Option<&dyn BlockContext> {
     if let Some(result) = self.get_rule_context(SyntaxisParser::BLOCK, 0) {
-      Some(Rc::clone(&result) as Rc<dyn BlockContext>)
+      Some(result as &dyn BlockContext)
     } else { None }
   }
 
-  fn semi(&self) -> Option<Rc<TerminalContext>> {
+  fn semi(&self) -> Option<&TerminalContext> {
     self.get_terminal(SyntaxisLexer::SEMI, 0)
   }
 
@@ -177,21 +176,21 @@ impl ParserRuleContext for RuleContext {
 }
 
 impl LexerRuleContext for RuleContext {
-  fn token_ref(&self) -> Option<Rc<TerminalContext>> {
+  fn token_ref(&self) -> Option<&TerminalContext> {
     self.get_terminal(SyntaxisLexer::TOKEN_REF, 0)
   }
 
-  fn colon(&self) -> Option<Rc<TerminalContext>> {
+  fn colon(&self) -> Option<&TerminalContext> {
     self.get_terminal(SyntaxisLexer::COLON, 0)
   }
 
-  fn semi(&self) -> Option<Rc<TerminalContext>> {
+  fn semi(&self) -> Option<&TerminalContext> {
     self.get_terminal(SyntaxisLexer::SEMI, 0)
   }
 
-  fn regular(&self) -> Option<Rc<dyn RegularContext>> {
+  fn regular(&self) -> Option<&dyn RegularContext> {
     if let Some(result) = self.get_rule_context(SyntaxisParser::REGULAR, 0) {
-      Some(Rc::clone(&result) as Rc<dyn RegularContext>)
+      Some(result as &dyn RegularContext)
     } else { None }
   }
 
@@ -209,15 +208,15 @@ impl LexerRuleContext for RuleContext {
 }
 
 impl BlockContext for RuleContext {
-  fn alternative_list(&self) -> Vec<Rc<dyn AlternativeContext>> {
+  fn alternative_list(&self) -> Vec<&dyn AlternativeContext> {
     let mut result = Vec::new();
     for ctx in self.get_rule_contexts(SyntaxisParser::ALTERNATIVE).iter() {
-      result.push(Rc::clone(ctx) as Rc<dyn AlternativeContext>);
+      result.push(*ctx as &dyn AlternativeContext);
     }
     result
   }
 
-  fn or_list(&self) -> Vec<Rc<TerminalContext>> {
+  fn or_list(&self) -> Vec<&TerminalContext> {
     self.get_terminals(SyntaxisLexer::OR)
   }
 
@@ -235,17 +234,17 @@ impl BlockContext for RuleContext {
 }
 
 impl AlternativeContext for RuleContext {
-  fn element_list(&self) -> Vec<Rc<dyn ElementContext>> {
+  fn element_list(&self) -> Vec<&dyn ElementContext> {
     let mut result = Vec::new();
     for ctx in self.get_rule_contexts(SyntaxisParser::ELEMENT).iter() {
-      result.push(Rc::clone(ctx) as Rc<dyn ElementContext>);
+      result.push(*ctx as &dyn ElementContext);
     }
     result
   }
 
-  fn epsilon(&self) -> Option<Rc<dyn EpsilonContext>> {
+  fn epsilon(&self) -> Option<&dyn EpsilonContext> {
     if let Some(result) = self.get_rule_context(SyntaxisParser::EPSILON, 0) {
-      Some(Rc::clone(&result) as Rc<dyn EpsilonContext>)
+      Some(result as &dyn EpsilonContext)
     } else { None }
   }
 
@@ -263,7 +262,7 @@ impl AlternativeContext for RuleContext {
 }
 
 impl EpsilonContext for RuleContext {
-  fn epsilon(&self) -> Option<Rc<TerminalContext>> {
+  fn epsilon(&self) -> Option<&TerminalContext> {
     self.get_terminal(SyntaxisLexer::EPSILON, 0)
   }
 
@@ -281,35 +280,35 @@ impl EpsilonContext for RuleContext {
 }
 
 impl ElementContext for RuleContext {
-  fn token_ref(&self) -> Option<Rc<TerminalContext>> {
+  fn token_ref(&self) -> Option<&TerminalContext> {
     self.get_terminal(SyntaxisLexer::TOKEN_REF, 0)
   }
 
-  fn string_literal(&self) -> Option<Rc<TerminalContext>> {
+  fn string_literal(&self) -> Option<&TerminalContext> {
     self.get_terminal(SyntaxisLexer::STRING_LITERAL, 0)
   }
 
-  fn rule_ref(&self) -> Option<Rc<TerminalContext>> {
+  fn rule_ref(&self) -> Option<&TerminalContext> {
     self.get_terminal(SyntaxisLexer::RULE_REF, 0)
   }
 
-  fn lparen(&self) -> Option<Rc<TerminalContext>> {
+  fn lparen(&self) -> Option<&TerminalContext> {
     self.get_terminal(SyntaxisLexer::LPAREN, 0)
   }
 
-  fn rparen(&self) -> Option<Rc<TerminalContext>> {
+  fn rparen(&self) -> Option<&TerminalContext> {
     self.get_terminal(SyntaxisLexer::RPAREN, 0)
   }
 
-  fn block(&self) -> Option<Rc<dyn BlockContext>> {
+  fn block(&self) -> Option<&dyn BlockContext> {
     if let Some(result) = self.get_rule_context(SyntaxisParser::BLOCK, 0) {
-      Some(Rc::clone(&result) as Rc<dyn BlockContext>)
+      Some(result as &dyn BlockContext)
     } else { None }
   }
 
-  fn ebnf_suffix(&self) -> Option<Rc<dyn EbnfSuffixContext>> {
+  fn ebnf_suffix(&self) -> Option<&dyn EbnfSuffixContext> {
     if let Some(result) = self.get_rule_context(SyntaxisParser::EBNF_SUFFIX, 0) {
-      Some(Rc::clone(&result) as Rc<dyn EbnfSuffixContext>)
+      Some(result as &dyn EbnfSuffixContext)
     } else { None }
   }
 
@@ -327,15 +326,15 @@ impl ElementContext for RuleContext {
 }
 
 impl EbnfSuffixContext for RuleContext {
-  fn star(&self) -> Option<Rc<TerminalContext>> {
+  fn star(&self) -> Option<&TerminalContext> {
     self.get_terminal(SyntaxisLexer::STAR, 0)
   }
 
-  fn plus(&self) -> Option<Rc<TerminalContext>> {
+  fn plus(&self) -> Option<&TerminalContext> {
     self.get_terminal(SyntaxisLexer::PLUS, 0)
   }
 
-  fn question_list(&self) -> Vec<Rc<TerminalContext>> {
+  fn question_list(&self) -> Vec<&TerminalContext> {
     self.get_terminals(SyntaxisLexer::QUESTION)
   }
 
@@ -353,7 +352,7 @@ impl EbnfSuffixContext for RuleContext {
 }
 
 impl RegularContext for RuleContext {
-  fn regular_literal(&self) -> Option<Rc<TerminalContext>> {
+  fn regular_literal(&self) -> Option<&TerminalContext> {
     self.get_terminal(SyntaxisLexer::REGULAR_LITERAL, 0)
   }
 

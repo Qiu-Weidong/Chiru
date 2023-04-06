@@ -74,7 +74,7 @@ pub trait SyntaxisVisitor {
       if ! self.should_visit_next_child(ctx, &result) { break; }
 
       let child_result = match child {
-        ASTContext::Ternimal(ctx) => self.visit_terminal(ctx),
+        ASTContext::Terminal(ctx) => self.visit_terminal(ctx),
         ASTContext::Rule(ctx) => self.visit(ctx),
         ASTContext::Error(ctx) => self.visit_errornode(ctx),
       };

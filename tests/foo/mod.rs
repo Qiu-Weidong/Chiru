@@ -4,7 +4,6 @@ pub mod foo_visitor;
 pub mod foo_context;
 pub mod foo_walker;
 
-use std::rc::Rc;
 
 use syntaxis::{runtime::{ast::{ast_context::ASTContext, rule_context::RuleContext, terminal_context::TerminalContext}, token::{Position, Token}}};
 
@@ -75,9 +74,9 @@ pub fn create_ast() -> RuleContext {
 
   // 构造 expr
   let children = vec![
-    ASTContext::Ternimal(Rc::new(lbcontext)),
-    ASTContext::Ternimal(Rc::new(n1)),
-    ASTContext::Ternimal(Rc::new(rbcontext)),
+    ASTContext::Terminal(lbcontext),
+    ASTContext::Terminal(n1),
+    ASTContext::Terminal(rbcontext),
   ];
 
   let expr = RuleContext {
@@ -87,8 +86,8 @@ pub fn create_ast() -> RuleContext {
   };
 
   let children = vec![
-    ASTContext::Rule(Rc::new(expr)),
-    ASTContext::Ternimal(Rc::new(semicontext)),
+    ASTContext::Rule(expr),
+    ASTContext::Terminal(semicontext),
   ];
 
   let stmt = RuleContext {
@@ -97,7 +96,7 @@ pub fn create_ast() -> RuleContext {
     children
   };
 
-  let children = vec![ASTContext::Rule(Rc::new(stmt))];
+  let children = vec![ASTContext::Rule(stmt)];
   let start = RuleContext {
     rule_index: 1, 
     rule_name: String::from("start"), 

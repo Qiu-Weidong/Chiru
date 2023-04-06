@@ -1,6 +1,6 @@
 // 从 json 中序列化语法树
 
-use std::rc::Rc;
+
 use serde_json;
 use std::io::Read;
 use crate::runtime::{ast::{rule_context::RuleContext, terminal_context::TerminalContext, ast_context::ASTContext}, token};
@@ -13,7 +13,7 @@ use crate::runtime::{ast::{rule_context::RuleContext, terminal_context::Terminal
 pub struct Error;
 
 // 至少包含一个非终结符的语法树
-pub fn from_str(input: &str) -> Result<Rc<RuleContext>, Error> {
+pub fn from_str(input: &str) -> Result<RuleContext, Error> {
   let data: serde_json::Value = match serde_json::from_str(input) {
     Ok(data) => data, 
     Err(_) => return  Err(Error {})
@@ -22,7 +22,7 @@ pub fn from_str(input: &str) -> Result<Rc<RuleContext>, Error> {
   parse_rule(&data)
 }
 
-fn parse_rule(value: &serde_json::Value) -> Result<Rc<RuleContext>, Error> {
+fn parse_rule(value: &serde_json::Value) -> Result<RuleContext, Error> {
   let children = &value["children"];
   if ! children.is_array() { return Err(Error {}); }
   let children = children.as_array().unwrap();
@@ -39,7 +39,7 @@ fn parse_rule(value: &serde_json::Value) -> Result<Rc<RuleContext>, Error> {
   for child in children.iter() {
     if child["children"].is_null() {
       let child = parse_terminal(child)?;
-      result.push(ASTContext::Ternimal(child));
+      result.push(ASTContext::Terminal(child));
     }
     else {
       let child = parse_rule(child)?;
@@ -47,12 +47,12 @@ fn parse_rule(value: &serde_json::Value) -> Result<Rc<RuleContext>, Error> {
     }
   }
 
-  Ok(Rc::new(RuleContext { rule_name, rule_index, children: result }))
+  Ok(RuleContext { rule_name, rule_index, children: result })
 // 
   // todo!()
 }
 
-fn parse_terminal(value: &serde_json::Value) -> Result<Rc<TerminalContext>, Error> {
+fn parse_terminal(value: &serde_json::Value) -> Result<TerminalContext, Error> {
   let token_type = value["token_type"].as_u64();
   let token_name = value["token_name"].as_str();
   let text = value["text"].as_str();
@@ -63,14 +63,14 @@ fn parse_terminal(value: &serde_json::Value) -> Result<Rc<TerminalContext>, Erro
   let text = if let Some(text) = text { text } else { "<no text>" };
 
 
-  Ok(Rc::new(TerminalContext {
+  Ok(TerminalContext {
     symbol: token::Token::new(token_type, token_name, text)
-  }))
+  })
   
   
 }
 
-pub fn from_reader(reader: impl Read) -> Result<Rc<RuleContext>, Error> {
+pub fn from_reader(reader: impl Read) -> Result<RuleContext, Error> {
   let data: serde_json::Value = match serde_json::from_reader(reader) {
     Ok(data) => data, 
     Err(_) => return  Err(Error {})
