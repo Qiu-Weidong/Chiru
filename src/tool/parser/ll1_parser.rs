@@ -55,7 +55,11 @@ impl LL1Parser {
     // 首先第一步将开始符号放入栈中
     stack.push(ProductionItem::NonTerminal(0));
 
-    // let mut result = Vec::new();
+    let mut result = RuleContext {
+      rule_index: 0, rule_name: String::from(""), children: Vec::new(),
+    };
+
+    let mut cur = &mut result;
 
     loop {
       if let ProductionItem::Terminal(token) = stack.last().unwrap() {
@@ -66,21 +70,29 @@ impl LL1Parser {
       match stack.last().unwrap() {
         ProductionItem::Terminal(token_type) => {
           if *token_type != self.tokens[cursor].token_type { panic!("终结符不匹配") }
+          cur.children.push(ASTContext::Terminal(TerminalContext { symbol: self.tokens[cursor].clone() }));
           cursor += 1;
-
           stack.pop();
         },
         ProductionItem::NonTerminal(rule) => {
           let token_type = self.tokens[cursor].token_type;
           let production = self.table.get(&(*rule, token_type)).unwrap();
+          // pop非终结符，构造 RuleContext , 将其添加到 cur 的 children 中, 然后将 cur 指向该非终结符
+
+          let ctx = RuleContext { rule_index: *rule, rule_name: String::from(""), children:Vec::new(), };
+          cur.children.push(ASTContext::Rule(ctx));
+          cur = match cur.children.last_mut().unwrap() {
+            ASTContext::Rule(ctx) => ctx, 
+            _ => { panic!("") }
+          };
           
           stack.pop();
+          
+          
+
           for item in production.right.iter().rev() {
             stack.push(item.clone());
           }
-
-
-          // result.push(Rc::clone(production));
         },
       }
     }
@@ -89,43 +101,6 @@ impl LL1Parser {
 
 
     todo!()
-    // let mut non_terminals: Vec<Rc<RuleContext>> = Vec::new();
-
-    // for production in result.iter().rev() {
-
-    //   let name = match self.grammar.nonterminals.get(&production.left).unwrap() {
-    //     Some(name) => name.clone(),
-    //     None => production.left.to_string(),
-    //   };
-
-    //   let mut tree = RuleContext { rule_index: production.left, rule_name: name, children: Vec::new(), };
-    //   for item in production.right.iter() {
-    //     match item {
-    //       ProductionItem::Terminal(_) => {
-    //         tree.children.push(terminals.pop().unwrap());
-    //       },
-    //       ProductionItem::NonTerminal(_) => {
-    //         let rule = non_terminals.pop().unwrap();
-    //         // tree.children.push(ASTContext::Rule(rule));
-    //         // if let Some(_) = self.grammar.nonterminals.get(&rule.rule_index) {
-    //         //   tree.children.push(ASTContext::Rule(rule));
-    //         // } else {
-    //         //   // 将 rule 的 children 全部添加
-    //         //   for child in rule.children.iter() { 
-    //         //     let child = child.clone();
-    //         //     tree.children.push(child); 
-    //         //   }
-    //         // } 
-    //       },
-    //     }
-    //   }
-
-    //   tree.children.reverse();
-    //   non_terminals.push(Rc::new(tree));
-    // }
-    
-
-    // non_terminals.pop().unwrap()
   }
 
 

@@ -1,5 +1,4 @@
 use std::fs::File;
-use std::rc::Rc;
 
 use syntaxis::tool::grammar::Grammar;
 use syntaxis::tool::serde_ast;
