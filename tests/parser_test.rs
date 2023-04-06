@@ -1,4 +1,4 @@
-use syntaxis::{runtime::lexer::Lexer, tool::parser::ll1_parser::LL1Parser};
+use syntaxis::{runtime::lexer::Lexer, tool::{parser::ll1_parser::LL1Parser, gui::ast_drawer::ASTDrawer}};
 mod lexer_generate;
 mod ast_loader;
 
@@ -75,12 +75,11 @@ fn parser_test() {
   let table = grammar.ll1_table(&first_set, &follow);
 
   let mut parser = LL1Parser::new(tokens, table, grammar);
-  let productions = parser.parse();
-  println!("{:?}", productions);
+  let ast = parser.parse();
 
 
   // 根据产生式构造 ast
-
+  ASTDrawer::new().draw(&ast, "parser", "parser.html");
 }
 
 
