@@ -30,16 +30,42 @@ use syntaxis::{tool::{parser::ll1_parser::LL1Parser, visitor::{grammar_visitor::
 
 fn main() {
   let input = r####"
+  rule_list: (parser_rule | lexer_rule)*;
+
+  parser_rule: RULE_REF COLON block SEMI;
+  block: alternative (OR alternative)*;
+
+  alternative: element+ | epsilon;
+  epsilon: EPSILON;
+  element: (
+      TOKEN_REF
+      | STRING_LITERAL
+      | RULE_REF
+      | LPAREN block RPAREN
+    ) ebnf_suffix?;
+
+  ebnf_suffix: (STAR | PLUS | QUESTION) QUESTION?;
+
+
+  lexer_rule: TOKEN_REF COLON regular SEMI;
+  regular: REGULAR_LITERAL;
+
+  RULE_REF: /[a-z][a-zA-Z0-9_]+/;
+  TOKEN_REF: /[A-Z][a-zA-Z0-9_]+/;
+  COLON: /::=|:=|->|=>|:|=/;
+  SEMI: /;/;
+  OR: /\|/;
+  EPSILON: /ε|epsilon/;
+  STAR: /\* /;
+  PLUS: /\+/;
+  QUESTION: /\?/;
+  LPAREN: /\(/;
+  RPAREN: /\)/;
+  STRING_LITERAL: /"((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*"/;
+  REGULAR_LITERAL: /\/(\\\/|[^\/])+\//;
   WHITE_SPACE: /[ \r\n\t\f]+/;
   
   "####;
-/*
-rule_list
-
-TOKEN_REF COLON REGULAR_LITERAL SEMI
-
-
- */
 
   let mut lexer = SyntaxisLexer::new(input);
   let tokens = lexer.scan_all_on_channel_tokens(0);
@@ -52,7 +78,7 @@ TOKEN_REF COLON REGULAR_LITERAL SEMI
 
   let table = grammar.ll1_table(&first_set, &follow);
 
-  let mut parser = LL1Parser::new(tokens, table, grammar);
+  let parser = LL1Parser::new(tokens, table, grammar);
   let ast = parser.parse();
 
 

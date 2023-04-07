@@ -80,6 +80,13 @@ impl Lexer for SyntaxisLexer {
 
 
   fn scan(&mut self) -> Result<Token, Error> {
+    // if self.cursor > self.input.len() {
+    //   return Err(Error {});
+    // }
+    // else if self.cursor >= self.input.len() {
+    //   self.cursor += 10;
+    //   return Ok(Token::new(1, "_STOP", "_STOP"));
+    // }
     let mut len = 0;
     let mut token_type = 0;
 
