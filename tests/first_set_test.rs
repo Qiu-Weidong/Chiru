@@ -95,7 +95,6 @@ fn first_set_test() {
   println!("{}", grammar);
 
   let (first, _) = grammar.first_set();
-  grammar.terminals.insert(1, "_STOP".to_owned());
 
   let follow = grammar.follow_set(&first);
 
@@ -114,22 +113,7 @@ fn first_set_test() {
   //   if collection.allow_epsilon { print!("ε") }
   //   println!("}}");
   // }
-  
-  for (id, collection) in follow.iter() {
-    let name = grammar.nonterminals.get(id).unwrap();
-    let name = match name {
-      Some(name) => name.clone(),
-      None => id.to_string(),
-    };
-    println!("{}:", name);
-    print!("{{");
-    for item in collection.iter() {
-      let name = grammar.terminals.get(item).unwrap();
-      print!("{}, ", name);
-    }
-    // if collection.allow_epsilon { print!("ε") }
-    println!("}}");
-  }
+
 
 
 }

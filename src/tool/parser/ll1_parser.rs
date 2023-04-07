@@ -29,11 +29,7 @@ impl LL1Parser {
 
     let token_type = self.tokens[cursor].token_type;
     let production = self.table.get(&(rule_index, token_type)).unwrap();
-    let name = match self.grammar.nonterminals.get(&rule_index).unwrap() {
-      Some(name) => name.clone(),
-      None => rule_index.to_string(),
-    };
-
+    let name = self.grammar.vocabulary.get_nonterminal_name_with_default(rule_index);
     let mut result = RuleContext { rule_index, rule_name: name, children: Vec::new(), };
     
     for child in production.right.iter() {
@@ -41,7 +37,7 @@ impl LL1Parser {
         ProductionItem::NonTerminal(rule_id) => {
           let (rule, new_cursor) = self.parse_ast(cursor, *rule_id);
           cursor = new_cursor;
-          if let Some(_) = self.grammar.nonterminals.get(rule_id).unwrap() {
+          if let Some(_) = self.grammar.vocabulary.get_nonterminal_name_by_id(*rule_id) {
             let child = ASTContext::Rule(rule);
             result.children.push(child);
           } else {

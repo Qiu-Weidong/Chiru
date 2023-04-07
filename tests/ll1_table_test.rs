@@ -9,7 +9,6 @@ fn ll1_table_test() {
   println!("{}", grammar);
 
   let (first, first_set) = grammar.first_set();
-  grammar.terminals.insert(1, "_STOP".to_owned());
 
   let follow = grammar.follow_set(&first);
 

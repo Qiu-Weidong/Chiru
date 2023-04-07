@@ -2,29 +2,17 @@
 
 use std::{collections::{HashMap, HashSet}, fmt::Display, rc::Rc};
 
+use crate::runtime::vocabulary::Vocabulary;
+
 pub struct Grammar {
+  
   // 文法的名称
   pub name: String,
-
-  // 命名非终结符的查询缓存
-  pub nonterminal_cache: HashMap<String, usize>,
-
-  // 终结符的查询缓存
-  pub terminal_cache: HashMap<String, usize>,
-
-  // 所有非终结符，包括未命名
-  pub nonterminals: HashMap<usize, Option<String>>,
-
-  // 所有终结符
-  pub terminals: HashMap<usize, String>,
-
-
-
-
-  // 通过产生式的左部来管理产生式 产生式的优先级 产生式在 vec 中的顺序即为其优先级
-  // pub productions: HashMap<usize, Vec<Production> >
+  
+  pub vocabulary: Vocabulary,
+  
+  // 所有产生式
   pub productions: HashSet<Production>, 
-  // 当需要查询是否由相同产生式的时候，只比较右部
 }
 
 // 定义一个存放 first、follow 集合的数据结构
@@ -34,17 +22,10 @@ pub struct Collection {
 }
 
 impl Grammar {
-  pub fn new(name: &str) -> Self {
-    let mut terminals = HashMap::new();
-    terminals.insert(0, "_START".to_owned());
-    terminals.insert(1, "_STOP".to_owned());
-    
+  pub fn new(name: &str) -> Self {    
     Self {
       name: name.to_owned(),
-      nonterminal_cache: HashMap::new(),
-      terminal_cache: HashMap::new(), 
-      nonterminals: HashMap::new(),
-      terminals,
+      vocabulary: Vocabulary::new(),
       productions: HashSet::new(),
     }
   }
@@ -130,7 +111,7 @@ impl Grammar {
     let mut result = HashMap::new();  
     // 首先将所有产生式的 first 集合初始化为空，不包含 epsilon。
 
-    for (id, _) in self.nonterminals.iter() {
+    for id in self.vocabulary.get_all_nonterminals().iter() {
       result.insert(*id, Collection { allow_epsilon: false, set: HashSet::new() });
     }
 
@@ -171,9 +152,10 @@ impl Grammar {
   pub fn follow_set(&self, first_set: &HashMap<usize, Collection>) -> HashMap<usize, HashSet<usize>> {
     // 求 follow 集合
     let mut result = HashMap::new();
-    for (id, _) in self.nonterminals.iter() {
+    for id in self.vocabulary.get_all_nonterminals().iter() {
       result.insert(*id, HashSet::new());
     }
+    
     // 将 stop 放入开始符号的follow集合
     result.get_mut(&0).unwrap().insert(1);
 
@@ -246,23 +228,17 @@ impl Display for Grammar {
    */
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     for production in self.productions.iter() {
-      let name = match self.nonterminals.get(&production.left).unwrap() {
-        Some(name) => name.to_string(), 
-        None => production.left.to_string(),
-      };
+      let name = self.vocabulary.get_nonterminal_name_with_default(production.left);
 
       write!(f, "{} ->", name)?;
 
       for item in production.right.iter() {
         match item {
           ProductionItem::NonTerminal(id) => {
-            match self.nonterminals.get(id).unwrap() {
-              Some(name) => { write!(f, " {}", name)?; },
-              None => { write!(f, " {}", id)?; },
-            }
+            write!(f, "{}", self.vocabulary.get_nonterminal_name_with_default(*id))?
           },
           ProductionItem::Terminal(id) => {
-            let name = self.terminals.get(id).unwrap();
+            let name = self.vocabulary.get_terminal_name(*id);
             write!(f, " {}", name)?;
           },
         }
@@ -287,8 +263,6 @@ pub enum ProductionItem {
 pub struct Production {
   pub left: usize, 
   pub right: Vec<ProductionItem>,
-
-  // 产生式的优先级
 }
 
 impl Production {

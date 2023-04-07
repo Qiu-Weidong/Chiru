@@ -38,16 +38,14 @@ impl SyntaxisVisitor for StringLiteralToTokenVisitor<'_> {
       let text = StringLiteralToTokenVisitor::escape(&value.symbol.text);// 为了防止字符串的内容和某个 token 同名, 因此不删除引号
 
       // 检查该字符串是否已经定义
-      if self.grammar.terminal_cache.contains_key(&text) { return self.default_result(); } 
+      if self.grammar.vocabulary.is_terminal_name_defined(&text) { return self.default_result(); } 
       
-      let token_name = format!("_T_{}", self.next_token_id);
       // 定义之
-      self.grammar.terminal_cache.insert(text, self.next_token_id);
-      self.grammar.terminals.insert(self.next_token_id, token_name.clone());
+      self.grammar.vocabulary.add_terminal(self.next_token_id, &text);
       
       // 将字符串对应的正则表达式放入 data 中，首先需要进行正则表达式的转义
       let regular_string = StringLiteralToTokenVisitor::regular_escape(&value.symbol.text);
-      self.data.push(LexerRuleData { token_type: self.next_token_id, token_name, regex: regular_string, });
+      self.data.push(LexerRuleData { token_type: self.next_token_id, token_name: format!("_T_{}", self.next_token_id), regex: regular_string, });
       self.next_token_id += 1;
     }
     self.default_result()
@@ -74,7 +72,7 @@ impl SyntaxisVisitor for SymbolVisitor<'_> {
   fn visit_lexer_rule(&mut self, ctx: &dyn LexerRuleContext) -> Box<dyn std::any::Any> {
     let name = &ctx.token_ref().unwrap().symbol.text;
     // 检查是否已经定义
-    if self.grammar.terminal_cache.contains_key(name) {
+    if self.grammar.vocabulary.is_terminal_name_defined(name) {
       println!("重复定义 token: {}", name);
       return self.default_result();
     }
@@ -88,20 +86,19 @@ impl SyntaxisVisitor for SymbolVisitor<'_> {
     self.data.push( LexerRuleData { token_type: self.next_token_id, token_name: name.to_owned(), regex: format!("^({})", regular) });
     
 
-    self.grammar.terminal_cache.insert(name.clone(), self.next_token_id);
-    self.grammar.terminals.insert(self.next_token_id, name.clone());
+    self.grammar.vocabulary.add_terminal(self.next_token_id, name);
     self.next_token_id += 1;
     self.default_result()
   }
 
   fn visit_parser_rule(&mut self, ctx: &dyn ParserRuleContext) -> Box<dyn std::any::Any> {
     let name = &ctx.rule_ref().unwrap().symbol.text;
-    if self.grammar.nonterminal_cache.contains_key(name) {
+    if self.grammar.vocabulary.is_terminal_name_defined(name) {
       println!("重复定义 rule: {}", name);
       return self.default_result();
     }
-    self.grammar.nonterminal_cache.insert(name.clone(), self.next_rule_id);
-    self.grammar.nonterminals.insert(self.next_rule_id, Some(name.clone()));
+
+    self.grammar.vocabulary.add_named_nonterminal(self.next_rule_id, name);
     self.next_rule_id += 1;
     self.default_result()
   }
@@ -141,7 +138,7 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
   fn visit_parser_rule(&mut self, ctx: &dyn ParserRuleContext) -> Box<dyn std::any::Any> {
     // 这个地方不要调用 block.accept
     let name = &ctx.rule_ref().unwrap().symbol.text;
-    let id = *self.grammar.nonterminal_cache.get(name).unwrap();
+    let id = self.grammar.vocabulary.get_nonterminal_id_by_name(name).unwrap();
     
     for alternative in ctx.block().unwrap().alternative_list().iter() {
       let right = alternative.accept(self);
@@ -176,15 +173,15 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
     // 首先解析出一个 item
     let item: ProductionItem; let id: usize;
     if let Some(token) = ctx.token_ref() {
-      id = *self.grammar.terminal_cache.get(&token.symbol.text).unwrap();
+      id = self.grammar.vocabulary.get_terminal_id_by_name(&token.symbol.text).unwrap();
       item = ProductionItem::Terminal(id);
     }
     else if let Some(literal) = ctx.string_literal() {
-      id = *self.grammar.terminal_cache.get(&literal.symbol.text).unwrap();
+      id = self.grammar.vocabulary.get_terminal_id_by_name(&literal.symbol.text).unwrap();
       item = ProductionItem::Terminal(id);
     }
     else if let Some(rule) = ctx.rule_ref() {
-      id = *self.grammar.nonterminal_cache.get(&rule.symbol.text).unwrap();
+      id = self.grammar.vocabulary.get_nonterminal_id_by_name(&rule.symbol.text).unwrap();
       item = ProductionItem::NonTerminal(id);
     }
     else if let Some(block) = ctx.block() {
@@ -206,8 +203,8 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
           return Box::new(ProductionItem::NonTerminal(*item_id));
         }
 
-        // 添加一个非终结符
-        self.grammar.nonterminals.insert(self.next_rule_id, None);
+        // 添加一个非终结符 匿名
+        self.grammar.vocabulary.add_unnamed_nonterminal(self.next_rule_id);
         let item2 = ProductionItem::NonTerminal(self.next_rule_id);
 
         // 添加两条产生式
@@ -228,8 +225,8 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
           return Box::new(ProductionItem::NonTerminal(*item_id));
         }
 
-        // 添加一个非终结符
-        self.grammar.nonterminals.insert(self.next_rule_id, None);
+        // 添加一个非终结符 匿名
+        self.grammar.vocabulary.add_unnamed_nonterminal(self.next_rule_id);
         let item2 = ProductionItem::NonTerminal(self.next_rule_id);
 
         // 添加两条产生式
@@ -249,7 +246,7 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
         }
 
         // 添加一个非终结符
-        self.grammar.nonterminals.insert(self.next_rule_id, None);
+        self.grammar.vocabulary.add_unnamed_nonterminal(self.next_rule_id);
         let item2 = ProductionItem::NonTerminal(self.next_rule_id);
 
         // 添加两条产生式
@@ -285,7 +282,7 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
 
     // 添加一条产生式, 一个非终结符，并返回其 id  ( xx | xxx)  (xxx xxx)* 检查是否已经存在, 否则新建并返回 NonTerminal(id)。
     let id = self.next_rule_id;
-    self.grammar.nonterminals.insert(id, None);
+    self.grammar.vocabulary.add_unnamed_nonterminal(id);
     self.block_cache.insert(rights.clone(), id);
 
     for right in rights.iter() {
