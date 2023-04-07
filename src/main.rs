@@ -1,6 +1,4 @@
 
-// mod lexer_generate;
-// mod ast_loader;
 
 /*
   0: "_START", 
@@ -24,11 +22,14 @@
 
 use std::fs::File;
 
-use syntaxis::{tool::{visitor::{grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor}, lexer_rule_visitor::LexerRuleData}, grammar::Grammar, serde_ast, syntaxis::syntaxis_context::RuleListContext, gui::ast_drawer::ASTDrawer, v1::{syntaxis_lexer::SyntaxisLexer, syntaxis_parser::SyntaxisParser}}, runtime::{lexer::{Lexer}}};
+use syntaxis::{tool::{visitor::{grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor}, lexer_rule_visitor::LexerRuleData}, grammar::Grammar, serde_ast, syntaxis::syntaxis_context::RuleListContext, gui::ast_drawer::ASTDrawer, v1::{syntaxis_lexer::SyntaxisLexer, syntaxis_parser::SyntaxisParser}, code_gen::visitor_gen::generate_visitor}, runtime::{lexer::{Lexer}}};
 
 
 fn main() {
   let (grammar, _) = load_ast();
+
+
+  generate_visitor(&grammar.vocabulary);
 
   
   let (first, first_set) = grammar.first_set();
@@ -82,6 +83,8 @@ fn main() {
 
   let parser = SyntaxisParser::new(tokens, table, grammar.vocabulary);
   let ast = parser.parse();
+
+  // 我现在可以生成 lexer 和 visitor 了。
 
 
   // 根据产生式构造 ast

@@ -16,17 +16,9 @@ pub struct SyntaxisParser {
 impl SyntaxisParser {
 
   // 使用模板生成
-  pub const RULE_LIST: usize = 0;
-  pub const PARSER_RULE: usize = 1;
-  pub const BLOCK: usize = 2;
-  pub const ALTERNATIVE: usize = 3;
-  pub const EPSILON: usize = 4;
-  pub const ELEMENT: usize = 5;
-  pub const EBNF_SUFFIX: usize = 6;
-  pub const LEXER_RULE: usize = 7;
-  pub const REGULAR: usize = 8;
+  {% for rule in rules %}
+  pub const {{rule.upcase}}: usize = {{rule.rule_index}};{% endfor %}
 
-  // 生成一个预测分析表
 
 
 
@@ -41,65 +33,14 @@ impl SyntaxisParser {
 
 
   // 使用模板生成
-  pub fn rule_list(&self) -> Box<dyn RuleListContext> {
+  {% for rule in rules %}
+  pub fn {{rule.underscore}}(&self) -> Box<dyn {{ rule.pascal }}Context> {
     let mut cursor = 0;
-    let result = self.parse_ast(&mut cursor, Self::RULE_LIST);
+    let result = self.parse_ast(&mut cursor, Self::{{rule.upcase}});
     Box::new(result)
   }
+  {% endfor %}
 
-  pub fn parser_rule(&self) -> Box<dyn ParserRuleContext> {
-    let mut cursor = 0;
-    let result = self.parse_ast(&mut cursor, Self::PARSER_RULE);
-    Box::new(result)
-  }
-
-  pub fn block(&self) -> Box<dyn BlockContext> {
-    let mut cursor = 0;
-    let result = self.parse_ast(&mut cursor, Self::BLOCK);
-    Box::new(result)
-  }
-
-  pub fn alternative(&self) -> Box<dyn AlternativeContext> {
-    let mut cursor = 0;
-    let result = self.parse_ast(&mut cursor, Self::ALTERNATIVE);
-    Box::new(result)
-  }
-
-  pub fn epsilon(&self) -> Box<dyn EpsilonContext> {
-    let mut cursor = 0;
-    let result = self.parse_ast(&mut cursor, Self::EPSILON);
-    Box::new(result)
-  }
-
-  pub fn element(&self) -> Box<dyn ElementContext> {
-    let mut cursor = 0;
-    let result = self.parse_ast(&mut cursor, Self::ELEMENT);
-    Box::new(result)
-  }
-
-  pub fn ebnf_suffix(&self) -> Box<dyn EbnfSuffixContext> {
-    let mut cursor = 0;
-    let result = self.parse_ast(&mut cursor, Self::EBNF_SUFFIX);
-    Box::new(result)
-  }
-
-  pub fn lexer_rule(&self) -> Box<dyn LexerRuleContext> {
-    let mut cursor = 0;
-    let result = self.parse_ast(&mut cursor, Self::LEXER_RULE);
-    Box::new(result)
-  }
-
-  pub fn regular(&self) -> Box<dyn RegularContext> {
-    let mut cursor = 0;
-    let result = self.parse_ast(&mut cursor, Self::REGULAR);
-    Box::new(result)
-  }
-
-  // 可有可无
-  pub fn parse(&self) -> RuleContext {
-    let mut cursor = 0;
-    self.parse_ast(&mut cursor, Self::RULE_LIST)
-  }
 
 
   // 直接照抄

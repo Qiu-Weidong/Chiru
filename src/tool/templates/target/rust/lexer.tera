@@ -16,7 +16,7 @@ pub struct {{name}}Lexer {
   pub position: Position,
 }
 
-#[allow(dead_code)]
+
 impl {{name}}Lexer {
   // 前两个是开始符号和结束符号
   pub const _START: usize = 0;

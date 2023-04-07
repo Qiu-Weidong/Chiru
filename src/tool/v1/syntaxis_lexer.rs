@@ -7,11 +7,39 @@ use crate::runtime::{lexer::{Lexer, Error}, token::{Token, Position}};
 
 pub struct SyntaxisLexer {
   pub input: String,
-  pub cursor: usize, // 每次都匹配 input[cursor..]
-  pub regex_list: Vec<regex::Regex>,
-  pub token_names: Vec<&'static str>,
+  pub cursor: usize,
+  // pub token_names: Vec<&'static str>,
   pub token_index: usize,
   pub position: Position,
+}
+
+lazy_static!{
+  
+  static ref REGEX_LIST: Vec<Regex> = vec![
+
+    // 这里也需要使用模板
+
+    Regex::new(r####"^([a-z][a-zA-Z0-9_]+)"####).unwrap(), // RULE_REF
+    Regex::new(r####"^([A-Z][a-zA-Z0-9_]+)"####).unwrap(), // TOKEN_REF
+    Regex::new(r####"^(::=|:=|->|=>|:|=)"####).unwrap(), // COLON
+    Regex::new(r####"^(;)"####).unwrap(), // SEMI
+    Regex::new(r####"^(\|)"####).unwrap(), // OR
+    Regex::new(r####"^(ε|epsilon)"####).unwrap(), // EPSILON
+    Regex::new(r####"^(\*)"####).unwrap(), // STAR
+    Regex::new(r####"^(\+)"####).unwrap(), // PLUS
+    Regex::new(r####"^(\?)"####).unwrap(), // QUESTION
+    Regex::new(r####"^(\()"####).unwrap(), // LPAREN
+    Regex::new(r####"^(\))"####).unwrap(), // RPAREN
+    Regex::new(r####"^('([^\a\d\n\r\t\f\v\\']|(\\\\|\\'|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*')"####).unwrap(), // STRING_LITERAL
+    Regex::new(r####"^(/(\\/|[^/])+/)"####).unwrap(), // REGULAR_LITERAL
+    Regex::new(r####"^([ \r\n\t\f]+)"####).unwrap(), // WHITE_SPACE
+
+  ];
+
+  static ref TOKEN_NAMES: Vec<&'static str> = vec![
+    "_START", "_STOP", 
+    "RULE_REF", "TOKEN_REF", "COLON", "SEMI", "OR", "EPSILON", "STAR", "PLUS", "QUESTION", "LPAREN", "RPAREN", "STRING_LITERAL", "REGULAR_LITERAL", "WHITE_SPACE", 
+  ];
 }
 
 
@@ -37,36 +65,13 @@ impl SyntaxisLexer {
   pub const REGULAR_LITERAL: usize = 14;
   pub const WHITE_SPACE: usize = 15;
 
+  
+
 
   pub fn new(input: &str) -> Self {
-    let regex_list = vec![
+  
 
-      // 这里也需要使用模板
-      
-      Regex::new(r####"^([a-z][a-zA-Z0-9_]+)"####).unwrap(), // RULE_REF
-      Regex::new(r####"^([A-Z][a-zA-Z0-9_]+)"####).unwrap(), // TOKEN_REF
-      Regex::new(r####"^(::=|:=|->|=>|:|=)"####).unwrap(), // COLON
-      Regex::new(r####"^(;)"####).unwrap(), // SEMI
-      Regex::new(r####"^(\|)"####).unwrap(), // OR
-      Regex::new(r####"^(ε|epsilon)"####).unwrap(), // EPSILON
-      Regex::new(r####"^(\*)"####).unwrap(), // STAR
-      Regex::new(r####"^(\+)"####).unwrap(), // PLUS
-      Regex::new(r####"^(\?)"####).unwrap(), // QUESTION
-      Regex::new(r####"^(\()"####).unwrap(), // LPAREN
-      Regex::new(r####"^(\))"####).unwrap(), // RPAREN
-      Regex::new(r####"^('([^\a\d\n\r\t\f\v\\']|(\\\\|\\'|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*')"####).unwrap(), // STRING_LITERAL
-      Regex::new(r####"^(/(\\/|[^/])+/)"####).unwrap(), // REGULAR_LITERAL
-      Regex::new(r####"^([ \r\n\t\f]+)"####).unwrap(), // WHITE_SPACE
-    
-    ];
-    
-    // 同样使用模板
-    let token_names = vec![
-      "_START", "_STOP", 
-      "RULE_REF", "TOKEN_REF", "COLON", "SEMI", "OR", "EPSILON", "STAR", "PLUS", "QUESTION", "LPAREN", "RPAREN", "STRING_LITERAL", "REGULAR_LITERAL", "WHITE_SPACE", 
-    ];
-
-    SyntaxisLexer { input: input.to_owned(), cursor: 0, regex_list, token_names, token_index: 0, position: Position { line: 0, char_position: 0 } }
+    SyntaxisLexer { input: input.to_owned(), cursor: 0, token_index: 0, position: Position { line: 0, char_position: 0 } }
   }
 
 
@@ -97,8 +102,8 @@ impl Lexer for SyntaxisLexer {
     let mut len = 0;
     let mut token_type = 0;
 
-    for i in 0..self.regex_list.len() {
-      let result = self.regex_list[i].find_at(&self.input[self.cursor..], 0) ;
+    for i in 0..REGEX_LIST.len() {
+      let result = REGEX_LIST[i].find_at(&self.input[self.cursor..], 0) ;
       if let Some(result) = result {
         if result.end() > len {
           len = result.end();
@@ -130,7 +135,7 @@ impl Lexer for SyntaxisLexer {
 
     let token = Token {
       token_type,
-      token_name: String::from(self.token_names[token_type]),
+      token_name: String::from(TOKEN_NAMES[token_type]),
 
       start: self.position.clone(),
       stop: new_pos.clone(),

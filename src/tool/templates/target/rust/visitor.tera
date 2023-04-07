@@ -1,0 +1,57 @@
+use std::any::Any;
+
+use crate::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext, error_context::ErrorContext, terminal_context::TerminalContext};
+
+use super::{syntaxis_context::{RuleListContext, ParserRuleContext, BlockContext, AlternativeContext, EpsilonContext, ElementContext, EbnfSuffixContext, LexerRuleContext, RegularContext}, syntaxis_parser::SyntaxisParser};
+
+
+pub trait {{ name }}Visitor {
+  {% for rule in rules %}
+  fn visit_{{ rule.underscore }}(&mut self, ctx: &dyn {{ rule.pascal }}Context) -> Box<dyn Any> {
+    self.visit_children(ctx.as_rule())
+  }
+  {% endfor %}
+
+  
+  fn visit(&mut self, ast: &RuleContext) -> Box<dyn Any> {
+    match ast.get_rule_index() {
+      {% for rule in rules  %}
+      {{name}}Parser::{{rule.upcase}} => self.visit_{{ rule.underscore }}(ast),{% endfor %}
+
+      _ => self.visit_children(ast)
+    }
+  }
+
+  fn visit_terminal(&mut self, _terminal: &TerminalContext) -> Box<dyn Any>  { self.default_result() }
+
+  fn visit_errornode(&mut self, _errornode: &ErrorContext) -> Box<dyn Any>  { self.default_result() }
+
+  fn visit_children(&mut self, ctx: &RuleContext) -> Box<dyn Any> {
+    let mut result = self.default_result();
+    for child in ctx.children.iter() {
+      if ! self.should_visit_next_child(ctx, &result) { break; }
+
+      let child_result = match child {
+        ASTContext::Terminal(ctx) => self.visit_terminal(ctx),
+        ASTContext::Rule(ctx) => self.visit(ctx),
+        ASTContext::Error(ctx) => self.visit_errornode(ctx),
+      };
+
+      result = self.aggregate_result(result, child_result);
+    }
+    result
+  }
+
+  fn default_result(&mut self) -> Box<dyn Any> { Box::new(()) }
+
+  fn aggregate_result(&mut self, _aggregate: Box<dyn Any> , next_result: Box<dyn Any> ) -> Box<dyn Any>  { next_result }
+
+  fn should_visit_next_child(&mut self, _context: &RuleContext, _current_result: &dyn Any) -> bool {true}
+}
+
+
+
+
+
+
+

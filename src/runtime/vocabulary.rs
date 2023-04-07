@@ -4,22 +4,22 @@ use std::collections::{HashMap, HashSet};
 
 pub struct Vocabulary {
   // 根据非终结符的名称来查询其id
-  non_terminal_name_to_id: HashMap<String, usize>,
+  pub non_terminal_name_to_id: HashMap<String, usize>,
 
   // 根据非终结符的 id 来查询名称
-  non_terminal_id_to_name: HashMap<usize, String>,
+  pub non_terminal_id_to_name: HashMap<usize, String>,
 
   // 根据非终结符的名称来查询其id
-  terminal_name_to_id: HashMap<String, usize>,
+  pub terminal_name_to_id: HashMap<String, usize>,
 
   // 根据非终结符的 id 来查询名称
-  terminal_id_to_name: HashMap<usize, String>,
+  pub terminal_id_to_name: HashMap<usize, String>,
 
   // 所有非终结符，包括未命名
-  nonterminals: HashSet<usize>,
+  pub nonterminals: HashSet<usize>,
 
   // 所有终结符
-  terminals: HashSet<usize>,
+  pub terminals: HashSet<usize>,
 }
 
 impl Vocabulary {

@@ -1,0 +1,46 @@
+use std::any::Any;
+
+
+use crate::runtime::ast::rule_context::RuleContext;
+use crate::runtime::ast::terminal_context::TerminalContext;
+use crate::runtime::ast::to_rule::ToRule;
+
+use super::syntaxis_lexer::SyntaxisLexer;
+use super::syntaxis_parser::SyntaxisParser;
+use super::syntaxis_visitor::SyntaxisVisitor;
+
+
+
+
+
+{% for rule in rules %}
+
+pub trait {{rule.pascal}}Context: ToRule {
+  {% for item in rule.items %}
+  fn {{item.underscore}}_list(&self) -> Vec<&dyn {{item.pascal}}Context>;
+  {% endfor %}
+  fn accept(&self, visitor: &mut dyn {{name}}Visitor) -> Box<dyn Any>;
+
+}
+
+impl {{ rule.pascal }}Context for RuleContext {
+  // 有四种函数 nonterminallist、nonterminal、terminallist、terminal
+  {% for item in rule.items %}
+  fn {{item.underscore}}_list(&self) -> Vec<&dyn {{item.pascal}}Context> {
+    let mut result = Vec::new();
+    for ctx in self.get_rule_contexts({{name}}Parser::{{item.upcase}}).iter() {
+      result.push(*ctx as &dyn {{item.pascal}}Context);
+    }
+    result
+  }
+  {% endfor %}
+
+  fn accept(&self, visitor: &mut dyn {{name}}Visitor) -> Box<dyn Any> {
+    visitor.visit_{{rule.underscore}}(self)
+  }
+}
+
+
+{% endfor %}
+
+
