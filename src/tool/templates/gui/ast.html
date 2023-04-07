@@ -67,7 +67,7 @@
     <div id="content"
       style="overflow-x: hidden; position: fixed; height: 100vh; overflow-y: auto;  background-color: rgb(244, 237, 237); width: 255px; z-index: 100;">
     </div>
-    <div id="super" style="position: relative; overflow-y: auto; overflow-x: auto; margin-left: 255px; min-height: 100vh;">
+    <div id="super" style="position: relative; overflow-y: visible; overflow-x: visible; margin-left: 255px; min-height: 100vh;">
 
       <div id="container"
         style="overflow: visible; height: 100%; background-color: transparent; display: flex;justify-content: center; z-index: 1;">
@@ -358,7 +358,7 @@
           .attr("stroke-opacity", 0);
 
         nodeEnter.append("title")
-        .text(d => d.data.name);
+        .text(d => d._children ? d.data.id: d.data.name);
 
         nodeEnter.append("text")
           .attr("y", 0)

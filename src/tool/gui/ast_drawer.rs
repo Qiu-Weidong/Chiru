@@ -43,7 +43,7 @@ impl ASTDrawer {
       children += ",";
     }
     children += "]";
-    format!("{{ name:`{}`, children:{},}}", ASTDrawer::escape(&ast.rule_name), children)
+    format!("{{ name:`{}`,id: `{}`, children:{},}}", ASTDrawer::escape(&ast.rule_name), ast.rule_index, children)
   }
 
   pub fn draw(&self, ast: &RuleContext, name: &str, filename: &str) {

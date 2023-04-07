@@ -3,33 +3,6 @@ use std::{collections::HashMap, rc::Rc};
 use crate::{tool::grammar::{ProductionItem, Production, Grammar}, runtime::{token::Token, ast::{rule_context::RuleContext, ast_context::ASTContext, terminal_context::TerminalContext}}};
 
 
-/*
-      id      +     *     (     )     $
-E   E->TE1              E->TE1
-E1          E1->+TE1          E1->ε   E1->ε
-T   T->FT1              T->FT1
-T1          T1->ε T1->*FT1    T1->ε   T1->ε
-F   F->id               F->(E)
-
-id+id*id
-
-E       id+id*id  null  E->TE1
-E1 T    id+id*id  E     T->FT1
-E1 T1 F id+id*id  E T   F->id
-E1 T1   +id*id E T F 
-
-
-
-
-
-E
-T
-F
-id
- */
-
-
-
 pub struct LL1Parser {
   pub tokens: Vec<Token>,
   pub table: HashMap<(usize, usize), Rc<Production>>,
@@ -87,7 +60,6 @@ impl LL1Parser {
           result.children.push(child);
         },
       };
-      // result.children.push(child);
     }
     (result, cursor)
   }
