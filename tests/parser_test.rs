@@ -65,9 +65,6 @@ fn parser_test() {
 
   let mut lexer = lexer_generate::lexer::SyntaxisLexer::new(input);
   let tokens = lexer.scan_all_on_channel_tokens(0);
-  // for token in tokens.iter() {
-  //   println!("{}, {}", token.text, token.token_name);
-  // }
 
   let (grammar, _) = ast_loader::load_ast();
 
