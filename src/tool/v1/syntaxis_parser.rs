@@ -31,7 +31,11 @@ impl SyntaxisParser {
 
 
   pub fn new(tokens: Vec<Token>, table: HashMap<(usize, usize), Rc<Production>>, vocabulary: Vocabulary) -> Self {
-
+    // table 类型变为 (usize, usize) -> usize
+    // productions = vec![
+    //   vec![1, -2, 3], vec![], ...
+    // ];
+    // table.insert((0, 1), 1);
     Self {
       tokens,
       table,
