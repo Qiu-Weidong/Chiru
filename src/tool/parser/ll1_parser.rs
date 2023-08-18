@@ -1,16 +1,16 @@
-use std::{collections::HashMap, rc::Rc};
+use std::collections::HashMap;
 
-use crate::{tool::grammar::{ProductionItem, Production, Grammar}, runtime::{token::Token, ast::{rule_context::RuleContext, ast_context::ASTContext, terminal_context::TerminalContext}}};
+use crate::{tool::grammar::{production::ProductionItem, Grammar}, runtime::{token::Token, ast::{rule_context::RuleContext, ast_context::ASTContext, terminal_context::TerminalContext}}};
 
 
 pub struct LL1Parser {
   pub tokens: Vec<Token>,
-  pub table: HashMap<(usize, usize), Rc<Production>>,
+  pub table: HashMap<(usize, usize), usize>,
   pub grammar: Grammar,
 }
 
 impl LL1Parser {
-  pub fn new(tokens: Vec<Token>, table: HashMap<(usize, usize), Rc<Production>>, grammar: Grammar) -> Self {
+  pub fn new(tokens: Vec<Token>, table: HashMap<(usize, usize), usize>, grammar: Grammar) -> Self {
 
     Self {
       tokens,
@@ -28,7 +28,10 @@ impl LL1Parser {
     let mut cursor = cursor;
 
     let token_type = self.tokens[cursor].token_type;
-    let production = self.table.get(&(rule_index, token_type)).unwrap();
+    let production_id = self.table.get(&(rule_index, token_type)).unwrap();
+
+
+    let production = self.grammar.productions.get(production_id).unwrap();
     let name = self.grammar.vocabulary.get_nonterminal_name_with_default(rule_index);
     let mut result = RuleContext { rule_index, rule_name: name, children: Vec::new(), };
     

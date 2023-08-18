@@ -89,7 +89,7 @@ fn first_set_test() {
 
 
   let (grammar, _) = ast_loader::load_ast();
-  let mut grammar = grammar;
+  let grammar = grammar;
 
 
   println!("{}", grammar);

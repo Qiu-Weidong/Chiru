@@ -29,7 +29,7 @@ fn main() {
   let (grammar, _) = load_ast();
 
 
-  generate_visitor(&grammar.vocabulary);
+  // generate_visitor(&grammar.vocabulary);
 
   
   let (first, first_set) = grammar.first_set();
@@ -81,14 +81,14 @@ fn main() {
   let mut lexer = SyntaxisLexer::new(input);
   let tokens = lexer.scan_all_on_channel_tokens(0);
 
-  let parser = SyntaxisParser::new(tokens, table, grammar.vocabulary);
+  let parser = SyntaxisParser::new(tokens, table, grammar);
   let ast = parser.parse();
 
   // 我现在可以生成 lexer 和 visitor 了。
 
 
   // 根据产生式构造 ast
-  ASTDrawer::new().draw(&ast, "parser", "parser2.html");
+  ASTDrawer::new().draw(&ast, "parser", "parser.html");
 }
 
 

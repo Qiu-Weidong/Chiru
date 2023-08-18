@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use crate::tool::{grammar::{Grammar, ProductionItem, Production}, syntaxis::{syntaxis_visitor::SyntaxisVisitor, syntaxis_context::{ElementContext, LexerRuleContext, ParserRuleContext}}};
+use crate::tool::{grammar::{Grammar, production::{ProductionItem, Production}}, syntaxis::{syntaxis_visitor::SyntaxisVisitor, syntaxis_context::{ElementContext, LexerRuleContext, ParserRuleContext}}};
 
 use super::lexer_rule_visitor::LexerRuleData;
 
@@ -12,7 +12,7 @@ use super::lexer_rule_visitor::LexerRuleData;
  * 第三遍 构造产生式
  */
 
-
+// 负责将字符串字面量转换为 token 。
 pub struct StringLiteralToTokenVisitor<'a> {
   pub grammar: &'a mut Grammar,
   pub next_token_id: usize,
@@ -53,7 +53,7 @@ impl SyntaxisVisitor for StringLiteralToTokenVisitor<'_> {
 }
 
 
-
+// 负责将所有词法符号和语法符号编号并填表
 pub struct SymbolVisitor<'a> {
   pub grammar: &'a mut Grammar,
   pub data: Vec<LexerRuleData>,
@@ -108,9 +108,10 @@ impl SyntaxisVisitor for SymbolVisitor<'_> {
 
 pub struct ProductionVisitor<'a> {
   pub grammar: &'a mut Grammar,
-  pub next_rule_id: usize,
+  pub next_rule_id: usize, // 为匿名非终结符编号
+  pub next_production_id: usize, // 产生式的编号
 
-  // 先在 visitor 中维护一个匿名非终结符产生式的集合，最后再添加到 grammar 中去。
+  // 先在 visitor 中维护一个匿名非终结符产生式的集合，最后再添加到 grammar 中去。map 的键为产生式右部列表
   block_cache: HashMap<Vec<Vec<ProductionItem>>, usize>,
 
 
@@ -121,7 +122,9 @@ pub struct ProductionVisitor<'a> {
 
 impl<'a> ProductionVisitor<'a> {
   pub fn new(grammar: &'a mut Grammar, first_rule_id: usize) -> Self {
-    Self { grammar, next_rule_id: first_rule_id, star_cache: HashMap::new(), plus_cache: HashMap::new(), question_cache: HashMap::new(), block_cache: HashMap::new(), }
+    Self { grammar, next_rule_id: first_rule_id, next_production_id: 0,
+      star_cache: HashMap::new(), plus_cache: HashMap::new(), 
+      question_cache: HashMap::new(), block_cache: HashMap::new(), }
   }
 }
 
@@ -134,20 +137,24 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
     self.default_result()
   }
 
+
+
   // 添加命名产生式
   fn visit_parser_rule(&mut self, ctx: &dyn ParserRuleContext) -> Box<dyn std::any::Any> {
     // 这个地方不要调用 block.accept
     let name = &ctx.rule_ref().unwrap().symbol.text;
-    let id = self.grammar.vocabulary.get_nonterminal_id_by_name(name).unwrap();
+    let left_id = self.grammar.vocabulary.get_nonterminal_id_by_name(name).unwrap();
     
     for alternative in ctx.block().unwrap().alternative_list().iter() {
       let right = alternative.accept(self);
       let right = right.downcast::<Vec<ProductionItem>>().unwrap();
-      let production = Production::new(id, right.as_ref());
-      
-      if !self.grammar.productions.insert(production) {
-        println!("产生式重复");
-      }
+
+      let production_id = self.next_production_id;
+      self.next_production_id += 1;
+      let production = Production::new(production_id, left_id, right.as_ref());
+
+      // 先不检查重复的产生式
+      self.grammar.productions.insert(production_id, production);
     }
     self.default_result()
   }
@@ -207,12 +214,16 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
         self.grammar.vocabulary.add_unnamed_nonterminal(self.next_rule_id);
         let item2 = ProductionItem::NonTerminal(self.next_rule_id);
 
-        // 添加两条产生式
-        let p1 = Production::new(self.next_rule_id, &vec![]);
-        let p2 = Production::new(self.next_rule_id, &vec![item, item2.clone()]);
+        let production_id_1 = self.next_production_id;
+        let production_id_2 = self.next_production_id + 1;
+        self.next_production_id += 2;
 
-        self.grammar.productions.insert(p1);
-        self.grammar.productions.insert(p2);
+        // 添加两条产生式
+        let p1 = Production::new(production_id_1, self.next_rule_id, &vec![]);
+        let p2 = Production::new(production_id_2, self.next_rule_id, &vec![item, item2.clone()]);
+
+        self.grammar.productions.insert(production_id_1, p1);
+        self.grammar.productions.insert(production_id_2, p2);
 
         self.star_cache.insert(id, self.next_rule_id);
 
@@ -230,10 +241,14 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
         let item2 = ProductionItem::NonTerminal(self.next_rule_id);
 
         // 添加两条产生式
-        let p1 = Production::new(self.next_rule_id, &vec![item.clone()]);
-        let p2 = Production::new(self.next_rule_id, &vec![item, item2.clone()]);
-        self.grammar.productions.insert(p1);
-        self.grammar.productions.insert(p2);
+        let production_id_1 = self.next_production_id;
+        let production_id_2 = self.next_production_id + 1;
+        self.next_production_id += 2;
+
+        let p1 = Production::new(production_id_1, self.next_rule_id, &vec![item.clone()]);
+        let p2 = Production::new(production_id_2, self.next_rule_id, &vec![item, item2.clone()]);
+        self.grammar.productions.insert(production_id_1, p1);
+        self.grammar.productions.insert(production_id_2, p2);
 
         self.plus_cache.insert(id, self.next_rule_id);
         self.next_rule_id += 1;
@@ -250,10 +265,15 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
         let item2 = ProductionItem::NonTerminal(self.next_rule_id);
 
         // 添加两条产生式
-        let p1 = Production::new(self.next_rule_id, &vec![]);
-        let p2 = Production::new(self.next_rule_id, &vec![item]);
-        self.grammar.productions.insert(p1);
-        self.grammar.productions.insert(p2);
+        let production_id_1 = self.next_production_id;
+        let production_id_2 = self.next_production_id + 1;
+        self.next_production_id += 2;
+
+
+        let p1 = Production::new(production_id_1, self.next_rule_id, &vec![]);
+        let p2 = Production::new(production_id_2, self.next_rule_id, &vec![item]);
+        self.grammar.productions.insert(production_id_1, p1);
+        self.grammar.productions.insert(production_id_2, p2);
         self.question_cache.insert(id, self.next_rule_id);
         self.next_rule_id += 1;
         return Box::new(item2);
@@ -286,10 +306,13 @@ impl SyntaxisVisitor for ProductionVisitor<'_> {
     self.block_cache.insert(rights.clone(), id);
 
     for right in rights.iter() {
-      let production = Production::new(id, right);
-      if !self.grammar.productions.insert(production) {
-        println!("重复产生式");
-      }
+      let production_id = self.next_production_id;
+      self.next_production_id += 1;
+      let production = Production::new(production_id, id, right);
+      // if !self.grammar.productions.insert(production_id, production) {
+      //   println!("重复产生式");
+      // }
+      self.grammar.productions.insert(production_id, production);
     } 
 
 

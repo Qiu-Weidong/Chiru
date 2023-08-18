@@ -1,8 +1,15 @@
+pub mod non_terminal;
+pub mod terminal;
+pub mod production;
+pub mod vocabulary;
+
+
+
 // 定义一个数据结构来表示文法
 
-use std::{collections::{HashMap, HashSet}, fmt::Display, rc::Rc};
+use std::{collections::{HashMap, HashSet}, fmt::Display};
 
-use crate::runtime::vocabulary::Vocabulary;
+use self::{production::{ProductionItem, Production}, vocabulary::Vocabulary};
 
 
 
@@ -15,7 +22,7 @@ pub struct Grammar {
   pub vocabulary: Vocabulary,
   
   // 所有产生式
-  pub productions: HashSet<Production>, 
+  pub productions: HashMap<usize, Production>, 
 
   // 开始符号 ?
 }
@@ -31,14 +38,13 @@ impl Grammar {
     Self {
       name: name.to_owned(),
       vocabulary: Vocabulary::new(),
-      productions: HashSet::new(),
+      productions: HashMap::new(),
     }
   }
-
+  
+  // 根据非终结符的first集合求一个串的first集合
   fn get_first_for_string(slice: &[ProductionItem], first_set: &HashMap<usize, Collection>) -> Collection {
-    // 根据非终结符的first集合求一个串的first集合
     let mut result = Collection { allow_epsilon: true, set: HashSet::new(), };
-
     for item in slice.iter() {
       match item {
         ProductionItem::NonTerminal(rule_id) => {
@@ -60,6 +66,7 @@ impl Grammar {
     result
   }
 
+  // 求非 epsilon 产生式的 first 集
   fn get_first_set_for_non_epsilon_rule(production: &Production, result: &mut Collection, first_set: &HashMap<usize, Collection>) -> bool {
     let mut modified = false; // 标识 result 是否被修改
 
@@ -109,21 +116,24 @@ impl Grammar {
     modified
   }
 
-  // 同时返回每条产生式的 first 集合
-  pub fn first_set(&self) -> (HashMap<usize, Collection>, HashMap<Production, Collection>) {
+
+  // 返回值 (非终结符的first集合, 产生式的 first 集合)
+  pub fn first_set(&self) -> (HashMap<usize, Collection>, HashMap<usize, Collection>) {
     // 求 first 集合
     
     let mut result = HashMap::new();  
-    // 首先将所有产生式的 first 集合初始化为空，不包含 epsilon。
-
-    for id in self.vocabulary.get_all_nonterminals().iter() {
-      result.insert(*id, Collection { allow_epsilon: false, set: HashSet::new() });
+    
+    // 首先将所有非终结符的 first 集合初始化为空，不包含 epsilon。
+    for nonterminal in self.vocabulary.get_all_nonterminals().iter() {
+      result.insert(nonterminal.id, Collection { allow_epsilon: false, set: HashSet::new() });
     }
 
     let mut modified = true;
-    let mut cache: HashMap<Production, Collection> = HashMap::new();
-    for production in self.productions.iter() {
-      cache.insert(production.clone(), Collection { allow_epsilon: false, set: HashSet::new() });
+    let mut cache: HashMap<usize, Collection> = HashMap::new();
+
+    // 首先将所有产生式的 first 集合初始化为空，不包含 epsilon。
+    for production in self.productions.values() {
+      cache.insert(production.id, Collection { allow_epsilon: false, set: HashSet::new() });
     }
     
 
@@ -132,9 +142,9 @@ impl Grammar {
     while modified {
       modified = false;
       
-      for production in self.productions.iter() {
+      for production in self.productions.values() {
         // 不断求每个 production 的 first 集合
-        let t = cache.get_mut(production).unwrap();
+        let t = cache.get_mut(&production.id).unwrap();
         
         modified = Grammar::get_first_set_for_non_epsilon_rule(production, t, &result) || modified;
 
@@ -153,12 +163,12 @@ impl Grammar {
     (result, cache)
   }
 
-  // follow 集合不可能包含 ε
+  // follow 集合不可能包含 ε 返回每个非终结符的 follow 集合
   pub fn follow_set(&self, first_set: &HashMap<usize, Collection>) -> HashMap<usize, HashSet<usize>> {
     // 求 follow 集合
     let mut result = HashMap::new();
-    for id in self.vocabulary.get_all_nonterminals().iter() {
-      result.insert(*id, HashSet::new());
+    for nonterminal in self.vocabulary.get_all_nonterminals().iter() {
+      result.insert(nonterminal.id, HashSet::new());
     }
     
     // 将 stop 放入开始符号的follow集合
@@ -169,7 +179,7 @@ impl Grammar {
     while modified {
       modified = false;
       // A -> αBβ 将 first β 加入 follow B ε 除外。
-      for production in self.productions.iter() {
+      for production in self.productions.values() {
 
         for i in 0..production.right.len() {
           if let ProductionItem::NonTerminal(item) = production.right[i] {
@@ -193,19 +203,24 @@ impl Grammar {
 
     
     result
+
+
   }
 
-  // 构造预测分析表
-  pub fn ll1_table(&self, first_set: &HashMap<Production, Collection>, follow_set: &HashMap<usize, HashSet<usize>>) -> HashMap<(usize, usize), Rc<Production>> {
-    let mut result: HashMap<(usize, usize), Rc<Production>> = HashMap::new();
-    let productions: Vec<Rc<Production>> = self.productions.iter().map(|p| { Rc::new(p.clone()) }).collect();
+  // 构造预测分析表 这里注意传入的 first 集合是产生式的 first 集合  预测分析表 (非终结符, 终结符) -> 产生式
+  pub fn ll1_table(&self, first_set: &HashMap<usize, Collection>, follow_set: &HashMap<usize, HashSet<usize>>) 
+    -> HashMap<(usize, usize), usize> {
+    let mut result: HashMap<(usize, usize), usize> = HashMap::new();
+    let productions = self.productions.values().cloned().collect::<Vec<_>>();
+
+
     for production in productions.iter() {
-      let first = first_set.get(&production).unwrap();
+      let first = first_set.get(&production.id).unwrap();
       let rule_id = production.left;
       
       // 将 first 集合中的所有元素
       for token_type in first.set.iter() {
-        if let Some(p) = result.insert((rule_id, *token_type), Rc::clone(production)) {
+        if let Some(p) = result.insert((rule_id, *token_type), production.id) {
           println!("{:?}, {:?}", production, p);
         }
       }
@@ -213,13 +228,14 @@ impl Grammar {
       if first.allow_epsilon {
         let follow = follow_set.get(&rule_id).unwrap();
         for token_type in follow.iter() {
-          if let Some(p) = result.insert((rule_id, *token_type), Rc::clone(production)) {
+          if let Some(p) = result.insert((rule_id, *token_type), production.id) {
             println!("{:?}, {:?}", production, p);
           }
         }
       }
     }
     result
+
   }
 }
 
@@ -232,7 +248,7 @@ impl Display for Grammar {
    * 所有产生式。
    */
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    for production in self.productions.iter() {
+    for production in self.productions.values() {
       let name = self.vocabulary.get_nonterminal_name_with_default(production.left);
 
       write!(f, "{} ->", name)?;
@@ -243,7 +259,7 @@ impl Display for Grammar {
             write!(f, "{}", self.vocabulary.get_nonterminal_name_with_default(*id))?
           },
           ProductionItem::Terminal(id) => {
-            let name = self.vocabulary.get_terminal_name(*id);
+            let name = self.vocabulary.get_terminal_name_by_id(*id).unwrap();
             write!(f, " {}", name)?;
           },
         }
@@ -254,25 +270,7 @@ impl Display for Grammar {
     }
 
     Ok(())
-  }
-}
 
-
-#[derive(PartialEq, Eq, Clone, Hash, Debug, Copy)]
-pub enum ProductionItem {
-  NonTerminal(usize),
-  Terminal(usize),
-}
-
-#[derive(PartialEq, Eq, Clone, Hash, Debug)]
-pub struct Production {
-  pub left: usize, 
-  pub right: Vec<ProductionItem>,
-}
-
-impl Production {
-  pub fn new(left: usize, right: &Vec<ProductionItem>) -> Self {
-    Self { left, right: right.clone() }
   }
 }
 
