@@ -108,7 +108,6 @@ impl SyntaxisParser {
 
   // 直接照抄
   fn parse_ast(&self, cursor: &mut usize, rule_index: usize) -> RuleContext {
-    // let mut cursor = cursor;
 
     let token_type = self.tokens[*cursor].token_type;
     let production = self.table.get(&(rule_index, token_type)).unwrap();
