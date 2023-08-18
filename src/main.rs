@@ -22,8 +22,12 @@
 
 use std::fs::File;
 
-use chiru::{tool::{visitor::{grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor}, lexer_rule_visitor::LexerRuleData}, grammar::Grammar, serde_ast, syntaxis::syntaxis_context::RuleListContext, gui::ast_drawer::ASTDrawer, v1::syntaxis_lexer::SyntaxisLexer, syntaxis::syntaxis_parser::SyntaxisParser, code_gen::visitor_gen::generate_visitor}, runtime::{lexer::{Lexer}}};
+use chiru::{tool::{visitor::{grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor}, lexer_rule_visitor::LexerRuleData}, grammar::Grammar, serde_ast, syntaxis::{syntaxis_context::RuleListContext, syntaxis_parser::SyntaxisParser}, gui::ast_drawer::ASTDrawer}, runtime::{lexer::{Lexer}}};
 
+
+
+
+use chiru::tool::v1::syntaxis_lexer::SyntaxisLexer;
 
 fn main() {
   let (grammar, _) = load_ast();
@@ -81,6 +85,14 @@ fn main() {
   let mut lexer = SyntaxisLexer::new(input);
   let tokens = lexer.scan_all_on_channel_tokens(0);
 
+
+
+
+  // println!("{:?}", tokens);
+  for token in tokens.iter() {
+    println!("{}", token);
+  }
+
   let parser = SyntaxisParser::new(tokens, table, grammar);
   let ast = parser.parse();
 
@@ -89,6 +101,9 @@ fn main() {
 
   // 根据产生式构造 ast
   ASTDrawer::new().draw(&ast, "parser", "foo.html");
+
+
+  print!("done")
 }
 
 
@@ -97,7 +112,7 @@ pub fn load_ast() -> (Grammar, Vec<LexerRuleData>) {
   let ast = serde_ast::from_reader(file).unwrap();
 
 
-  ASTDrawer::new().draw(&ast, "parser", "ast.html");
+  // ASTDrawer::new().draw(&ast, "parser", "ast.html");
 
 
   let mut grammar = Grammar::new("我的文法");
