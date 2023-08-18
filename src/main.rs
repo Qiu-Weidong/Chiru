@@ -22,7 +22,7 @@
 
 use std::fs::File;
 
-use syntaxis::{tool::{visitor::{grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor}, lexer_rule_visitor::LexerRuleData}, grammar::Grammar, serde_ast, syntaxis::syntaxis_context::RuleListContext, gui::ast_drawer::ASTDrawer, v1::{syntaxis_lexer::SyntaxisLexer, syntaxis_parser::SyntaxisParser}, code_gen::visitor_gen::generate_visitor}, runtime::{lexer::{Lexer}}};
+use chiru::{tool::{visitor::{grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor}, lexer_rule_visitor::LexerRuleData}, grammar::Grammar, serde_ast, syntaxis::syntaxis_context::RuleListContext, gui::ast_drawer::ASTDrawer, v1::{syntaxis_lexer::SyntaxisLexer, syntaxis_parser::SyntaxisParser}, code_gen::visitor_gen::generate_visitor}, runtime::{lexer::{Lexer}}};
 
 
 fn main() {

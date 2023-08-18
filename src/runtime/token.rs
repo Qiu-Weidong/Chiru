@@ -53,16 +53,15 @@ impl Display for Token {
 
 
 impl Token {
-  pub fn new(token_type: usize, token_name: &str, text: &str) -> Self {
+  pub fn new(token_type: usize, token_name: &str, text: &str, 
+      start: Position, stop: Position, token_index: usize, channel: 
+      usize, char_start_index: usize, char_stop_index: usize) -> Self {
     Token {
       token_type,
       token_name: token_name.to_owned(),
-      start: Position { line: 0, char_position: 0 },
-      stop: Position { line: 0, char_position: 0 },
-      token_index: 0,
-      channel: 0,
-      char_start_index: 0,
-      char_stop_index: 0,
+      start,
+      stop,
+      token_index,      channel,      char_start_index,      char_stop_index,
       text: text.to_owned(),
     }
   }

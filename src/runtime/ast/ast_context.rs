@@ -3,7 +3,7 @@ use std::fmt::Display;
 use super::{terminal_context::TerminalContext, rule_context::RuleContext, error_context::ErrorContext};
 
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum ASTContext {
   Terminal(TerminalContext),
   Rule(RuleContext),

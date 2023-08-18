@@ -3,7 +3,7 @@ use std::fmt::Display;
 use crate::runtime::token::Token;
 
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct TerminalContext {
   pub symbol: Token,
 }

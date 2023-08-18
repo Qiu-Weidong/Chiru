@@ -5,7 +5,7 @@ use crate::runtime::token::Token;
 
 use super::{terminal_context::TerminalContext, error_context::ErrorContext, ast_context::ASTContext, to_rule::ToRule};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct RuleContext {
   pub rule_name: String,
   pub children: Vec<ASTContext>,

@@ -5,6 +5,7 @@ use crate::{runtime::{token::Token, ast::{rule_context::RuleContext, terminal_co
 
 
 pub struct SyntaxisParser {
+  // token 流
   pub tokens: Vec<Token>,
 
   // 这两个应该声明为常量
@@ -13,9 +14,14 @@ pub struct SyntaxisParser {
 }
 
 
+lazy_static!{
+  
+}
+
+
 impl SyntaxisParser {
 
-  // 使用模板生成
+  // 使用模板生成 每个非终结符的编号
   pub const RULE_LIST: usize = 0;
   pub const PARSER_RULE: usize = 1;
   pub const BLOCK: usize = 2;

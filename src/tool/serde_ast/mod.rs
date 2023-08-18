@@ -3,7 +3,7 @@
 
 use serde_json;
 use std::io::Read;
-use crate::runtime::{ast::{rule_context::RuleContext, terminal_context::TerminalContext, ast_context::ASTContext}, token};
+use crate::runtime::{ast::{rule_context::RuleContext, terminal_context::TerminalContext, ast_context::ASTContext}, token::{self, Position}};
 
 /**
  * { rule_index: 0, rule_name: "expr", children: [{ token_type: 1, token_name: "xxx", text: "xxx" }] }
@@ -64,7 +64,11 @@ fn parse_terminal(value: &serde_json::Value) -> Result<TerminalContext, Error> {
 
 
   Ok(TerminalContext {
-    symbol: token::Token::new(token_type, token_name, text)
+    symbol: token::Token::new(token_type, token_name, text, 
+      Position { line: 0, char_position: 0 },
+      Position {line: 0, char_position: 0}, 0, 0,0, 0
+
+    )
   })
   
   

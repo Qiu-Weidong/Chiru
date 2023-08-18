@@ -4,6 +4,9 @@ use std::{collections::{HashMap, HashSet}, fmt::Display, rc::Rc};
 
 use crate::runtime::vocabulary::Vocabulary;
 
+
+
+
 pub struct Grammar {
   
   // 文法的名称
@@ -13,6 +16,8 @@ pub struct Grammar {
   
   // 所有产生式
   pub productions: HashSet<Production>, 
+
+  // 开始符号 ?
 }
 
 // 定义一个存放 first、follow 集合的数据结构

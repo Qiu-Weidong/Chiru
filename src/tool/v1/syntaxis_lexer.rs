@@ -1,21 +1,19 @@
-
-
-
 use regex::Regex;
 
 use crate::runtime::{lexer::{Lexer, Error}, token::{Token, Position}};
 
 pub struct SyntaxisLexer {
-  pub input: String,
-  pub cursor: usize,
-  // pub token_names: Vec<&'static str>,
-  pub token_index: usize,
-  pub position: Position,
+  pub input: String, // 输入文本
+  pub cursor: usize, // 字符游标，当前处理到的文本字符序号
+  pub token_index: usize, // token 序号，表示当前扫描到了第几个 token
+  pub position: Position, // 当前处理到的文本字符所在的位置
 }
 
+
+// 使用模板生成正则列表和token名称列表
 lazy_static!{
   
-  static ref REGEX_LIST: Vec<Regex> = vec![
+  static ref REGEX_LIST: [Regex; 14] = [
 
     // 这里也需要使用模板
 
@@ -36,9 +34,11 @@ lazy_static!{
 
   ];
 
-  static ref TOKEN_NAMES: Vec<&'static str> = vec![
+  static ref TOKEN_NAMES: [&'static str; 16] = [
     "_START", "_STOP", 
-    "RULE_REF", "TOKEN_REF", "COLON", "SEMI", "OR", "EPSILON", "STAR", "PLUS", "QUESTION", "LPAREN", "RPAREN", "STRING_LITERAL", "REGULAR_LITERAL", "WHITE_SPACE", 
+    "RULE_REF", "TOKEN_REF", "COLON", "SEMI", "OR", "EPSILON", "STAR", 
+    "PLUS", "QUESTION", "LPAREN", "RPAREN", "STRING_LITERAL", 
+    "REGULAR_LITERAL", "WHITE_SPACE", 
   ];
 }
 
@@ -76,28 +76,21 @@ impl SyntaxisLexer {
 
 
 
+
+  // 定义一些私有函数
 }
 
 impl Lexer for SyntaxisLexer {
-
 
   fn scan(&mut self) -> Result<Token, crate::runtime::lexer::Error> {
     if self.cursor > self.input.len() { return Err(Error {}) }
     else if self.cursor >= self.input.len() {
       self.cursor += 10;
-      return Ok(Token {
-        token_type: 1,
-        token_name: "_STOP".to_owned(),
-  
-        start: self.position.clone(),
-        stop: self.position.clone(),
-        
-        channel: 0,
-        text: "_STOP".to_owned(),
-        token_index: self.token_index,
-        char_start_index: self.cursor,
-        char_stop_index: self.cursor,
-      });
+
+      // 返回结束 token _stop
+      return Ok(Token::new(SyntaxisLexer::_STOP, "_STOP", "_STOP",         
+        self.position.clone(), self.position.clone(), self.token_index, 0, 
+        self.cursor, self.cursor))
     }
     let mut len = 0;
     let mut token_type = 0;
@@ -112,7 +105,10 @@ impl Lexer for SyntaxisLexer {
       }
     }
 
+    // 如果都不匹配，则报错
     if token_type <= 0 { return Err(Error {}) }
+
+    // 将对应的文本找出来
     let text = String::from(&self.input[self.cursor..self.cursor+len]);
     let lines: Vec<_> = text.split("\n").collect();
     let new_pos;
@@ -132,20 +128,8 @@ impl Lexer for SyntaxisLexer {
     }
 
 
-
-    let token = Token {
-      token_type,
-      token_name: String::from(TOKEN_NAMES[token_type]),
-
-      start: self.position.clone(),
-      stop: new_pos.clone(),
-      
-      channel: 0,
-      text,
-      token_index: self.token_index,
-      char_start_index: self.cursor,
-      char_stop_index: self.cursor + len,
-    };
+    let token = Token::new(token_type, TOKEN_NAMES[token_type],&text, 
+      self.position.clone(),new_pos.clone(), self.token_index, 0, self.cursor, self.cursor + len);
 
     self.cursor += len;
     self.token_index += 1;
