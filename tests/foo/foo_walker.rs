@@ -1,4 +1,4 @@
-use syntaxis::runtime::ast::{ast_context::ASTContext, rule_context::RuleContext, to_rule::ToRule};
+use chiru::runtime::ast::{ast_context::ASTContext, rule_context::RuleContext, to_rule::ToRule};
 
 use super::foo_listener::FooListener;
 

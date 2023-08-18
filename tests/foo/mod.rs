@@ -5,7 +5,7 @@ pub mod foo_context;
 pub mod foo_walker;
 
 
-use syntaxis::{runtime::{ast::{ast_context::ASTContext, rule_context::RuleContext, terminal_context::TerminalContext}, token::{Position, Token}}};
+use chiru::{runtime::{ast::{ast_context::ASTContext, rule_context::RuleContext, terminal_context::TerminalContext}, token::{Position, Token}}};
 
 use crate::foo::foo_parser::FooParser;
 

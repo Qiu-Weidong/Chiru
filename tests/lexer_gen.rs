@@ -17,7 +17,7 @@ fn gen_lexer() {
 
   let mut context = Context::new();
   context.insert("tokens", &data);
-  context.insert("name", "Syntaxis");
+  context.insert("name", "chiru");
 
   let result = tera.render("lexer.tera", &context).unwrap();
     

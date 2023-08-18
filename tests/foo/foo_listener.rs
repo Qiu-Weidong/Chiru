@@ -1,4 +1,4 @@
-use syntaxis::runtime::ast::{rule_context::RuleContext, error_context::ErrorContext, terminal_context::TerminalContext};
+use chiru::runtime::ast::{rule_context::RuleContext, error_context::ErrorContext, terminal_context::TerminalContext};
 
 use super::{foo_parser::FooParser, foo_context::{ExprContext, StmtContext, StartContext}};
 

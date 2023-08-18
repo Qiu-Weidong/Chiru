@@ -1,4 +1,4 @@
-use syntaxis::runtime::lexer::Lexer;
+use chiru::runtime::lexer::Lexer;
 mod lexer_generate;
 
 #[test]
@@ -43,7 +43,7 @@ fn lexer_test() {
   "####;
 
 
-  let mut lexer = lexer_generate::lexer::SyntaxisLexer::new(input);
+  let mut lexer = lexer_generate::lexer::chiruLexer::new(input);
   let tokens = lexer.scan_all_on_channel_tokens(0);
 
   

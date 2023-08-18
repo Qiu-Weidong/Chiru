@@ -1,6 +1,6 @@
 use std::any::Any;
 
-use syntaxis::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext, error_context::ErrorContext, terminal_context::TerminalContext};
+use chiru::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext, error_context::ErrorContext, terminal_context::TerminalContext};
 
 use super::{foo_context::{ExprContext, StartContext, StmtContext}, foo_parser::FooParser};
 

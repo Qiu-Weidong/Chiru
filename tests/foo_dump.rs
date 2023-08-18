@@ -1,7 +1,7 @@
 
 
 
-use syntaxis::tool::gui::ast_drawer::ASTDrawer;
+use chiru::tool::gui::ast_drawer::ASTDrawer;
 
 use crate::foo::create_ast;
 

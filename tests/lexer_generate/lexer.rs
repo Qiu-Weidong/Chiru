@@ -3,11 +3,11 @@
 
 use regex::Regex;
 
-use syntaxis::runtime::{lexer::{Lexer, Error}, token::{Token, Position}};
+use chiru::runtime::{lexer::{Lexer, Error}, token::{Token, Position}};
 
 
 
-pub struct SyntaxisLexer {
+pub struct chiruLexer {
   pub input: String,
   pub cursor: usize, // 每次都匹配 input[cursor..]
   pub regex_list: Vec<regex::Regex>,
@@ -17,7 +17,7 @@ pub struct SyntaxisLexer {
 }
 
 #[allow(dead_code)]
-impl SyntaxisLexer {
+impl chiruLexer {
   // 前两个是开始符号和结束符号
   pub const _START: usize = 0;
   pub const _STOP: usize = 1;
@@ -68,7 +68,7 @@ impl SyntaxisLexer {
       "RULE_REF", "TOKEN_REF", "COLON", "SEMI", "OR", "EPSILON", "STAR", "PLUS", "QUESTION", "LPAREN", "RPAREN", "STRING_LITERAL", "REGULAR_LITERAL", "WHITE_SPACE", 
     ];
 
-    SyntaxisLexer { input: input.to_owned(), cursor: 0, regex_list, token_names, token_index: 0, position: Position { line: 0, char_position: 0 } }
+    chiruLexer { input: input.to_owned(), cursor: 0, regex_list, token_names, token_index: 0, position: Position { line: 0, char_position: 0 } }
   }
 
 
@@ -76,7 +76,7 @@ impl SyntaxisLexer {
 }
 
 
-impl Lexer for SyntaxisLexer {
+impl Lexer for chiruLexer {
 
 
   fn scan(&mut self) -> Result<Token, Error> {
@@ -155,7 +155,7 @@ impl Lexer for SyntaxisLexer {
   fn scan_all_on_channel_tokens(&mut self, channel: usize) -> Vec<Token> {
     let mut result = Vec::new();
     while let Ok(token) = self.scan() {
-      if token.token_type == SyntaxisLexer::WHITE_SPACE { continue; }
+      if token.token_type == chiruLexer::WHITE_SPACE { continue; }
       if token.channel == channel {
         result.push(token);
       }

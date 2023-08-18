@@ -7,4 +7,4 @@
 
 English | [简体中文](README.zh-Hans.md) | [繁體中文](README.zh-Hant.md)
 
-类似 antlr4 的解析器生成器
+A parser generator similar to [antlr4](https://github.com/antlr/antlr4.git).

@@ -1,5 +1,5 @@
 
-use syntaxis::runtime::ast::{terminal_context::TerminalContext, to_rule::ToRule, rule_context::RuleContext};
+use chiru::runtime::ast::{terminal_context::TerminalContext, to_rule::ToRule, rule_context::RuleContext};
 
 use super::{foo_visitor::FooAcceptor, foo_parser::FooParser};
 

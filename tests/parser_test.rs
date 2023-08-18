@@ -1,4 +1,4 @@
-use syntaxis::{runtime::lexer::Lexer, tool::{parser::ll1_parser::LL1Parser, gui::ast_drawer::ASTDrawer}};
+use chiru::{runtime::lexer::Lexer, tool::{parser::ll1_parser::LL1Parser, gui::ast_drawer::ASTDrawer}};
 mod lexer_generate;
 mod ast_loader;
 
@@ -63,7 +63,7 @@ fn parser_test() {
   "####;
 
 
-  let mut lexer = lexer_generate::lexer::SyntaxisLexer::new(input);
+  let mut lexer = lexer_generate::lexer::chiruLexer::new(input);
   let tokens = lexer.scan_all_on_channel_tokens(0);
 
   let (grammar, _) = ast_loader::load_ast();

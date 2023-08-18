@@ -1,14 +1,14 @@
 use std::fs::File;
 
-use syntaxis::tool::grammar::Grammar;
-use syntaxis::tool::serde_ast;
-use syntaxis::tool::syntaxis::syntaxis_context::RuleListContext;
-use syntaxis::tool::visitor::grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor};
-use syntaxis::tool::visitor::lexer_rule_visitor::LexerRuleData;
+use chiru::tool::grammar::Grammar;
+use chiru::tool::serde_ast;
+use chiru::tool::syntaxis::syntaxis_context::RuleListContext;
+use chiru::tool::visitor::grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor};
+use chiru::tool::visitor::lexer_rule_visitor::LexerRuleData;
 
 #[allow(dead_code)]
 pub fn load_ast() -> (Grammar, Vec<LexerRuleData>) {
-  let file = File::open("src/tool/syntaxis/syntaxis2.json").unwrap();
+  let file = File::open("src/tool/chiru/chiru2.json").unwrap();
   let ast = serde_ast::from_reader(file).unwrap();
 
   let mut grammar = Grammar::new("我的文法");
