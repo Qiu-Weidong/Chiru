@@ -1,8 +1,13 @@
 
 
 use std::collections::HashMap;
+use maplit::hashmap;
 
-use crate::{runtime::{token::Token, ast::{rule_context::RuleContext, terminal_context::TerminalContext, ast_context::ASTContext}}, tool::{grammar::{production::{Production, ProductionItem, self}, vocabulary::Vocabulary, Grammar}, syntaxis::syntaxis_context::{RuleListContext, ParserRuleContext, BlockContext, AlternativeContext, EpsilonContext, ElementContext, EbnfSuffixContext, LexerRuleContext, RegularContext}}};
+use crate::{runtime::{token::Token, 
+  ast::{rule_context::RuleContext, terminal_context::TerminalContext, ast_context::ASTContext}}, 
+  tool::{grammar::{production::ProductionItem,  Grammar, production::Production}, 
+  syntaxis::syntaxis_context::{RuleListContext, ParserRuleContext, BlockContext, 
+    AlternativeContext, EpsilonContext, ElementContext, EbnfSuffixContext, LexerRuleContext, RegularContext}}};
 
 
 
@@ -10,14 +15,22 @@ pub struct SyntaxisParser {
   // token 流
   pub tokens: Vec<Token>,
 
-  // 这两个应该声明为常量
+  // 这两个应该声明为常量，直接放在 lazy_static! 中
   pub table: HashMap<(usize, usize), usize>,
   pub grammar: Grammar,
 }
 
 
 lazy_static!{
-  
+  // 直接写预测分析表
+  static ref LL1_TABLE: HashMap<(usize, usize), usize> = hashmap!{
+    (0, 0) => 1,
+  };
+
+  // 
+  static ref PRODUCTIONS: HashMap<usize, Production>  = hashmap!{
+    0 => Production::new(0, 0, &vec![ProductionItem::NonTerminal(0)]),
+  };
 }
 
 

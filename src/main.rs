@@ -32,9 +32,6 @@ use chiru::tool::v1::syntaxis_lexer::SyntaxisLexer;
 fn main() {
   let (grammar, _) = load_ast();
 
-
-  // generate_visitor(&grammar.vocabulary);
-
   
   let (first, first_set) = grammar.first_set();
 

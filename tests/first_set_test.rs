@@ -94,9 +94,9 @@ fn first_set_test() {
 
   println!("{}", grammar);
 
-  let (first, _) = grammar.first_set();
+  // let (first, _) = grammar.first_set();
 
-  let follow = grammar.follow_set(&first);
+  // let follow = grammar.follow_set(&first);
 
   // for (id, collection) in first.iter() {
   //   let name = grammar.nonterminals.get(id).unwrap();
