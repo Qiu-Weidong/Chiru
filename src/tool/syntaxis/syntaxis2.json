@@ -7,12 +7,12 @@
       "rule_name": "parser_rule",
       "children": [
         {
-          "token_type": 7,
+          "token_type": 2,
           "token_name": "RULE_REF",
           "text": "rule_list"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -29,7 +29,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 16,
+                      "token_type": 11,
                       "token_name": "LPAREN",
                       "text": "("
                     },
@@ -46,7 +46,7 @@
                               "rule_name": "element",
                               "children": [
                                 {
-                                  "token_type": 7,
+                                  "token_type": 2,
                                   "token_name": "RULE_REF",
                                   "text": "parser_rule"
                                 }
@@ -55,7 +55,7 @@
                           ]
                         },
                         {
-                          "token_type": 9,
+                          "token_type": 6,
                           "token_name": "OR",
                           "text": "|"
                         },
@@ -68,7 +68,7 @@
                               "rule_name": "element",
                               "children": [
                                 {
-                                  "token_type": 7,
+                                  "token_type": 2,
                                   "token_name": "RULE_REF",
                                   "text": "lexer_rule"
                                 }
@@ -79,7 +79,7 @@
                       ]
                     },
                     {
-                      "token_type": 17,
+                      "token_type": 12,
                       "token_name": "RPAREN",
                       "text": ")"
                     },
@@ -88,7 +88,7 @@
                       "rule_name": "ebnf_suffix",
                       "children": [
                         {
-                          "token_type": 11,
+                          "token_type": 8,
                           "token_name": "STAR",
                           "text": "*"
                         }
@@ -101,7 +101,7 @@
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -112,12 +112,12 @@
       "rule_name": "parser_rule",
       "children": [
         {
-          "token_type": 7,
+          "token_type": 2,
           "token_name": "RULE_REF",
           "text": "parser_rule"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -134,7 +134,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 6,
+                      "token_type": 3,
                       "token_name": "TOKEN_REF",
                       "text": "RULE_REF"
                     }
@@ -145,7 +145,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 6,
+                      "token_type": 3,
                       "token_name": "TOKEN_REF",
                       "text": "COLON"
                     }
@@ -156,7 +156,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 7,
+                      "token_type": 2,
                       "token_name": "RULE_REF",
                       "text": "block"
                     }
@@ -167,7 +167,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 6,
+                      "token_type": 3,
                       "token_name": "TOKEN_REF",
                       "text": "SEMI"
                     }
@@ -178,7 +178,7 @@
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -189,12 +189,12 @@
       "rule_name": "parser_rule",
       "children": [
         {
-          "token_type": 7,
+          "token_type": 2,
           "token_name": "RULE_REF",
           "text": "block"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -211,7 +211,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 7,
+                      "token_type": 2,
                       "token_name": "RULE_REF",
                       "text": "alternative"
                     }
@@ -222,7 +222,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 16,
+                      "token_type": 11,
                       "token_name": "LPAREN",
                       "text": "("
                     },
@@ -239,7 +239,7 @@
                               "rule_name": "element",
                               "children": [
                                 {
-                                  "token_type": 6,
+                                  "token_type": 3,
                                   "token_name": "TOKEN_REF",
                                   "text": "OR"
                                 }
@@ -250,7 +250,7 @@
                               "rule_name": "element",
                               "children": [
                                 {
-                                  "token_type": 7,
+                                  "token_type": 2,
                                   "token_name": "RULE_REF",
                                   "text": "alternative"
                                 }
@@ -261,7 +261,7 @@
                       ]
                     },
                     {
-                      "token_type": 17,
+                      "token_type": 12,
                       "token_name": "RPAREN",
                       "text": ")"
                     },
@@ -270,7 +270,7 @@
                       "rule_name": "ebnf_suffix",
                       "children": [
                         {
-                          "token_type": 11,
+                          "token_type": 8,
                           "token_name": "STAR",
                           "text": "*"
                         }
@@ -283,7 +283,7 @@
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -294,12 +294,12 @@
       "rule_name": "parser_rule",
       "children": [
         {
-          "token_type": 7,
+          "token_type": 2,
           "token_name": "RULE_REF",
           "text": "alternative"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -316,7 +316,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 7,
+                      "token_type": 2,
                       "token_name": "RULE_REF",
                       "text": "element"
                     }
@@ -327,7 +327,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 7,
+                      "token_type": 2,
                       "token_name": "RULE_REF",
                       "text": "element"
                     },
@@ -336,7 +336,7 @@
                       "rule_name": "ebnf_suffix",
                       "children": [
                         {
-                          "token_type": 11,
+                          "token_type": 8,
                           "token_name": "STAR",
                           "text": "*"
                         }
@@ -347,7 +347,7 @@
               ]
             },
             {
-              "token_type": 9,
+              "token_type": 6,
               "token_name": "OR",
               "text": "|"
             },
@@ -360,7 +360,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 7,
+                      "token_type": 2,
                       "token_name": "RULE_REF",
                       "text": "epsilon"
                     }
@@ -371,7 +371,7 @@
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -382,12 +382,12 @@
       "rule_name": "parser_rule",
       "children": [
         {
-          "token_type": 7,
+          "token_type": 2,
           "token_name": "RULE_REF",
           "text": "epsilon"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -404,7 +404,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 6,
+                      "token_type": 3,
                       "token_name": "TOKEN_REF",
                       "text": "EPSILON"
                     }
@@ -415,7 +415,7 @@
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -426,12 +426,12 @@
       "rule_name": "parser_rule",
       "children": [
         {
-          "token_type": 7,
+          "token_type": 2,
           "token_name": "RULE_REF",
           "text": "element"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -448,7 +448,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 16,
+                      "token_type": 11,
                       "token_name": "LPAREN",
                       "text": "("
                     },
@@ -465,7 +465,7 @@
                               "rule_name": "element",
                               "children": [
                                 {
-                                  "token_type": 6,
+                                  "token_type": 3,
                                   "token_name": "TOKEN_REF",
                                   "text": "TOKEN_REF"
                                 }
@@ -474,7 +474,7 @@
                           ]
                         },
                         {
-                          "token_type": 9,
+                          "token_type": 6,
                           "token_name": "OR",
                           "text": "|"
                         },
@@ -487,7 +487,7 @@
                               "rule_name": "element",
                               "children": [
                                 {
-                                  "token_type": 6,
+                                  "token_type": 3,
                                   "token_name": "TOKEN_REF",
                                   "text": "STRING_LITERAL"
                                 }
@@ -496,7 +496,7 @@
                           ]
                         },
                         {
-                          "token_type": 9,
+                          "token_type": 6,
                           "token_name": "OR",
                           "text": "|"
                         },
@@ -509,7 +509,7 @@
                               "rule_name": "element",
                               "children": [
                                 {
-                                  "token_type": 6,
+                                  "token_type": 3,
                                   "token_name": "TOKEN_REF",
                                   "text": "RULE_REF"
                                 }
@@ -518,7 +518,7 @@
                           ]
                         },
                         {
-                          "token_type": 9,
+                          "token_type": 6,
                           "token_name": "OR",
                           "text": "|"
                         },
@@ -531,7 +531,7 @@
                               "rule_name": "element",
                               "children": [
                                 {
-                                  "token_type": 6,
+                                  "token_type": 3,
                                   "token_name": "TOKEN_REF",
                                   "text": "LPAREN"
                                 }
@@ -542,7 +542,7 @@
                               "rule_name": "element",
                               "children": [
                                 {
-                                  "token_type": 7,
+                                  "token_type": 2,
                                   "token_name": "RULE_REF",
                                   "text": "block"
                                 }
@@ -553,7 +553,7 @@
                               "rule_name": "element",
                               "children": [
                                 {
-                                  "token_type": 6,
+                                  "token_type": 3,
                                   "token_name": "TOKEN_REF",
                                   "text": "RPAREN"
                                 }
@@ -564,7 +564,7 @@
                       ]
                     },
                     {
-                      "token_type": 17,
+                      "token_type": 12,
                       "token_name": "RPAREN",
                       "text": ")"
                     }
@@ -575,7 +575,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 7,
+                      "token_type": 2,
                       "token_name": "RULE_REF",
                       "text": "ebnf_suffix"
                     },
@@ -584,7 +584,7 @@
                       "rule_name": "ebnf_suffix",
                       "children": [
                         {
-                          "token_type": 13,
+                          "token_type": 10,
                           "token_name": "QUESTION",
                           "text": "?"
                         }
@@ -597,7 +597,7 @@
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -608,12 +608,12 @@
       "rule_name": "parser_rule",
       "children": [
         {
-          "token_type": 7,
+          "token_type": 2,
           "token_name": "RULE_REF",
           "text": "ebnf_suffix"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -630,7 +630,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 16,
+                      "token_type": 11,
                       "token_name": "LPAREN",
                       "text": "("
                     },
@@ -647,7 +647,7 @@
                               "rule_name": "element",
                               "children": [
                                 {
-                                  "token_type": 6,
+                                  "token_type": 3,
                                   "token_name": "TOKEN_REF",
                                   "text": "STAR"
                                 }
@@ -656,7 +656,7 @@
                           ]
                         },
                         {
-                          "token_type": 9,
+                          "token_type": 6,
                           "token_name": "OR",
                           "text": "|"
                         },
@@ -669,7 +669,7 @@
                               "rule_name": "element",
                               "children": [
                                 {
-                                  "token_type": 6,
+                                  "token_type": 3,
                                   "token_name": "TOKEN_REF",
                                   "text": "PLUS"
                                 }
@@ -678,7 +678,7 @@
                           ]
                         },
                         {
-                          "token_type": 9,
+                          "token_type": 6,
                           "token_name": "OR",
                           "text": "|"
                         },
@@ -691,7 +691,7 @@
                               "rule_name": "element",
                               "children": [
                                 {
-                                  "token_type": 6,
+                                  "token_type": 3,
                                   "token_name": "TOKEN_REF",
                                   "text": "QUESTION"
                                 }
@@ -702,7 +702,7 @@
                       ]
                     },
                     {
-                      "token_type": 17,
+                      "token_type": 12,
                       "token_name": "RPAREN",
                       "text": ")"
                     }
@@ -713,7 +713,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 6,
+                      "token_type": 3,
                       "token_name": "TOKEN_REF",
                       "text": "QUESTION"
                     },
@@ -722,7 +722,7 @@
                       "rule_name": "ebnf_suffix",
                       "children": [
                         {
-                          "token_type": 13,
+                          "token_type": 10,
                           "token_name": "QUESTION",
                           "text": "?"
                         }
@@ -735,7 +735,7 @@
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -746,12 +746,12 @@
       "rule_name": "parser_rule",
       "children": [
         {
-          "token_type": 7,
+          "token_type": 2,
           "token_name": "RULE_REF",
           "text": "lexer_rule"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -768,7 +768,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 6,
+                      "token_type": 3,
                       "token_name": "TOKEN_REF",
                       "text": "TOKEN_REF"
                     }
@@ -779,7 +779,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 6,
+                      "token_type": 3,
                       "token_name": "TOKEN_REF",
                       "text": "COLON"
                     }
@@ -790,7 +790,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 7,
+                      "token_type": 2,
                       "token_name": "RULE_REF",
                       "text": "regular"
                     }
@@ -801,7 +801,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 6,
+                      "token_type": 3,
                       "token_name": "TOKEN_REF",
                       "text": "SEMI"
                     }
@@ -812,7 +812,7 @@
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -823,12 +823,12 @@
       "rule_name": "parser_rule",
       "children": [
         {
-          "token_type": 7,
+          "token_type": 2,
           "token_name": "RULE_REF",
           "text": "regular"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -845,7 +845,7 @@
                   "rule_name": "element",
                   "children": [
                     {
-                      "token_type": 6,
+                      "token_type": 3,
                       "token_name": "TOKEN_REF",
                       "text": "REGULAR_LITERAL"
                     }
@@ -856,7 +856,7 @@
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -867,12 +867,12 @@
       "rule_name": "lexer_rule",
       "children": [
         {
-          "token_type": 6,
+          "token_type": 3,
           "token_name": "TOKEN_REF",
           "text": "RULE_REF"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -881,14 +881,14 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 21,
+              "token_type": 14,
               "token_name": "REGULAR_LITERAL",
               "text": "/[a-z][a-zA-Z0-9_]+/"
             }
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -899,12 +899,12 @@
       "rule_name": "lexer_rule",
       "children": [
         {
-          "token_type": 6,
+          "token_type": 3,
           "token_name": "TOKEN_REF",
           "text": "TOKEN_REF"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -913,14 +913,14 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 21,
+              "token_type": 14,
               "token_name": "REGULAR_LITERAL",
               "text": "/[A-Z][a-zA-Z0-9_]+/"
             }
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -931,12 +931,12 @@
       "rule_name": "lexer_rule",
       "children": [
         {
-          "token_type": 6,
+          "token_type": 3,
           "token_name": "TOKEN_REF",
           "text": "COLON"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -945,14 +945,14 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 21,
+              "token_type": 14,
               "token_name": "REGULAR_LITERAL",
               "text": "/::=|:=|->|=>|:|=/"
             }
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -963,12 +963,12 @@
       "rule_name": "lexer_rule",
       "children": [
         {
-          "token_type": 6,
+          "token_type": 3,
           "token_name": "TOKEN_REF",
           "text": "SEMI"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -977,14 +977,14 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 21,
+              "token_type": 14,
               "token_name": "REGULAR_LITERAL",
               "text": "/;/"
             }
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -995,12 +995,12 @@
       "rule_name": "lexer_rule",
       "children": [
         {
-          "token_type": 6,
+          "token_type": 3,
           "token_name": "TOKEN_REF",
           "text": "OR"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -1009,14 +1009,14 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 21,
+              "token_type": 14,
               "token_name": "REGULAR_LITERAL",
               "text": "/\\|/"
             }
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -1027,12 +1027,12 @@
       "rule_name": "lexer_rule",
       "children": [
         {
-          "token_type": 6,
+          "token_type": 3,
           "token_name": "TOKEN_REF",
           "text": "EPSILON"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -1041,14 +1041,14 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 21,
+              "token_type": 14,
               "token_name": "REGULAR_LITERAL",
               "text": "/ε|epsilon/"
             }
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -1059,12 +1059,12 @@
       "rule_name": "lexer_rule",
       "children": [
         {
-          "token_type": 6,
+          "token_type": 3,
           "token_name": "TOKEN_REF",
           "text": "STAR"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -1073,14 +1073,14 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 21,
+              "token_type": 14,
               "token_name": "REGULAR_LITERAL",
               "text": "/\\*/"
             }
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -1091,12 +1091,12 @@
       "rule_name": "lexer_rule",
       "children": [
         {
-          "token_type": 6,
+          "token_type": 3,
           "token_name": "TOKEN_REF",
           "text": "PLUS"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -1105,14 +1105,14 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 21,
+              "token_type": 14,
               "token_name": "REGULAR_LITERAL",
               "text": "/\\+/"
             }
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -1123,12 +1123,12 @@
       "rule_name": "lexer_rule",
       "children": [
         {
-          "token_type": 6,
+          "token_type": 3,
           "token_name": "TOKEN_REF",
           "text": "QUESTION"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -1137,14 +1137,14 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 21,
+              "token_type": 14,
               "token_name": "REGULAR_LITERAL",
               "text": "/\\?/"
             }
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -1155,12 +1155,12 @@
       "rule_name": "lexer_rule",
       "children": [
         {
-          "token_type": 6,
+          "token_type": 3,
           "token_name": "TOKEN_REF",
           "text": "LPAREN"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -1169,14 +1169,14 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 21,
+              "token_type": 14,
               "token_name": "REGULAR_LITERAL",
               "text": "/\\(/"
             }
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -1187,12 +1187,12 @@
       "rule_name": "lexer_rule",
       "children": [
         {
-          "token_type": 6,
+          "token_type": 3,
           "token_name": "TOKEN_REF",
           "text": "RPAREN"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -1201,14 +1201,14 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 21,
+              "token_type": 14,
               "token_name": "REGULAR_LITERAL",
               "text": "/\\)/"
             }
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -1219,12 +1219,12 @@
       "rule_name": "lexer_rule",
       "children": [
         {
-          "token_type": 6,
+          "token_type": 3,
           "token_name": "TOKEN_REF",
           "text": "STRING_LITERAL"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -1233,14 +1233,14 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 21,
+              "token_type": 14,
               "token_name": "REGULAR_LITERAL",
               "text": "/'([^\\a\\d\\n\\r\\t\\f\\v\\\\']|(\\\\\\\\|\\\\'|\\\\a|\\\\d|\\\\n|\\\\r|\\\\t|\\\\f|\\\\v|\\\\u\\{(0x|0)?[a-f0-9]+\\})|\\d)*'/"
             }
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -1251,12 +1251,12 @@
       "rule_name": "lexer_rule",
       "children": [
         {
-          "token_type": 6,
+          "token_type": 3,
           "token_name": "TOKEN_REF",
           "text": "REGULAR_LITERAL"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -1265,14 +1265,14 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 21,
+              "token_type": 14,
               "token_name": "REGULAR_LITERAL",
               "text": "/\\/(\\\\\\/|[^\\/])+\\//"
             }
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }
@@ -1283,12 +1283,12 @@
       "rule_name": "lexer_rule",
       "children": [
         {
-          "token_type": 6,
+          "token_type": 3,
           "token_name": "TOKEN_REF",
           "text": "WHITE_SPACE"
         },
         {
-          "token_type": 8,
+          "token_type": 4,
           "token_name": "COLON",
           "text": ":"
         },
@@ -1297,14 +1297,14 @@
           "rule_name": "regular",
           "children": [
             {
-              "token_type": 21,
+              "token_type": 14,
               "token_name": "REGULAR_LITERAL",
               "text": "/[ \\r\\n\\t\\f]+/"
             }
           ]
         },
         {
-          "token_type": 10,
+          "token_type": 5,
           "token_name": "SEMI",
           "text": ";"
         }

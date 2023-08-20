@@ -27,7 +27,7 @@ use chiru::{tool::{visitor::{grammar_visitor::{StringLiteralToTokenVisitor, Symb
 
 
 
-use chiru::tool::v1::syntaxis_lexer::SyntaxisLexer;
+use chiru::tool::syntaxis::syntaxis_lexer::SyntaxisLexer;
 
 fn main() {
   let (grammar, _) = load_ast();
@@ -41,13 +41,17 @@ fn main() {
 
 
 
+  // println!("{}", grammar);
+
+
+
   let input = r####"
   rule_list: (parser_rule | lexer_rule)*;
 
   parser_rule: RULE_REF COLON block SEMI;
   block: alternative (OR alternative)*;
 
-  alternative: element+ | epsilon;
+  alternative: element element* | epsilon;
   epsilon: EPSILON;
   element: (
       TOKEN_REF
@@ -81,14 +85,9 @@ fn main() {
 
   let mut lexer = SyntaxisLexer::new(input);
   let tokens = lexer.scan_all_on_channel_tokens(0);
-
-
-
-
-  // println!("{:?}", tokens);
-  for token in tokens.iter() {
-    println!("{}", token);
-  }
+  // for token in tokens.iter() {
+  //   println!("{}", token);
+  // }
 
   let parser = SyntaxisParser::new(tokens, table, grammar);
   let ast = parser.parse();
@@ -97,7 +96,9 @@ fn main() {
 
 
   // 根据产生式构造 ast
-  ASTDrawer::new().draw(&ast, "parser", "foo.html");
+  // let file = File::open("src/tool/syntaxis/syntaxis.json").unwrap();
+  // let ast = serde_ast::from_reader(file).unwrap();
+  ASTDrawer::new().draw(&ast, "parser", "output/foo2.html");
 
 
   print!("done")

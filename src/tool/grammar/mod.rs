@@ -221,6 +221,7 @@ impl Grammar {
       // 将 first 集合中的所有元素
       for token_type in first.set.iter() {
         if let Some(p) = result.insert((rule_id, *token_type), production.id) {
+          // 这表示不是 ll1 文法
           println!("{:?}, {:?}", production, p);
         }
       }

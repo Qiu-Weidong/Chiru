@@ -33,8 +33,8 @@ impl ASTDrawer {
     let mut children = String::from("[");
     for child in ast.children.iter() {
       match child {
-        ASTContext::Terminal(ctx) => children += &format!("{{ name:`{}`, text: `{}`}}", 
-          ASTDrawer::escape(&ctx.symbol.token_name), ASTDrawer::escape(&ctx.symbol.text)),
+        ASTContext::Terminal(ctx) => children += &format!("{{ name:`{}`, text: `{}`, id: `{}`}}", 
+          ASTDrawer::escape(&ctx.symbol.token_name), ASTDrawer::escape(&ctx.symbol.text), ctx.symbol.token_type),
         ASTContext::Rule(ctx) => children += &ASTDrawer::dump(ctx),
         ASTContext::Error(ctx) => children += &format!("{{ name:`{}`, text: `{}`}}", 
           ASTDrawer::escape(&ctx.symbol.token_name), ASTDrawer::escape(&ctx.symbol.text)),

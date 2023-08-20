@@ -13,6 +13,7 @@ pub struct SyntaxisLexer {
 
 
 // 词法分析的相关信息
+#[derive(Clone)]
 struct LexerMeta {
   pub rule: Regex,
   pub token_type: usize,
@@ -116,66 +117,71 @@ impl SyntaxisLexer {
 impl Lexer for SyntaxisLexer {
 
   fn scan(&mut self) -> Result<Token, crate::runtime::lexer::Error> {
-    todo!()
-    // if self.cursor > self.input.len() { return Err(Error {}) }
-    // else if self.cursor >= self.input.len() {
-    //   self.cursor += 10;
+    if self.cursor > self.input.len() { return Err(Error {}) }
+    else if self.cursor >= self.input.len() {
+      self.cursor += 10;
 
-    //   // 返回结束 token _stop
-    //   return Ok(Token::new(SyntaxisLexer::_STOP, "_STOP", "_STOP",         
-    //     self.position.clone(), self.position.clone(), self.token_index, 0, 
-    //     self.cursor, self.cursor))
-    // }
-    // let mut len = 0;
-    // let mut token_type = 0;
-
-    // for i in 0..REGEX_LIST.len() {
-    //   let result = REGEX_LIST[i].find_at(&self.input[self.cursor..], 0) ;
-    //   if let Some(result) = result {
-    //     if result.end() > len {
-    //       len = result.end();
-    //       token_type = i+2;
-    //     }
-    //   }
-    // }
-
-    // // 如果都不匹配，则报错
-    // if token_type <= 0 { return Err(Error {}) }
-
-    // // 将对应的文本找出来
-    // let text = String::from(&self.input[self.cursor..self.cursor+len]);
-    // let lines: Vec<_> = text.split("\n").collect();
-    // let new_pos;
-    // if lines.len() <= 1 {
-    //   // 没有跨行
-    //   new_pos = Position {
-    //     line: self.position.line,
-    //     char_position: self.position.char_position + len
-    //   }
-    // }
-    // else {
-    //   // 跨行
-    //   new_pos = Position {
-    //     line: self.position.line + lines.len()-1,
-    //     char_position: lines.last().unwrap().len(),
-    //   }
-    // }
+      // 返回结束 token _stop
+      return Ok(Token::new(SyntaxisLexer::_STOP, "_STOP", "_STOP",         
+        self.position.clone(), self.position.clone(), self.token_index, 0, 
+        self.cursor, self.cursor))
+    }
 
 
-    // let token = Token::new(token_type, TOKEN_NAMES[token_type],&text, 
-    //   self.position.clone(),new_pos.clone(), self.token_index, 0, self.cursor, self.cursor + len);
+    let mut len = 0;
+    let mut meta: Option<LexerMeta> = None;
 
-    // self.cursor += len;
-    // self.token_index += 1;
-    // self.position = new_pos;
-    // return Ok(token);
+    for lexer_meta in LEXER_META_LIST.iter() {
+      let result = lexer_meta.rule.find_at(&self.input[self.cursor..], 0) ;
+      if let Some(result) = result {
+        if result.end() > len {
+          len = result.end();
+          meta = Some(lexer_meta.clone())
+        }
+      }
+    }
+
+    // 如果都不匹配，则报错
+    if let None = meta { return Err(Error {}) }
+
+    // 将对应的文本找出来
+    let text = String::from(&self.input[self.cursor..self.cursor+len]);
+    let lines: Vec<_> = text.split("\n").collect();
+    let new_pos;
+    if lines.len() <= 1 {
+      // 没有跨行
+      new_pos = Position {
+        line: self.position.line,
+        char_position: self.position.char_position + len
+      }
+    }
+    else {
+      // 跨行
+      new_pos = Position {
+        line: self.position.line + lines.len()-1,
+        char_position: lines.last().unwrap().len(),
+      }
+    }
+
+    let meta = meta.unwrap();
+    let token = Token::new(meta.token_type, meta.name,&text, 
+      self.position.clone(),new_pos.clone(), self.token_index, meta.channel, self.cursor, self.cursor + len);
+
+    self.cursor += len;
+    self.token_index += 1;
+    self.position = new_pos;
+
+    // 如果需要跳过，则返回下一个
+    if meta.skip {
+      return self.scan();
+    }
+    return Ok(token);
 
   }
 
   fn scan_all_on_channel_tokens(&mut self, channel: usize) -> Vec<Token> {
     let mut result = Vec::new();
     while let Ok(token) = self.scan() {
-      if token.token_type == SyntaxisLexer::WHITE_SPACE { continue; }
       if token.channel == channel {
         result.push(token);
       }
