@@ -22,7 +22,7 @@
 
 use std::fs::File;
 
-use chiru::{tool::{visitor::{grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor}, lexer_rule_visitor::LexerRuleData}, grammar::Grammar, serde_ast, syntaxis::{syntaxis_context::RuleListContext, syntaxis_parser::SyntaxisParser}, gui::ast_drawer::ASTDrawer}, runtime::{lexer::{Lexer}}};
+use chiru::{tool::{visitor::{grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor}, lexer_rule_visitor::LexerRuleData}, grammar::Grammar, serde_ast, syntaxis::{syntaxis_context::RuleListContext, syntaxis_parser::SyntaxisParser}}, runtime::{token_stream::TokenStream, parser::Parser}};
 
 
 
@@ -84,14 +84,19 @@ fn main() {
   "####;
 
   let mut lexer = SyntaxisLexer::new(input);
-  let tokens = lexer.scan_all_on_channel_tokens(0);
+  // let tokens = lexer.scan_all_on_channel_tokens(0);
   
-  for token in tokens.iter() {
-    println!("{}", token);
-  }
+  // for token in tokens.iter() {
+  //   println!("{}", token);
+  // }
 
-  let parser = SyntaxisParser::new(tokens, table, grammar);
-  let ast = parser.parse();
+
+  let mut stream = TokenStream::new(&mut lexer, 0);
+  let parser = SyntaxisParser {};
+  let ast = parser.parse(&mut stream);
+
+  // let parser = SyntaxisParser::new(tokens, table, grammar);
+  // let ast = parser.parse();
 
   // 我现在可以生成 lexer 和 visitor 了。
 
@@ -99,7 +104,7 @@ fn main() {
   // 根据产生式构造 ast
   // let file = File::open("src/tool/syntaxis/syntaxis.json").unwrap();
   // let ast = serde_ast::from_reader(file).unwrap();
-  ASTDrawer::new().draw(&ast, "parser", "output/foo2.html");
+  // ASTDrawer::new().draw(&ast, "parser", "output/foo2.html");
 
 
   print!("done")

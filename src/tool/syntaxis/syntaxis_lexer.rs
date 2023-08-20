@@ -1,4 +1,4 @@
-use std::collections::VecDeque;
+
 
 use regex::Regex;
 
@@ -15,16 +15,6 @@ pub struct SyntaxisLexer {
   pub position: Position, // 当前处理到的文本字符所在的位置
 
 
-  // 当前 token，初始化为 _START
-  pub current_token: Token,
-
-  // 已消耗 token 的缓冲队列
-  pub consumed_tokens: VecDeque<Token>,
-
-  // 预查看 token 的缓冲队列
-  pub cached_tokens: VecDeque<Token>,
-
-
   // todo 增添一个 scope
 }
 
@@ -33,6 +23,8 @@ pub struct SyntaxisLexer {
 #[derive(Clone)]
 struct LexerMeta {
   pub rule: Regex,
+
+  
   pub token_type: usize,
   pub channel: usize,
   pub name: &'static str,
@@ -92,12 +84,7 @@ impl SyntaxisLexer {
   pub fn new(input: &str) -> Self {
     let pos = Position { line: 0, char_position: 0 };
 
-    SyntaxisLexer { input: input.to_owned(), cursor: 0, token_index: 1, position: pos.clone(),
-      current_token: Token::new(Self::_START, "_START", "_START", 
-        pos.clone(), pos, 0, 0, 0, 0),
-      consumed_tokens: VecDeque::new(),
-      cached_tokens: VecDeque::new(),
-    }
+    SyntaxisLexer { input: input.to_owned(), cursor: 0, token_index: 1, position: pos.clone(),}
   }
 
 
@@ -113,7 +100,7 @@ impl Lexer for SyntaxisLexer {
     else if self.cursor >= self.input.len() {
       self.cursor += 10;
 
-      // 返回结束 token _stop
+      // 返回结束 token _stop stop 的 channel 直接设为 0 即可
       return Ok(Token::new(SyntaxisLexer::_STOP, "_STOP", "_STOP",         
         self.position.clone(), self.position.clone(), self.token_index, 0, 
         self.cursor, self.cursor))
@@ -173,90 +160,11 @@ impl Lexer for SyntaxisLexer {
 
   }
 
-  fn scan_all_on_channel_tokens(&mut self, channel: usize) -> Vec<Token> {
-    let mut result = Vec::new();
-    while let Ok(token) = self.scan() {
-      if token.channel == channel {
-        result.push(token);
-      }
-    }
-
-    if self.cursor < self.input.len() {
-      println!("{}", &self.input[self.cursor..]);
-    }
-    
-    result
+  fn reset(&mut self) {
+    self.cursor = 0;
+    self.token_index = 0;
+    self.position = Position { line: 0, char_position: 0 };
   }
-
-  // 把所有 token 都读出来
-  fn scan_all_tokens(&mut self) -> Vec<Token> {
-    todo!()
-  }
-
-  // 扫描指定 channel 的 token，其余都舍弃
-  fn scan_on_channel(&mut self, channel: usize) -> Result<Token, Error> {
-    todo!()
-  }
-
-  fn consume(&mut self) {
-    // 首先将 current_token 放入 consumed token 中去。
-    self.consumed_tokens.push_back(self.current_token.clone());
-    if self.consumed_tokens.len() > 1024 { self.consumed_tokens.pop_front(); }
-
-
-
-    todo!()
-  }
-
-  fn release(&mut self) {
-    todo!()
-  }
-
-  fn scan_all_tokens_and_group_by_channel(&mut self) -> std::collections::HashMap<usize, Vec<Token>> {
-    todo!()
-  }
-
-  fn look_ahead(&mut self, n: usize) -> Result<Token, Error> {
-    todo!()
-  }
-
-  fn look_back(&mut self, n:usize) -> Result<Token, Error> {
-    todo!()
-  }
-
-  fn look_ahead_on_channel(&mut self, channel: usize, n: usize) -> Result<Token, Error> {
-    // 向前看 n 个 token
-
-
-    if n <= 0 {
-      // 向前看 0 个 token, 那么就是当前 token
-      return Ok(self.current_token.clone())
-    }
-    else if n > self.cached_tokens.len() {
-      // 还需要再扫描一些 token 
-      for _ in 0..(n-self.cached_tokens.len()) {
-        let token = self.scan_on_channel(channel)?;
-        self.cached_tokens.push_back(token);
-      }
-      
-    }
-
-    Ok(self.cached_tokens[n-1].clone())
-  }
-
-  fn look_back_on_channel(&mut self, channel: usize, n:usize) -> Result<Token, Error> {
-    if n <= 0 {
-      // 向前看 0 个 token, 那么就是当前 token
-      return Ok(self.current_token.clone())
-    }
-    else if n > self.consumed_tokens.len() {
-      return Err(Error);
-    }
-
-    todo!()
-  }
-
-
 
 
 }

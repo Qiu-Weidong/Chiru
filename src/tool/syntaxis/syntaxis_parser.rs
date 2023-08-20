@@ -3,21 +3,13 @@
 use std::collections::HashMap;
 use maplit::hashmap;
 
-use crate::{runtime::{token::Token, 
-  ast::{rule_context::RuleContext, terminal_context::TerminalContext, ast_context::ASTContext}}, 
-  tool::{grammar::{production::ProductionItem,  Grammar, production::Production}, 
+use crate::{runtime::{ast::rule_context::RuleContext, parser::Parser, token_stream::TokenStream}, 
+  tool::{grammar::{production::ProductionItem, production::Production}, 
   syntaxis::syntaxis_context::{RuleListContext, ParserRuleContext, BlockContext, 
     AlternativeContext, EpsilonContext, ElementContext, EbnfSuffixContext, LexerRuleContext, RegularContext}}};
 
 
-pub struct SyntaxisParser {
-  // token 流
-  pub tokens: Vec<Token>,
-
-  // 这两个应该声明为常量，直接放在 lazy_static! 中
-  pub table: HashMap<(usize, usize), usize>,
-  pub grammar: Grammar,
-}
+pub struct SyntaxisParser;
 
 
 lazy_static!{
@@ -62,129 +54,69 @@ impl SyntaxisParser {
 
 
 
-  pub fn new(tokens: Vec<Token>, table: HashMap<(usize, usize), usize>, grammar: Grammar) -> Self {
-    // table 类型变为 (usize, usize) -> usize
-    // productions = vec![
-    //   vec![1, -2, 3], vec![], ...
-    // ];
-    // table.insert((0, 1), 1);
+  pub fn new() -> Self {
     Self {
-      tokens,
-      table,
-      grammar,
     }
   }
 
 
   // 使用模板生成
-  pub fn rule_list(&self) -> Box<dyn RuleListContext> {
-    let mut cursor = 0;
-    let result = self.parse_ast(&mut cursor, Self::RULE_LIST);
+  pub fn rule_list(&self, token_stream: &mut TokenStream) -> Box<dyn RuleListContext> {
+    let result = self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::RULE_LIST);
     Box::new(result)
   }
 
-  pub fn parser_rule(&self) -> Box<dyn ParserRuleContext> {
-    let mut cursor = 0;
-    let result = self.parse_ast(&mut cursor, Self::PARSER_RULE);
+  pub fn parser_rule(&self, token_stream: &mut TokenStream) -> Box<dyn ParserRuleContext> {
+    let result = self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::PARSER_RULE);
     Box::new(result)
   }
 
-  pub fn block(&self) -> Box<dyn BlockContext> {
-    let mut cursor = 0;
-    let result = self.parse_ast(&mut cursor, Self::BLOCK);
+  pub fn block(&self, token_stream: &mut TokenStream) -> Box<dyn BlockContext> {
+    let result = self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::BLOCK);
     Box::new(result)
   }
 
-  pub fn alternative(&self) -> Box<dyn AlternativeContext> {
-    let mut cursor = 0;
-    let result = self.parse_ast(&mut cursor, Self::ALTERNATIVE);
+  pub fn alternative(&self, token_stream: &mut TokenStream) -> Box<dyn AlternativeContext> {
+    let result = self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::ALTERNATIVE);
     Box::new(result)
   }
 
-  pub fn epsilon(&self) -> Box<dyn EpsilonContext> {
-    let mut cursor = 0;
-    let result = self.parse_ast(&mut cursor, Self::EPSILON);
+  pub fn epsilon(&self, token_stream: &mut TokenStream) -> Box<dyn EpsilonContext> {
+    let result = self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::EPSILON);
     Box::new(result)
   }
 
-  pub fn element(&self) -> Box<dyn ElementContext> {
-    let mut cursor = 0;
-    let result = self.parse_ast(&mut cursor, Self::ELEMENT);
+  pub fn element(&self, token_stream: &mut TokenStream) -> Box<dyn ElementContext> {
+    let result = self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::ELEMENT);
     Box::new(result)
   }
 
-  pub fn ebnf_suffix(&self) -> Box<dyn EbnfSuffixContext> {
-    let mut cursor = 0;
-    let result = self.parse_ast(&mut cursor, Self::EBNF_SUFFIX);
+  pub fn ebnf_suffix(&self, token_stream: &mut TokenStream) -> Box<dyn EbnfSuffixContext> {
+    let result = self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::EBNF_SUFFIX);
     Box::new(result)
   }
 
-  pub fn lexer_rule(&self) -> Box<dyn LexerRuleContext> {
-    let mut cursor = 0;
-    let result = self.parse_ast(&mut cursor, Self::LEXER_RULE);
+  pub fn lexer_rule(&self, token_stream: &mut TokenStream) -> Box<dyn LexerRuleContext> {
+    let result = self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::LEXER_RULE);
     Box::new(result)
   }
 
-  pub fn regular(&self) -> Box<dyn RegularContext> {
-    let mut cursor = 0;
-    let result = self.parse_ast(&mut cursor, Self::REGULAR);
+  pub fn regular(&self, token_stream: &mut TokenStream) -> Box<dyn RegularContext> {
+    let result = self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::REGULAR);
     Box::new(result)
   }
 
-  // 下面两个函数放到 trait 中
-  // 可有可无
-  pub fn parse(&self) -> RuleContext {
-    let mut cursor = 0;
-    self.parse_ast(&mut cursor, Self::RULE_LIST)
-  }
-
-
-  // 直接照抄
-  fn parse_ast(&self, cursor: &mut usize, rule_index: usize) -> RuleContext {
-
-    let token_type = self.tokens[*cursor].token_type;
-    let production_id = self.table.get(&(rule_index, token_type)).unwrap();
-    let production = self.grammar.productions.get(production_id).unwrap();
-    let name = self.grammar.vocabulary.get_nonterminal_name_with_default(rule_index);
-
-    let mut result = RuleContext { rule_index, rule_name: name, children: Vec::new(), };
-    
-    for child in production.right.iter() {
-      match child {
-        ProductionItem::NonTerminal(rule_id) => {
-          let rule = self.parse_ast(cursor, *rule_id);
-          if let Some(_) = self.grammar.vocabulary.get_nonterminal_name_by_id(*rule_id) {
-            // 如果有名字
-            let child = ASTContext::Rule(rule);
-            result.children.push(child);
-          } else {
-            // 否则将其 child 直接添加进来
-            // for child in rule.children.iter() {
-            //   result.children.push(child.clone());
-            // }
-
-            // 我似乎可以直接将整个数组 move 过来
-            // result.children.append(&mut rule.children);
-            result.children.extend(rule.children);
-          }
-          
-        },
-        ProductionItem::Terminal(token_type) => {
-          // 检查是否匹配
-          if *token_type != self.tokens[*cursor].token_type { println!("符号不匹配") }
-          let terminal = TerminalContext { symbol: self.tokens[*cursor].clone() };
-          *cursor += 1;
-          let child = ASTContext::Terminal(terminal);
-          result.children.push(child);
-        },
-      };
-    }
-    
-    result
-  }
 
 }
 
 
 
+
+
+
+impl Parser for SyntaxisParser {
+  fn parse(&self, token_stream: &mut TokenStream) -> RuleContext {
+    self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::RULE_LIST)
+  }
+}
 

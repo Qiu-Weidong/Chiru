@@ -53,6 +53,34 @@ impl Display for Token {
 
 
 impl Token {
+  // pub const START : Token = Token { 
+  //   token_type: todo!(), 
+  //   token_name: todo!(), 
+  //   start: todo!(), 
+  //   stop: todo!(), 
+  //   channel: todo!(), 
+  //   text: todo!(), 
+  //   token_index: todo!(), 
+  //   char_start_index: todo!(), 
+  //   char_stop_index: todo!() };
+  
+
+  // 提供一个方法快速创建 start token
+  pub fn start(channel: usize) -> Self {
+    Token {
+      token_type: 0,
+      token_name: "_START".to_owned(),
+      start: Position { line: 0, char_position: 0 },
+      stop: Position { line: 0, char_position: 0 },
+      channel,
+      text: "_START".to_owned(),
+      token_index: 0,
+      char_start_index: 0,
+      char_stop_index: 0,
+    }
+  }
+
+
   pub fn new(token_type: usize, token_name: &str, text: &str, 
       start: Position, stop: Position, token_index: usize, channel: 
       usize, char_start_index: usize, char_stop_index: usize) -> Self {
