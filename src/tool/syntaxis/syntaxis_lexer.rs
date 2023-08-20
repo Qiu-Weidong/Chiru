@@ -18,7 +18,6 @@ struct LexerMeta {
   pub rule: Regex,
   pub token_type: usize,
   pub channel: usize,
-  pub hidden: bool,
   pub name: &'static str,
   pub skip: bool,
 }
@@ -26,54 +25,25 @@ struct LexerMeta {
 
 // 使用模板生成正则列表和token名称列表
 lazy_static!{
-  
-  // static ref REGEX_LIST: [Regex; 14] = [
-
-  //   // 这里也需要使用模板
-
-  //   Regex::new(r####"^([a-z][a-zA-Z0-9_]+)"####).unwrap(), // RULE_REF
-  //   Regex::new(r####"^([A-Z][a-zA-Z0-9_]+)"####).unwrap(), // TOKEN_REF
-  //   Regex::new(r####"^(::=|:=|->|=>|:|=)"####).unwrap(), // COLON
-  //   Regex::new(r####"^(;)"####).unwrap(), // SEMI
-  //   Regex::new(r####"^(\|)"####).unwrap(), // OR
-  //   Regex::new(r####"^(ε|epsilon)"####).unwrap(), // EPSILON
-  //   Regex::new(r####"^(\*)"####).unwrap(), // STAR
-  //   Regex::new(r####"^(\+)"####).unwrap(), // PLUS
-  //   Regex::new(r####"^(\?)"####).unwrap(), // QUESTION
-  //   Regex::new(r####"^(\()"####).unwrap(), // LPAREN
-  //   Regex::new(r####"^(\))"####).unwrap(), // RPAREN
-  //   Regex::new(r####"^('([^\a\d\n\r\t\f\v\\']|(\\\\|\\'|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*')"####).unwrap(), // STRING_LITERAL
-  //   Regex::new(r####"^(/(\\/|[^/])+/)"####).unwrap(), // REGULAR_LITERAL
-  //   Regex::new(r####"^([ \r\n\t\f]+)"####).unwrap(), // WHITE_SPACE
-
-  // ];
 
 
   static ref LEXER_META_LIST: [LexerMeta; 14] = [
-    LexerMeta { rule: Regex::new(r####"^([a-z][a-zA-Z0-9_]+)"####).unwrap(), token_type:2,channel:0, skip:false,hidden:false,name:"RULE_REF"},
-    LexerMeta { rule: Regex::new(r####"^([A-Z][a-zA-Z0-9_]+)"####).unwrap(), token_type:3,channel:0, skip:false,hidden:false,name:"TOKEN_REF"},
-    LexerMeta { rule: Regex::new(r####"^(::=|:=|->|=>|:|=)"####).unwrap(), token_type:4,channel:0, skip:false,hidden:false,name:"COLON"},
-    LexerMeta { rule: Regex::new(r####"^(;)"####).unwrap(), token_type:5,channel:0, skip:false,hidden:false,name:"SEMI"},
-    LexerMeta { rule: Regex::new(r####"^(\|)"####).unwrap(), token_type:6,channel:0, skip:false,hidden:false,name:"OR"},
-    LexerMeta { rule: Regex::new(r####"^(ε|epsilon)"####).unwrap(), token_type:7,channel:0, skip:false,hidden:false,name:"EPSILON"},
-    LexerMeta { rule: Regex::new(r####"^(\*)"####).unwrap(), token_type:8,channel:0, skip:false,hidden:false,name:"STAR"},
-    LexerMeta { rule: Regex::new(r####"^(\+)"####).unwrap(), token_type:9,channel:0, skip:false,hidden:false,name:"PLUS"},
-    LexerMeta { rule: Regex::new(r####"^(\?)"####).unwrap(), token_type:10,channel:0, skip:false,hidden:false,name:"QUESTION"},
-    LexerMeta { rule: Regex::new(r####"^(\()"####).unwrap(), token_type:11,channel:0, skip:false,hidden:false,name:"LPAREN"},
-    LexerMeta { rule: Regex::new(r####"^(\))"####).unwrap(), token_type:12,channel:0, skip:false,hidden:false,name:"RPAREN"},
+    LexerMeta { rule: Regex::new(r####"^([a-z][a-zA-Z0-9_]+)"####).unwrap(), token_type:2,channel:0, skip:false,name:"RULE_REF"},
+    LexerMeta { rule: Regex::new(r####"^([A-Z][a-zA-Z0-9_]+)"####).unwrap(), token_type:3,channel:0, skip:false,name:"TOKEN_REF"},
+    LexerMeta { rule: Regex::new(r####"^(::=|:=|->|=>|:|=)"####).unwrap(), token_type:4,channel:0, skip:false,name:"COLON"},
+    LexerMeta { rule: Regex::new(r####"^(;)"####).unwrap(), token_type:5,channel:0, skip:false,name:"SEMI"},
+    LexerMeta { rule: Regex::new(r####"^(\|)"####).unwrap(), token_type:6,channel:0, skip:false,name:"OR"},
+    LexerMeta { rule: Regex::new(r####"^(ε|epsilon)"####).unwrap(), token_type:7,channel:0, skip:false,name:"EPSILON"},
+    LexerMeta { rule: Regex::new(r####"^(\*)"####).unwrap(), token_type:8,channel:0, skip:false,name:"STAR"},
+    LexerMeta { rule: Regex::new(r####"^(\+)"####).unwrap(), token_type:9,channel:0, skip:false,name:"PLUS"},
+    LexerMeta { rule: Regex::new(r####"^(\?)"####).unwrap(), token_type:10,channel:0, skip:false,name:"QUESTION"},
+    LexerMeta { rule: Regex::new(r####"^(\()"####).unwrap(), token_type:11,channel:0, skip:false,name:"LPAREN"},
+    LexerMeta { rule: Regex::new(r####"^(\))"####).unwrap(), token_type:12,channel:0, skip:false,name:"RPAREN"},
     LexerMeta { rule: Regex::new(r####"^('([^\a\d\n\r\t\f\v\\']|(\\\\|\\'|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*')"####).unwrap(), 
-      token_type:13,channel:0, skip:false,hidden:false,name:"STRING_LITERAL"},
-    LexerMeta { rule: Regex::new(r####"^(/(\\/|[^/])+/)"####).unwrap(), token_type:14,channel:0, skip:false,hidden:false,name:"REGULAR_LITERAL"},
-    LexerMeta { rule: Regex::new(r####"^([ \r\n\t\f]+)"####).unwrap(), token_type:15,channel:0, skip:true,hidden:false,name:"WHITE_SPACE"},
+      token_type:13,channel:0, skip:false,name:"STRING_LITERAL"},
+    LexerMeta { rule: Regex::new(r####"^(/(\\/|[^/])+/)"####).unwrap(), token_type:14,channel:0, skip:false,name:"REGULAR_LITERAL"},
+    LexerMeta { rule: Regex::new(r####"^([ \r\n\t\f]+)"####).unwrap(), token_type:15,channel:0, skip:true,name:"WHITE_SPACE"},
   ];
-
-  // token的名称
-  // static ref TOKEN_NAMES: [&'static str; 16] = [
-  //   "_START", "_STOP", 
-  //   "RULE_REF", "TOKEN_REF", "COLON", "SEMI", "OR", "EPSILON", "STAR", 
-  //   "PLUS", "QUESTION", "LPAREN", "RPAREN", "STRING_LITERAL", 
-  //   "REGULAR_LITERAL", "WHITE_SPACE", 
-  // ];
 }
 
 

@@ -120,6 +120,7 @@ impl SyntaxisParser {
     Box::new(result)
   }
 
+  // 下面两个函数放到 trait 中
   // 可有可无
   pub fn parse(&self) -> RuleContext {
     let mut cursor = 0;
@@ -141,14 +142,19 @@ impl SyntaxisParser {
       match child {
         ProductionItem::NonTerminal(rule_id) => {
           let rule = self.parse_ast(cursor, *rule_id);
-          // cursor = new_cursor;
           if let Some(_) = self.grammar.vocabulary.get_nonterminal_name_by_id(*rule_id) {
+            // 如果有名字
             let child = ASTContext::Rule(rule);
             result.children.push(child);
           } else {
-            for child in rule.children.iter() {
-              result.children.push(child.clone());
-            }
+            // 否则将其 child 直接添加进来
+            // for child in rule.children.iter() {
+            //   result.children.push(child.clone());
+            // }
+
+            // 我似乎可以直接将整个数组 move 过来
+            // result.children.append(&mut rule.children);
+            result.children.extend(rule.children);
           }
           
         },
