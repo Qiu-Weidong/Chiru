@@ -85,9 +85,10 @@ fn main() {
 
   let mut lexer = SyntaxisLexer::new(input);
   let tokens = lexer.scan_all_on_channel_tokens(0);
-  // for token in tokens.iter() {
-  //   println!("{}", token);
-  // }
+  
+  for token in tokens.iter() {
+    println!("{}", token);
+  }
 
   let parser = SyntaxisParser::new(tokens, table, grammar);
   let ast = parser.parse();

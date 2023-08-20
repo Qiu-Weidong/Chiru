@@ -153,5 +153,40 @@ impl Lexer for SyntaxisLexer {
     
     result
   }
+
+fn scan_all_tokens(&mut self) -> Vec<Token> {
+        todo!()
+    }
+
+fn scan_on_channel(&mut self, channel: usize) -> Result<Token, Error> {
+        todo!()
+    }
+
+fn consume(&mut self) {
+        todo!()
+    }
+
+fn release(&mut self) {
+        todo!()
+    }
+    fn scan_all_tokens_and_group_by_channel(&mut self) -> std::collections::HashMap<usize, Vec<Token>> {
+      todo!()
+    }
+
+    fn look_ahead(&mut self, n: usize) -> Result<Token, Error> {
+        todo!()
+    }
+
+    fn look_back(&mut self, n:usize) -> Result<Token, Error> {
+        todo!()
+    }
+
+    fn look_ahead_on_channel(&mut self, channel: usize, n: usize) -> Result<Token, Error> {
+        todo!()
+    }
+
+    fn look_back_on_channel(&mut self, channel: usize, n:usize) -> Result<Token, Error> {
+        todo!()
+    }
 }
 
