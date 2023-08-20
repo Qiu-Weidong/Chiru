@@ -10,7 +10,6 @@ use crate::{runtime::{token::Token,
     AlternativeContext, EpsilonContext, ElementContext, EbnfSuffixContext, LexerRuleContext, RegularContext}}};
 
 
-
 pub struct SyntaxisParser {
   // token 流
   pub tokens: Vec<Token>,
@@ -27,14 +26,26 @@ lazy_static!{
     (0, 0) => 1,
   };
 
-  // 
+  // 产生式
   static ref PRODUCTIONS: HashMap<usize, Production>  = hashmap!{
     0 => Production::new(0, 0, &vec![ProductionItem::NonTerminal(0)]),
+  };
+
+  // 终结符
+  pub static ref NONTERMINALS: HashMap<usize, &'static str> = hashmap! {
+    0 => "",
+  };
+
+  // 非终结符
+  pub static ref TERMINALS: HashMap<usize, &'static str> = hashmap! {
+    0 => "",
   };
 }
 
 
 impl SyntaxisParser {
+
+  // pub static ref GLOBAL_VALUE: i32 = 42;
 
   // 使用模板生成 每个非终结符的编号
   pub const RULE_LIST: usize = 0;

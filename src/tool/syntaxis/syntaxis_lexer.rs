@@ -1,6 +1,8 @@
 use regex::Regex;
 
 use crate::runtime::{lexer::{Lexer, Error}, token::{Token, Position}};
+// use crate::tool::syntaxis::syntaxis_parser::NONTERMINALS;
+// use crate::tool::syntaxis::syntaxis_parser::GLOBAL_VALUE;
 
 pub struct SyntaxisLexer {
   pub input: String, // 输入文本
