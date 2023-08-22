@@ -1,5 +1,6 @@
 
 use std::{collections::HashMap, vec};
+// use std::error::Error;
 
 use super::token::Token;
 
@@ -9,7 +10,7 @@ pub struct Error;
 
 pub trait Lexer {
 
-  
+
   fn scan_all_on_channel_tokens(&mut self, channel: usize) -> Vec<Token> {
     let mut result = vec![Token::start(channel)];
     while let Ok(token) = self.scan() {

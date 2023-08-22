@@ -2,8 +2,6 @@ use std::io::Write;
 
 use tera::Context;
 
-// use crate::runtime::vocabulary::Vocabulary;
-
 use crate::tool::grammar::vocabulary::Vocabulary;
 
 use super::{RuleRenderContext, TEMPLATES};

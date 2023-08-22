@@ -1,4 +1,4 @@
-<img src="icon/chiru-256.svg" align="right" width="256" height="256"/>
+<img src="icon/icon.svg" align="right" width="256" height="256"/>
 
 # Chiru
 

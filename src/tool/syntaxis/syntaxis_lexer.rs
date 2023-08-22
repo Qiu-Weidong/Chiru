@@ -5,7 +5,7 @@ use regex::Regex;
 use crate::runtime::{lexer::{Lexer, Error}, token::{Token, Position}};
 
 pub struct SyntaxisLexer {
-  pub input: String, // 输入文本
+  pub input: String, // 输入文本 至少持有文本的引用
 
 
 
@@ -16,15 +16,17 @@ pub struct SyntaxisLexer {
 
 
   // todo 增添一个 scope
+
+  // todo 增添错误处理器 或 错误监听器
 }
 
 
-// 词法分析的相关信息
+// 词法分析的相关信息 用元组即可
 #[derive(Clone)]
 struct LexerMeta {
   pub rule: Regex,
 
-  
+
   pub token_type: usize,
   pub channel: usize,
   pub name: &'static str,
@@ -94,6 +96,7 @@ impl SyntaxisLexer {
 }
 
 impl Lexer for SyntaxisLexer {
+  // todo match 和 recover
 
   fn scan(&mut self) -> Result<Token, crate::runtime::lexer::Error> {
     if self.cursor > self.input.len() { return Err(Error {}) }
