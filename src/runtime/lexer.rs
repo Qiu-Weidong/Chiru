@@ -1,5 +1,7 @@
 
 use std::{collections::HashMap, vec};
+use regex::Regex;
+
 use super::error::Error;
 
 use super::token::Token;
@@ -66,6 +68,11 @@ pub trait Lexer {
   }
 
   fn reset(&mut self);
+
+
+  fn lexer_match(&self, regex_list: &[(Regex, usize, &'static str, bool)]) -> Result<Token, Error> {
+    todo!()
+  }
 
 }
 
