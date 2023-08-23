@@ -1,8 +1,8 @@
 
 use std::collections::VecDeque;
 
-use super::{token::{Token, Position}, lexer::Lexer};
-use crate::runtime::lexer::Error;
+use super::{token::Token, position::Position, lexer::Lexer, error::ErrorKind};
+use super::error::Error;
 
 // 词法分析的时候，直接丢弃掉 skip 的 token, 并将不同频道的 token 放入相应的 vector 。
 pub struct TokenStream<'a> {
@@ -46,7 +46,7 @@ impl<'a> TokenStream<'a> {
 
   pub fn release(&mut self) -> Result<Token, Error> {
     // 如果缓存的都已经消耗完了
-    if self.consumed_tokens.len() <= 0 { return Err(Error) }
+    if self.consumed_tokens.len() <= 0 { return Err(Error::create_error_without_location(ErrorKind::ConsumedTokenExhausted, "consumed token exhausted.")) }
     // 将 current_token 插回到 cache_tokens
     self.cached_tokens.push_front(self.current_token.clone());
 
@@ -80,7 +80,7 @@ impl<'a> TokenStream<'a> {
     }
     else if n > self.consumed_tokens.len() {
       // 直接报错
-      return Err(Error);
+      return Err(Error::create_error_without_location(ErrorKind::ConsumedTokenExhausted, "consumed token exhausted."))
       
     }
 
@@ -110,5 +110,7 @@ impl<'a> TokenStream<'a> {
       channel, 0, 0),
     }
   }
+
+  
 }
 

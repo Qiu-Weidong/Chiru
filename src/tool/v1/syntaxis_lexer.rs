@@ -1,6 +1,7 @@
 use regex::Regex;
 
-use crate::runtime::{lexer::{Lexer, Error}, token::{Token, Position}};
+use crate::runtime::{lexer::Lexer, token::{Token, Position}};
+use crate::runtime::error::Error;
 
 pub struct SyntaxisLexer {
   pub input: String, // 输入文本
@@ -82,7 +83,7 @@ impl SyntaxisLexer {
 
 impl Lexer for SyntaxisLexer {
 
-  fn scan(&mut self) -> Result<Token, crate::runtime::lexer::Error> {
+  fn scan(&mut self) -> Result<Token, Error> {
     if self.cursor > self.input.len() { return Err(Error {}) }
     else if self.cursor >= self.input.len() {
       self.cursor += 10;

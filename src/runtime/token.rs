@@ -1,16 +1,7 @@
+
+use super::position::Position;
 use std::fmt::Display;
 
-#[derive(Clone, Debug)]
-pub struct Position {
-  pub line: usize, 
-  pub char_position: usize,
-}
-
-impl Display for Position {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    write!(f, "line: {}, position: {}", self.line, self.char_position)
-  }
-}
 
 #[derive(Clone, Debug)]
 pub struct Token {

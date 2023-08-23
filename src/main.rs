@@ -20,14 +20,18 @@
   
  */
 
-use std::fs::File;
+use std::error::Error;
+use std::{fs::File, io::Read};
+// use std::io::Result;
 
-use chiru::{tool::{visitor::{grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor}, lexer_rule_visitor::LexerRuleData}, grammar::Grammar, serde_ast, syntaxis::{syntaxis_context::RuleListContext, syntaxis_parser::SyntaxisParser}}, runtime::{token_stream::TokenStream, parser::Parser}};
+use chiru::{tool::{visitor::{grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor}, lexer_rule_visitor::LexerRuleData}, 
+grammar::Grammar, serde_ast, syntaxis::{syntaxis_context::RuleListContext, syntaxis_parser::SyntaxisParser}}, runtime::{token_stream::TokenStream, parser::Parser}};
 
 
 
 
 use chiru::tool::syntaxis::syntaxis_lexer::SyntaxisLexer;
+// use serde::de::Error;
 
 fn main() {
   let (grammar, _) = load_ast();
@@ -107,8 +111,12 @@ fn main() {
 
 
 pub fn load_ast() -> (Grammar, Vec<LexerRuleData>) {
+  // let file = File::open(path);
   let file = File::open("src/tool/syntaxis/syntaxis2.json").unwrap();
   let ast = serde_ast::from_reader(file).unwrap();
+
+
+  // file.read_to_string(buf)
 
 
   // ASTDrawer::new().draw(&ast, "parser", "ast.html");
@@ -145,3 +153,13 @@ pub fn load_ast() -> (Grammar, Vec<LexerRuleData>) {
 
 }
 
+
+
+
+
+pub fn foo() -> Result<(), Box<dyn Error>>{
+  let x = 0..5;
+  
+  let file = File::open("")?;
+  Ok(())
+}

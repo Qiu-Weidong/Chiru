@@ -1,12 +1,8 @@
 
 use std::{collections::HashMap, vec};
-// use std::error::Error;
+use super::error::Error;
 
 use super::token::Token;
-
-// 定义一个词法分析的错误
-#[derive(Debug)]
-pub struct Error;
 
 pub trait Lexer {
 

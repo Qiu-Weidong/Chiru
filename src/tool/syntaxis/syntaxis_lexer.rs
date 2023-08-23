@@ -2,7 +2,8 @@
 
 use regex::Regex;
 
-use crate::runtime::{lexer::{Lexer, Error}, token::{Token, Position}};
+use crate::runtime::{lexer::Lexer, token::Token, position::Position};
+use crate::runtime::error::{Error, ErrorKind};
 
 pub struct SyntaxisLexer {
   pub input: String, // 输入文本 至少持有文本的引用
@@ -98,15 +99,20 @@ impl SyntaxisLexer {
 impl Lexer for SyntaxisLexer {
   // todo match 和 recover
 
-  fn scan(&mut self) -> Result<Token, crate::runtime::lexer::Error> {
-    if self.cursor > self.input.len() { return Err(Error {}) }
-    else if self.cursor >= self.input.len() {
+  fn scan(&mut self) -> Result<Token, Error> {
+    // if self.cursor > self.input.len() { return Err(Error::new(kind, msg, start, stop)) }
+
+    if self.cursor >= self.input.len() {
       self.cursor += 10;
 
       // 返回结束 token _stop stop 的 channel 直接设为 0 即可
-      return Ok(Token::new(SyntaxisLexer::_STOP, "_STOP", "_STOP",         
-        self.position.clone(), self.position.clone(), self.token_index, 0, 
-        self.cursor, self.cursor))
+      // return Ok(Token::new(SyntaxisLexer::_STOP, "_STOP", "_STOP",         
+      //   self.position.clone(), self.position.clone(), self.token_index, 0, 
+      //   self.cursor, self.cursor))
+
+
+      // 返回一个 stop 错误
+      return Err(Error::new(ErrorKind::LexerEof,  "", self.position, self.position))
     }
 
 
@@ -124,7 +130,7 @@ impl Lexer for SyntaxisLexer {
     }
 
     // 如果都不匹配，则报错
-    if let None = meta { return Err(Error {}) }
+    if let None = meta { return Err(Error::new(ErrorKind::LexerNoMatch, "", self.position, self.position)) }
 
     // 将对应的文本找出来
     let text = String::from(&self.input[self.cursor..self.cursor+len]);
