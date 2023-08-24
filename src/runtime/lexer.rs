@@ -77,8 +77,15 @@ pub trait Lexer {
     loop {
       match self.lexer_match() {
         Ok(token) => {
+          // stop 需要特判
+          if token.token_type == 1 {
+            let mut token = token;
+            token.channel = channel;
+            return Ok(token);
+          }
+
           if token.channel == channel {
-            return Ok(token.clone());
+            return Ok(token);
           }
         },
         Err(err) => {
@@ -88,7 +95,7 @@ pub trait Lexer {
               if token.channel == channel { return Ok(token); }
             },
             _ => return Err(err),
-        }
+          }
         },
       }
     }

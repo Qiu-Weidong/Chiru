@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 // 专门用来确认语法特性
 use regex::Regex;
 
@@ -21,6 +23,24 @@ fn rust_test() {
   
   let ma = ma.unwrap();
   println!("{:?}", ma);
+
+
+
+
+
+
+
+
+
+
+  let mut vec: Vec<i32> = Vec::new();
+  let it = vec.iter_mut();
+  let mut m: HashMap<i32, String> = HashMap::new();
+  let it = m.iter_mut();
+
+  for (k, v) in m.iter_mut() {}
+  let k  = m.into_iter();
+  let t = vec.into_iter();
 }
 
 

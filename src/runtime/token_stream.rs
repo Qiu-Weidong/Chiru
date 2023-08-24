@@ -1,5 +1,8 @@
 
 use std::collections::VecDeque;
+// use std::slice::{Iter, IterMut};
+
+// use serde_json::map::Iter;
 
 use super::{token::Token, position::Position, lexer::Lexer, error::ErrorKind};
 use super::error::Error;
@@ -111,5 +114,14 @@ impl<'a> TokenStream<'a> {
   }
 
   
+  // pub fn iter(&self) -> Iter<'_, Token> {
+  //   todo!()
+  // }
+
+  // pub fn iter_mut(&mut self) -> IterMut<'_, Token> {
+  //   todo!()
+  // }
+
+  // fn foo() -> Iter
 }
 

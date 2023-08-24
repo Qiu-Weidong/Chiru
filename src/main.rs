@@ -94,6 +94,11 @@ fn main() {
   let parser = SyntaxisParser {};
   let ast = parser.parse(&mut stream);
 
+
+  // for token in stream.iter() {
+
+  // }
+
   // let parser = SyntaxisParser::new(tokens, table, grammar);
   // let ast = parser.parse();
 
