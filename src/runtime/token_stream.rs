@@ -36,6 +36,7 @@ impl<'a> TokenStream<'a> {
     if self.cached_tokens.len() > 0 {
       self.current_token = self.cached_tokens.pop_front().unwrap();
     } else {
+      // 使用 scan_on_channel 这个方法来获取 token。
       self.current_token = self.lexer.scan_on_channel(self.channel)?
     }
 
@@ -87,8 +88,6 @@ impl<'a> TokenStream<'a> {
     Ok(self.consumed_tokens[self.consumed_tokens.len() - n].clone())
   }
 
-  // pub fn get_current_token(&self) -> Token { self.current_token.clone() }
-
   pub fn peer_next_token(&mut self) -> Result<Token, Error> {
     self.look_ahead(1)
   }
@@ -106,7 +105,7 @@ impl<'a> TokenStream<'a> {
       cached_tokens: VecDeque::new(),
 
       // 我们认为 start 和 stop 永远都和当前 stream 一样。
-      current_token: Token::new(0, "_START", "_STOP", pos.clone(), pos, 0, 
+      current_token: Token::new(0, "_START", "_START", pos.clone(), pos, 0, 
       channel, 0, 0),
     }
   }

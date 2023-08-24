@@ -8,11 +8,11 @@ pub struct Position {
 }
 
 impl Position {
-  fn new(line: usize, char_position: usize) -> Self {
+  pub fn new(line: usize, char_position: usize) -> Self {
     Self { line, char_position, }
   }
 
-  fn default_position() -> Self { Self::new(0, 0) }
+  pub fn default_position() -> Self { Self::new(0, 0) }
 }
 
 

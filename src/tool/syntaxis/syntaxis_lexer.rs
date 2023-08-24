@@ -2,6 +2,7 @@
 
 use regex::Regex;
 
+use crate::runtime::error_strategy::error_listener::{ErrorListener, ConsoleErrorListener};
 use crate::runtime::{lexer::Lexer, token::Token, position::Position};
 use crate::runtime::error::{Error, ErrorKind};
 
@@ -19,19 +20,9 @@ pub struct SyntaxisLexer {
   // todo 增添一个 scope
 
   // todo 增添错误处理器 或 错误监听器
-}
 
-
-// 词法分析的相关信息 用元组即可
-#[derive(Clone)]
-struct LexerMeta {
-  pub rule: Regex,
-
-
-  pub token_type: usize,
-  pub channel: usize,
-  pub name: &'static str,
-  pub skip: bool,
+  // 错误监听器列表
+  pub error_listeners: Vec<Box<dyn ErrorListener>>,
 }
 
 
@@ -39,22 +30,22 @@ struct LexerMeta {
 lazy_static!{
 
 
-  static ref LEXER_META_LIST: [LexerMeta; 14] = [
-    LexerMeta { rule: Regex::new(r####"^([a-z][a-zA-Z0-9_]+)"####).unwrap(), token_type:2,channel:0, skip:false,name:"RULE_REF"},
-    LexerMeta { rule: Regex::new(r####"^([A-Z][a-zA-Z0-9_]+)"####).unwrap(), token_type:3,channel:0, skip:false,name:"TOKEN_REF"},
-    LexerMeta { rule: Regex::new(r####"^(::=|:=|->|=>|:|=)"####).unwrap(), token_type:4,channel:0, skip:false,name:"COLON"},
-    LexerMeta { rule: Regex::new(r####"^(;)"####).unwrap(), token_type:5,channel:0, skip:false,name:"SEMI"},
-    LexerMeta { rule: Regex::new(r####"^(\|)"####).unwrap(), token_type:6,channel:0, skip:false,name:"OR"},
-    LexerMeta { rule: Regex::new(r####"^(ε|epsilon)"####).unwrap(), token_type:7,channel:0, skip:false,name:"EPSILON"},
-    LexerMeta { rule: Regex::new(r####"^(\*)"####).unwrap(), token_type:8,channel:0, skip:false,name:"STAR"},
-    LexerMeta { rule: Regex::new(r####"^(\+)"####).unwrap(), token_type:9,channel:0, skip:false,name:"PLUS"},
-    LexerMeta { rule: Regex::new(r####"^(\?)"####).unwrap(), token_type:10,channel:0, skip:false,name:"QUESTION"},
-    LexerMeta { rule: Regex::new(r####"^(\()"####).unwrap(), token_type:11,channel:0, skip:false,name:"LPAREN"},
-    LexerMeta { rule: Regex::new(r####"^(\))"####).unwrap(), token_type:12,channel:0, skip:false,name:"RPAREN"},
-    LexerMeta { rule: Regex::new(r####"^('([^\a\d\n\r\t\f\v\\']|(\\\\|\\'|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*')"####).unwrap(), 
-      token_type:13,channel:0, skip:false,name:"STRING_LITERAL"},
-    LexerMeta { rule: Regex::new(r####"^(/(\\/|[^/])+/)"####).unwrap(), token_type:14,channel:0, skip:false,name:"REGULAR_LITERAL"},
-    LexerMeta { rule: Regex::new(r####"^([ \r\n\t\f]+)"####).unwrap(), token_type:15,channel:0, skip:true,name:"WHITE_SPACE"},
+  static ref LEXER_META_LIST: [(Regex, usize, usize, &'static str, bool); 14] = [
+     (Regex::new(r####"^([a-z][a-zA-Z0-9_]+)"####).unwrap(), 2,0, "RULE_REF", false),
+     (Regex::new(r####"^([A-Z][a-zA-Z0-9_]+)"####).unwrap(), 3,0, "TOKEN_REF", false),
+     (Regex::new(r####"^(::=|:=|->|=>|:|=)"####).unwrap(), 4,0, "COLON", false),
+     (Regex::new(r####"^(;)"####).unwrap(), 5,0, "SEMI", false),
+     (Regex::new(r####"^(\|)"####).unwrap(), 6,0, "OR", false),
+     (Regex::new(r####"^(ε|epsilon)"####).unwrap(), 7,0, "EPSILON", false),
+     (Regex::new(r####"^(\*)"####).unwrap(), 8,0, "STAR", false),
+     (Regex::new(r####"^(\+)"####).unwrap(), 9,0, "PLUS", false),
+     (Regex::new(r####"^(\?)"####).unwrap(), 10,0, "QUESTION", false),
+     (Regex::new(r####"^(\()"####).unwrap(), 11,0, "LPAREN", false),
+     (Regex::new(r####"^(\))"####).unwrap(), 12,0, "RPAREN", false),
+     (Regex::new(r####"^('([^\a\d\n\r\t\f\v\\']|(\\\\|\\'|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*')"####).unwrap(), 
+      13,0, "STRING_LITERAL", false),
+     (Regex::new(r####"^(/(\\/|[^/])+/)"####).unwrap(), 14,0, "REGULAR_LITERAL", false),
+     (Regex::new(r####"^([ \r\n\t\f]+)"####).unwrap(), 15,0, "WHITE_SPACE", true),
   ];
 }
 
@@ -87,40 +78,48 @@ impl SyntaxisLexer {
   pub fn new(input: &str) -> Self {
     let pos = Position { line: 0, char_position: 0 };
 
-    SyntaxisLexer { input: input.to_owned(), cursor: 0, token_index: 1, position: pos.clone(),}
+    SyntaxisLexer { input: input.to_owned(), 
+      // 默认情况下，添加一个 ConsoleErrorListener
+      error_listeners: vec![Box::new(ConsoleErrorListener::new())],
+      cursor: 0, token_index: 1, position: pos.clone(),}
   }
 
+  // 考虑是否放入 trait 中
+  pub fn remove_all_error_listeners(&mut self) {
+    self.error_listeners.clear()
+  }
 
+  pub fn add_error_listener(&mut self, listener: Box<dyn ErrorListener>) {
+    self.error_listeners.push(listener)
+  }
 
 
   // 定义一些私有函数
 }
 
 impl Lexer for SyntaxisLexer {
-  // todo match 和 recover
 
-  fn scan(&mut self) -> Result<Token, Error> {
-    // if self.cursor > self.input.len() { return Err(Error::new(kind, msg, start, stop)) }
+  fn reset(&mut self) {
+    self.cursor = 0;
+    self.token_index = 0;
+    self.position = Position { line: 0, char_position: 0 };
+  }
 
+  // 实际的匹配函数
+  fn lexer_match(&mut self) -> Result<Token, Error> {
+    
     if self.cursor >= self.input.len() {
-      self.cursor += 10;
-
-      // 返回结束 token _stop stop 的 channel 直接设为 0 即可
-      // return Ok(Token::new(SyntaxisLexer::_STOP, "_STOP", "_STOP",         
-      //   self.position.clone(), self.position.clone(), self.token_index, 0, 
-      //   self.cursor, self.cursor))
-
-
-      // 返回一个 stop 错误
-      return Err(Error::new(ErrorKind::LexerEof,  "", self.position, self.position))
+      return Ok(Token::new(SyntaxisLexer::_STOP, "_STOP", "_STOP", 
+        self.position, self.position, self.token_index, 
+        0, self.cursor, self.cursor));
     }
 
 
     let mut len = 0;
-    let mut meta: Option<LexerMeta> = None;
+    let mut meta: Option<(Regex, usize, usize, &'static str, bool)> = None;
 
     for lexer_meta in LEXER_META_LIST.iter() {
-      let result = lexer_meta.rule.find_at(&self.input[self.cursor..], 0) ;
+      let result = lexer_meta.0.find_at(&self.input[self.cursor..], 0) ;
       if let Some(result) = result {
         if result.end() > len {
           len = result.end();
@@ -130,7 +129,9 @@ impl Lexer for SyntaxisLexer {
     }
 
     // 如果都不匹配，则报错
-    if let None = meta { return Err(Error::new(ErrorKind::LexerNoMatch, "", self.position, self.position)) }
+    if let None = meta { 
+      return Err(Error::new(ErrorKind::LexerNoMatch, "", self.position, self.position)) 
+    }
 
     // 将对应的文本找出来
     let text = String::from(&self.input[self.cursor..self.cursor+len]);
@@ -152,28 +153,28 @@ impl Lexer for SyntaxisLexer {
     }
 
     let meta = meta.unwrap();
-    let token = Token::new(meta.token_type, meta.name,&text, 
-      self.position.clone(),new_pos.clone(), self.token_index, meta.channel, self.cursor, self.cursor + len);
+    let token = Token::new(meta.1, meta.3, &text, 
+      self.position.clone(),new_pos.clone(), self.token_index, meta.2, self.cursor, self.cursor + len);
 
     self.cursor += len;
-    // self.token_index += 1;
     self.position = new_pos;
 
     // 如果需要跳过，则返回下一个
-    if meta.skip {
-      return self.scan();
+    if meta.4 {
+      return self.lexer_match();
     }
     
     self.token_index += 1;
     return Ok(token);
-
   }
 
-  fn reset(&mut self) {
-    self.cursor = 0;
-    self.token_index = 0;
-    self.position = Position { line: 0, char_position: 0 };
+  fn recover(&mut self) -> Result<Token, Error> {
+    // 向 error_listeners 报告错误
+
+
+    todo!()
   }
+
 
 
 }

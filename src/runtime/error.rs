@@ -14,32 +14,20 @@ pub struct Error {
 
   pub msg: String,
 
-  pub location: Option<(Position, Position)>,
+  pub start: Option<Position>,
+
+  pub stop: Option<Position>,
 }
 
 
 
 impl Error {
   pub fn new(kind: ErrorKind, msg: &str, start: Position, stop: Position) -> Self {
-    Self { kind, msg: msg.to_owned(), location: Some((start, stop)) }
-  }
-
-  pub fn start_position(&self) -> Option<Position> {  
-    match self.location {
-      Some(pos) => Some(pos.0),
-      _ => None,
-    }
-  }
-
-  pub fn stop_position(&self) -> Option<Position> {
-    match self.location {
-      Some((st, _)) => Some(st),
-      None => None,
-    }
+    Self { kind, msg: msg.to_owned(), start: Some(start), stop: Some(stop), }
   }
 
   pub fn create_error_without_location(kind: ErrorKind, msg: &str) -> Self {
-    Self { kind, msg: msg.to_owned(), location:None }
+    Self { kind, msg: msg.to_owned(), start: None, stop: None }
   }
 }
 
@@ -75,10 +63,11 @@ impl error::Error for Error {
 }
 
 impl Display for Error {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+  fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     todo!()
   }
 }
+
 
 
 
