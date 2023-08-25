@@ -13,7 +13,7 @@ impl ErrorListener for BaseErrorListener {
 
 pub struct ConsoleErrorListener;
 impl ConsoleErrorListener {
-  pub fn new() -> Self { todo!() }
+  pub fn new() -> Self { Self {} }
 }
 
 

@@ -37,7 +37,8 @@ impl<'a> TokenStream<'a> {
       self.current_token = self.cached_tokens.pop_front().unwrap();
     } else {
       // 使用 scan_on_channel 这个方法来获取 token。
-      self.current_token = self.lexer.scan_on_channel(self.channel)?
+      // self.current_token = self.lexer.scan_on_channel(self.channel)?
+      todo!()
     }
 
 
@@ -65,8 +66,9 @@ impl<'a> TokenStream<'a> {
     else if n > self.cached_tokens.len() {
       // 还需要再扫描一些 token 
       for _ in 0..(n-self.cached_tokens.len()) {
-        let token = self.lexer.scan_on_channel(self.channel)?;
-        self.cached_tokens.push_back(token);
+        // let token = self.lexer.scan_on_channel(self.channel)?;
+        // self.cached_tokens.push_back(token);
+        todo!()
       }
       
     }

@@ -3,23 +3,12 @@
 use regex::Regex;
 
 use crate::runtime::error_strategy::error_listener::{ErrorListener, ConsoleErrorListener};
+use crate::runtime::lexer::LexerIter;
 use crate::runtime::{lexer::Lexer, token::Token, position::Position};
 use crate::runtime::error::{Error, ErrorKind};
 
-pub struct SyntaxisLexer {
-  pub input: String, // 输入文本 至少持有文本的引用
-
-
-
-
-  pub cursor: usize, // 字符游标，当前处理到的文本字符序号
-  pub token_index: usize, // token 序号，表示当前扫描到了第几个 token
-  pub position: Position, // 当前处理到的文本字符所在的位置
-
-
-  // todo 增添一个 scope
-
-  // todo 增添错误处理器 或 错误监听器
+pub struct SyntaxisLexer<'a> {
+  pub input: &'a str, // 输入文本 持有文本的不可变引用
 
   // 错误监听器列表
   pub error_listeners: Vec<Box<dyn ErrorListener>>,
@@ -48,7 +37,7 @@ lazy_static!{
 }
 
 
-impl SyntaxisLexer {
+impl<'a> SyntaxisLexer<'a> {
   // 前两个是开始符号和结束符号
   pub const _START: usize = 0;
   pub const _STOP: usize = 1;
@@ -73,13 +62,13 @@ impl SyntaxisLexer {
   
 
 
-  pub fn new(input: &str) -> Self {
+  pub fn new(input: &'a str) -> Self {
     let pos = Position { line: 0, char_position: 0 };
 
-    SyntaxisLexer { input: input.to_owned(), 
+    SyntaxisLexer { 
+      input, 
       // 默认情况下，添加一个 ConsoleErrorListener
-      error_listeners: vec![Box::new(ConsoleErrorListener::new())],
-      cursor: 0, token_index: 1, position: pos.clone(),}
+      error_listeners: vec![Box::new(ConsoleErrorListener::new())],}
   }
 
   // 考虑是否放入 trait 中
@@ -95,89 +84,20 @@ impl SyntaxisLexer {
   // 定义一些私有函数
 }
 
-impl Lexer for SyntaxisLexer {
 
-  fn reset(&mut self) {
-    self.cursor = 0;
-    self.token_index = 0;
-    self.position = Position { line: 0, char_position: 0 };
+
+
+impl Lexer for SyntaxisLexer<'_> {
+  fn iter(&self) -> LexerIter {
+    LexerIter {
+      input: self.input,
+      rules: &LEXER_META_LIST[..],
+      error_listeners: &self.error_listeners,
+      
+      cursor: 0,
+      token_index: 1,
+      position: Position { line: 0, char_position: 0 },
+    }
   }
-
-  // 实际的匹配函数
-  fn lexer_match(&mut self) -> Result<Token, Error> {
-    if self.cursor > self.input.len() {
-      return Err(Error::new(ErrorKind::LexerScanOverflow, "LexerScanOverflow", self.position, self.position));
-    }
-    else if self.cursor >= self.input.len() {
-      let char_pos = self.cursor;
-      self.cursor += 10000;
-      return Ok(Token::new(SyntaxisLexer::_STOP, "_STOP", "_STOP", 
-        self.position, self.position, self.token_index, 
-        0, char_pos, char_pos));
-    }
-
-
-    let mut len = 0;
-    let mut meta: Option<(Regex, usize, usize, &'static str, bool)> = None;
-
-    for lexer_meta in LEXER_META_LIST.iter() {
-      let result = lexer_meta.0.find_at(&self.input[self.cursor..], 0) ;
-      if let Some(result) = result {
-        if result.end() > len {
-          len = result.end();
-          meta = Some(lexer_meta.clone())
-        }
-      }
-    }
-
-    // 如果都不匹配，则报错
-    if let None = meta { 
-      return Err(Error::new(ErrorKind::LexerNoMatch, "", self.position, self.position)) 
-    }
-
-    // 将对应的文本找出来
-    let text = String::from(&self.input[self.cursor..self.cursor+len]);
-    let lines: Vec<_> = text.split("\n").collect();
-    let new_pos;
-    if lines.len() <= 1 {
-      // 没有跨行
-      new_pos = Position {
-        line: self.position.line,
-        char_position: self.position.char_position + len
-      }
-    }
-    else {
-      // 跨行
-      new_pos = Position {
-        line: self.position.line + lines.len()-1,
-        char_position: lines.last().unwrap().len(),
-      }
-    }
-
-    let meta = meta.unwrap();
-    let token = Token::new(meta.1, meta.3, &text, 
-      self.position.clone(),new_pos.clone(), self.token_index, meta.2, self.cursor, self.cursor + len);
-
-    self.cursor += len;
-    self.position = new_pos;
-
-    // 如果需要跳过，则返回下一个
-    if meta.4 {
-      return self.lexer_match();
-    }
-    
-    self.token_index += 1;
-    return Ok(token);
-  }
-
-  fn recover(&mut self) -> Result<Token, Error> {
-    // 向 error_listeners 报告错误
-
-
-    todo!()
-  }
-
-
-
 }
 
