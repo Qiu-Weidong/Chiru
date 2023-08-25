@@ -45,4 +45,14 @@ fn rust_test() {
 
 
 
+fn foo() {
+  let v = vec![1,2,3,4,5,6,7,8];
+  let mut iter = v.iter();
+  while let Some(val) = iter.next() {
+    // 这就是循环体中的类容了
+  }
 
+  for val in iter {
+    
+  }
+}

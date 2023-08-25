@@ -101,8 +101,6 @@ pub trait Lexer {
     }
   }
 
-
-
   fn reset(&mut self);
 
 

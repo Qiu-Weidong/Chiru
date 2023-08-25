@@ -28,8 +28,6 @@ pub struct SyntaxisLexer {
 
 // 使用模板生成正则列表和token名称列表
 lazy_static!{
-
-
   static ref LEXER_META_LIST: [(Regex, usize, usize, &'static str, bool); 14] = [
      (Regex::new(r####"^([a-z][a-zA-Z0-9_]+)"####).unwrap(), 2,0, "RULE_REF", false),
      (Regex::new(r####"^([A-Z][a-zA-Z0-9_]+)"####).unwrap(), 3,0, "TOKEN_REF", false),
@@ -107,11 +105,15 @@ impl Lexer for SyntaxisLexer {
 
   // 实际的匹配函数
   fn lexer_match(&mut self) -> Result<Token, Error> {
-    
-    if self.cursor >= self.input.len() {
+    if self.cursor > self.input.len() {
+      return Err(Error::new(ErrorKind::LexerScanOverflow, "LexerScanOverflow", self.position, self.position));
+    }
+    else if self.cursor >= self.input.len() {
+      let char_pos = self.cursor;
+      self.cursor += 10000;
       return Ok(Token::new(SyntaxisLexer::_STOP, "_STOP", "_STOP", 
         self.position, self.position, self.token_index, 
-        0, self.cursor, self.cursor));
+        0, char_pos, char_pos));
     }
 
 
