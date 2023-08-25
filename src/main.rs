@@ -99,6 +99,8 @@ fn main() {
   for token in stream {
     println!("{}", token);
   }
+
+  // stream.next();
   // let parser = SyntaxisParser {};
   // let ast = parser.parse(&mut stream);
 
