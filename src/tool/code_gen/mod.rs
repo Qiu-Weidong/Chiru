@@ -3,6 +3,9 @@ use tera::Tera;
 
 pub mod lexer_gen;
 pub mod visitor_gen;
+pub mod parser_gen;
+
+
 use serde::Serialize;
 
 lazy_static! {

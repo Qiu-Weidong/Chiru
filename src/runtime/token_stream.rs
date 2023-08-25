@@ -27,12 +27,14 @@ pub struct TokenStream<'a> {
 
 }
 
-
 impl<'a> TokenStream<'a> {
 
-  // 消耗掉当前 token, 并返回 next token 。
+  // 消耗掉 next_token, 并返回 next token 。
   pub fn consume(&mut self) -> Result<Token, Error> {
-    todo!()
+    match self.next() {
+      Some(token) => Ok(token),
+      None => Err(Error::create_error_without_location(ErrorKind::TokenStreamOutOfRange, "msg")),
+    }
   }
 
 
@@ -41,56 +43,76 @@ impl<'a> TokenStream<'a> {
     if self.consumed_tokens.len() <= 0 { return Err(Error::create_error_without_location(ErrorKind::ConsumedTokenExhausted, "consumed token exhausted.")) }
     
     if let Some(next_token) = &self.next_token {
+      // 将 next_token 放回 cached_tokens
       self.cached_tokens.push_front(next_token.clone())
     }
 
+    self.next_token = self.consumed_tokens.pop_back();
     // // 将 consumed_tokens 的最后一个恢复
-    // self.current_token = self.consumed_tokens.pop_back().unwrap();
-    // Ok(self.current_token.clone())
-    todo!()
+    Ok(self.next_token.clone().unwrap())
   }
 
 
   pub fn look_ahead(&mut self, n: usize) -> Result<Token, Error> {
-    // if n <= 0 {
-    //   // 向前看 0 个 token, 那么就是当前 token
-    //   return Ok(self.current_token.clone())
-    // }
-    // else if n > self.cached_tokens.len() {
-    //   // 还需要再扫描一些 token 
-    //   for _ in 0..(n-self.cached_tokens.len()) {
-    //     // let token = self.lexer.scan_on_channel(self.channel)?;
-    //     // self.cached_tokens.push_back(token);
-    //     todo!()
-    //   }
-      
-    // }
+    if n <= 0 {
+      // 至少向前看一个 token
+      return Err(Error::create_error_without_location(ErrorKind::Unknown, "look_ahead should gt 0"));
+    }
+    else if n == 1 {
+      return self.peer_next_token();
+    }
+    else {
+      let n = n - 2;
+      if n >= self.cached_tokens.len() {
+        // 需要再获取 n - len + 1 个 token
+        for _ in 0..(n - self.cached_tokens.len() + 2) {
+          let next_token = loop {
+            let next_token = match self.iter.next() {
+              Some(next_token) => next_token,
+  
+              // 如果 lexer 扫描不到 token，则将 next_token 设置为 stop 。
+              None => Token::new(1, "_STOP", "_STOP", self.iter.position, self.iter.position, self.iter.token_index, self.channel, self.iter.cursor, self.iter.cursor),
+            };
+            if next_token.channel == self.channel {
+              break next_token;
+            }
+          };
 
-    // Ok(self.cached_tokens[n-1].clone())
-    todo!()
+          self.cached_tokens.push_back(next_token);
+        }
+        
+      } 
+      
+      return Ok(self.cached_tokens[n].clone());
+    }
   }
 
   pub fn look_back(&mut self, n:usize) -> Result<Token, Error> {
-    // if n <= 0 {
-    //   // 向后看 0 个 token, 那么就是当前 token
-    //   return Ok(self.current_token.clone())
-    // }
-    // else if n > self.consumed_tokens.len() {
-    //   // 直接报错
-    //   return Err(Error::create_error_without_location(ErrorKind::ConsumedTokenExhausted, "consumed token exhausted."))
+    if n <= 0 {
+      // 向后看 0 个 token, 那么就是当前 token
+      return Err(Error::create_error_without_location(ErrorKind::Unknown, "look back should gt 0"));
+    }
+    else if n > self.consumed_tokens.len() {
+      // 直接报错
+      return Err(Error::create_error_without_location(ErrorKind::ConsumedTokenExhausted, "consumed token exhausted."))
       
-    // }
+    }
 
-    // Ok(self.consumed_tokens[self.consumed_tokens.len() - n].clone())
-    todo!()
+    Ok(self.consumed_tokens[self.consumed_tokens.len() - n].clone())
   }
 
-  pub fn peer_next_token(&mut self) -> Result<Token, Error> {
-    self.look_ahead(1)
+  pub fn peer_next_token(&self) -> Result<Token, Error> {
+    match &self.next_token {
+      Some(next_token) => Ok(next_token.clone()),
+      None => Err(Error::create_error_without_location(ErrorKind::TokenStreamOutOfRange, "msg")),
+    }
   }
 
-  pub fn peer_previous_token(&mut self) -> Result<Token, Error> {
-    self.look_back(1)
+  pub fn peer_previous_token(&self) -> Result<Token, Error> {
+    match self.consumed_tokens.back() {
+      Some(token) => Ok(token.clone()),
+      None => Err(Error::create_error_without_location(ErrorKind::ConsumedTokenExhausted, "msg")),
+    }
   }
 
   pub fn new(lexer: &'a dyn Lexer, channel: usize) -> Self {
@@ -105,12 +127,20 @@ impl<'a> TokenStream<'a> {
     }
   }
 
-
+  pub fn reset(&mut self) {
+    self.consumed_tokens.clear();
+    self.cached_tokens.clear();
+    self.iter.reset();
+    self.next_token = Some(Token::start(self.channel));
+  }
 }
 
 
 // 直接为 TokenStream 实现 Iterator，无需再定义一个 Iter
 impl Iterator for TokenStream<'_> {
+
+
+
   fn next(&mut self) -> Option<Self::Item> {
     // 首先保存一下原来的 next_token, 即现在的 current_token 。
     let current_token = self.next_token.clone();

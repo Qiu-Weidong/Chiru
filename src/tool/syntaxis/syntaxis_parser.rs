@@ -3,13 +3,15 @@
 use std::collections::HashMap;
 use maplit::hashmap;
 
-use crate::{runtime::{ast::rule_context::RuleContext, parser::Parser, token_stream::TokenStream}, 
+use crate::{runtime::{parser::Parser, token_stream::TokenStream}, 
   tool::{grammar::{production::ProductionItem, production::Production}, 
   syntaxis::syntaxis_context::{RuleListContext, ParserRuleContext, BlockContext, 
     AlternativeContext, EpsilonContext, ElementContext, EbnfSuffixContext, LexerRuleContext, RegularContext}}};
 
 
-pub struct SyntaxisParser;
+pub struct SyntaxisParser {
+  // error_listeners
+}
 
 
 lazy_static!{
@@ -50,8 +52,6 @@ impl SyntaxisParser {
   pub const LEXER_RULE: usize = 7;
   pub const REGULAR: usize = 8;
 
-  // 生成一个预测分析表
-
 
 
   pub fn new() -> Self {
@@ -62,47 +62,47 @@ impl SyntaxisParser {
 
   // 使用模板生成
   pub fn rule_list(&self, token_stream: &mut TokenStream) -> Box<dyn RuleListContext> {
-    let result = self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::RULE_LIST);
+    let result = self.ll1_parse(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::RULE_LIST);
     Box::new(result)
   }
 
   pub fn parser_rule(&self, token_stream: &mut TokenStream) -> Box<dyn ParserRuleContext> {
-    let result = self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::PARSER_RULE);
+    let result = self.ll1_parse(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::PARSER_RULE);
     Box::new(result)
   }
 
   pub fn block(&self, token_stream: &mut TokenStream) -> Box<dyn BlockContext> {
-    let result = self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::BLOCK);
+    let result = self.ll1_parse(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::BLOCK);
     Box::new(result)
   }
 
   pub fn alternative(&self, token_stream: &mut TokenStream) -> Box<dyn AlternativeContext> {
-    let result = self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::ALTERNATIVE);
+    let result = self.ll1_parse(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::ALTERNATIVE);
     Box::new(result)
   }
 
   pub fn epsilon(&self, token_stream: &mut TokenStream) -> Box<dyn EpsilonContext> {
-    let result = self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::EPSILON);
+    let result = self.ll1_parse(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::EPSILON);
     Box::new(result)
   }
 
   pub fn element(&self, token_stream: &mut TokenStream) -> Box<dyn ElementContext> {
-    let result = self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::ELEMENT);
+    let result = self.ll1_parse(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::ELEMENT);
     Box::new(result)
   }
 
   pub fn ebnf_suffix(&self, token_stream: &mut TokenStream) -> Box<dyn EbnfSuffixContext> {
-    let result = self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::EBNF_SUFFIX);
+    let result = self.ll1_parse(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::EBNF_SUFFIX);
     Box::new(result)
   }
 
   pub fn lexer_rule(&self, token_stream: &mut TokenStream) -> Box<dyn LexerRuleContext> {
-    let result = self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::LEXER_RULE);
+    let result = self.ll1_parse(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::LEXER_RULE);
     Box::new(result)
   }
 
   pub fn regular(&self, token_stream: &mut TokenStream) -> Box<dyn RegularContext> {
-    let result = self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::REGULAR);
+    let result = self.ll1_parse(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::REGULAR);
     Box::new(result)
   }
 
@@ -114,9 +114,5 @@ impl SyntaxisParser {
 
 
 
-impl Parser for SyntaxisParser {
-  fn parse(&self, token_stream: &mut TokenStream) -> RuleContext {
-    self.parse_ast(token_stream, &LL1_TABLE, &PRODUCTIONS, &NONTERMINALS, Self::RULE_LIST)
-  }
-}
+impl Parser for SyntaxisParser {}
 

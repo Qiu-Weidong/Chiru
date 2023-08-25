@@ -20,20 +20,18 @@
   
  */
 
-use std::error::Error;
-use std::{fs::File, io::Read};
 
+use std::fs::File;
 
-use chiru::runtime::lexer::Lexer;
 use chiru::{tool::{visitor::{grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor}, lexer_rule_visitor::LexerRuleData}, 
-grammar::Grammar, serde_ast, syntaxis::{syntaxis_context::RuleListContext, syntaxis_parser::SyntaxisParser}}, runtime::{token_stream::TokenStream, parser::Parser}};
+grammar::Grammar, serde_ast, syntaxis::{syntaxis_context::RuleListContext, syntaxis_parser::SyntaxisParser}, code_gen::parser_gen::{production_generate, ll1_table_generate}}, runtime::{token_stream::TokenStream, parser::Parser}};
 
 
 
 
 use chiru::tool::syntaxis::syntaxis_lexer::SyntaxisLexer;
-// use serde::de::Error;
 
+#[allow(unused_doc_comments)]
 fn main() {
   let (grammar, _) = load_ast();
 
@@ -45,10 +43,14 @@ fn main() {
   let table = grammar.ll1_table(&first_set, &follow);
 
 
+  // 
+  // 输出预测分析表
+  println!("{}", ll1_table_generate(&table));
+  // 输出产生式
+  println!("{}", production_generate(&grammar.productions));
+  // 输出非终结符
 
-  // println!("{}", grammar);
-
-
+/* 
 
   let input = r####"
   rule_list: (parser_rule | lexer_rule)*;
@@ -121,7 +123,7 @@ fn main() {
   // ASTDrawer::new().draw(&ast, "parser", "output/foo2.html");
 
 
-  print!("done")
+  print!("done")*/
 }
 
 
@@ -170,11 +172,3 @@ pub fn load_ast() -> (Grammar, Vec<LexerRuleData>) {
 
 
 
-
-
-pub fn foo() -> Result<(), Box<dyn Error>>{
-  let x = 0..5;
-  
-  let file = File::open("")?;
-  Ok(())
-}
