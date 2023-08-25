@@ -143,6 +143,11 @@ impl LexerIter<'_> {
     todo!()
   }
 
+  pub fn reset(&mut self) {
+    self.cursor = 0;
+    self.token_index = 1;
+    self.position = Position { line: 0, char_position: 0};
+  }
 }
 
 

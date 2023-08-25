@@ -1,14 +1,15 @@
 
 use std::collections::VecDeque;
 
+use super::lexer::LexerIter;
 use super::{token::Token, position::Position, lexer::Lexer, error::ErrorKind};
 use super::error::Error;
 
 // 词法分析的时候，直接丢弃掉 skip 的 token, 并将不同频道的 token 放入相应的 vector 。
 pub struct TokenStream<'a> {
   // 词法分析器
-  // pub lexer: Box<dyn Lexer>,
-  pub lexer: &'a mut dyn Lexer,
+  // 只需要保存一个迭代器即可
+  pub iter: LexerIter<'a>,
 
   // 当前 token，初始化为 _START
   pub current_token: Token,
@@ -98,10 +99,10 @@ impl<'a> TokenStream<'a> {
     self.look_back(1)
   }
 
-  pub fn new(lexer: &'a mut dyn Lexer, channel: usize) -> Self {
+  pub fn new(lexer: &'a dyn Lexer, channel: usize) -> Self {
     let pos = Position { line: 0, char_position: 0 };
     Self {
-      lexer,
+      iter: lexer.iter(),
       channel,
       consumed_tokens: VecDeque::new(),
       cached_tokens: VecDeque::new(),
@@ -112,16 +113,6 @@ impl<'a> TokenStream<'a> {
     }
   }
 
-  
-  // pub fn iter(&self) -> Iter<'_, Token> {
-  //   todo!()
-  // }
-
-  // pub fn iter_mut(&mut self) -> IterMut<'_, Token> {
-  //   todo!()
-  // }
-
-  // fn foo() -> Iter
 }
 
 
