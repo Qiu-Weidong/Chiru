@@ -4,8 +4,7 @@ use regex::Regex;
 
 use crate::runtime::error_strategy::error_listener::{ErrorListener, ConsoleErrorListener};
 use crate::runtime::lexer::LexerIter;
-use crate::runtime::{lexer::Lexer, token::Token, position::Position};
-use crate::runtime::error::{Error, ErrorKind};
+use crate::runtime::{lexer::Lexer, position::Position};
 
 pub struct SyntaxisLexer<'a> {
   pub input: &'a str, // 输入文本 持有文本的不可变引用
@@ -63,7 +62,6 @@ impl<'a> SyntaxisLexer<'a> {
 
 
   pub fn new(input: &'a str) -> Self {
-    let pos = Position { line: 0, char_position: 0 };
 
     SyntaxisLexer { 
       input, 

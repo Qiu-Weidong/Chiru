@@ -10,18 +10,18 @@ use super::position::Position;
 use super::token::Token;
 
 
+// lexer 都不识别 start 和 stop，所有 start 和 stop 都交给 tokenstream 来添加
 pub trait Lexer {
   fn iter(&self) -> LexerIter ;
 
 
-  // fn scan_all_on_channel_tokens(&mut self, channel: usize) -> Vec<Token> {
-  //   let mut result = vec![Token::start(channel)];
-  //   while let Ok(token) = self.scan_on_channel(channel) {
-  //     result.push(token);
-  //   }
-    
-  //   result
-  // }
+  fn get_all_on_channel_tokens(&self, channel: usize) -> Vec<Token> {
+    self.iter().filter(|token| token.channel == channel).collect::<Vec<_>>()
+  }
+
+  fn get_all_tokens(&self) -> Vec<Token> {
+    self.iter().collect::<Vec<_>>()
+  }
 
   // fn scan_all_tokens_and_group_by_channel(&mut self) -> HashMap<usize, Vec<Token>> {
   //   let mut ret: HashMap<usize, Vec<Token>> = HashMap::new();
@@ -49,57 +49,6 @@ pub trait Lexer {
 
     
   //   ret
-  // }
-
-  // // 把所有 token 都读出来，这种情况下，start 和 stop 的 channel 都为 0 
-  // fn scan_all_tokens(&mut self) -> Vec<Token> {
-  //   let mut result = vec![Token::start(0)];
-  //   while let Ok(token) = self.scan() {
-  //     result.push(token);
-  //   }
-    
-  //   result
-  // }
-  
-  // // 向前扫描，如果是 skip 则继续向前扫描, skip 的 token 不会占用序号
-  // fn scan(&mut self) -> Result<Token, Error> {
-  //   match self.lexer_match() {
-  //     Ok(token) => Ok(token), 
-  //     Err(err) => match err.kind {
-  //         ErrorKind::LexerNoMatch => self.recover(),
-  //         _ => Err(err),
-  //       },
-  //   }
-  // }
-  
-  // // 可以扫描下一个是什么
-  // // 扫描指定 channel 的 token，其余都舍弃, 会识别到 stop。
-  // fn scan_on_channel(&mut self, channel: usize) -> Result<Token, Error> {
-  //   loop {
-  //     match self.lexer_match() {
-  //       Ok(token) => {
-  //         // stop 需要特判
-  //         if token.token_type == 1 {
-  //           let mut token = token;
-  //           token.channel = channel;
-  //           return Ok(token);
-  //         }
-
-  //         if token.channel == channel {
-  //           return Ok(token);
-  //         }
-  //       },
-  //       Err(err) => {
-  //         match err.kind {
-  //           ErrorKind::LexerNoMatch => {
-  //             let token = self.recover()?;
-  //             if token.channel == channel { return Ok(token); }
-  //           },
-  //           _ => return Err(err),
-  //         }
-  //       },
-  //     }
-  //   }
   // }
 
 
