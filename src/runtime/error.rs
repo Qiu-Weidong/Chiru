@@ -40,6 +40,7 @@ pub enum ErrorKind {
   // 词法分析过程中产生的错误
   LexerScanOverflow, // 当词法分析器扫描到输入结束的时候，会产生该错误
   LexerNoMatch, // 所有 token 都匹配不上
+  LexerRecoverFail, // 尝试修复但还是失败
 
 
   TokenStreamOutOfRange, // look_ahead 超出了范围

@@ -22,7 +22,7 @@
 
 use std::error::Error;
 use std::{fs::File, io::Read};
-// use std::io::Result;
+
 
 use chiru::runtime::lexer::Lexer;
 use chiru::{tool::{visitor::{grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor}, lexer_rule_visitor::LexerRuleData}, 
@@ -90,11 +90,15 @@ fn main() {
 
   let lexer = SyntaxisLexer::new(input);
 
-  for token in lexer.iter() {
+  // for token in lexer.iter() {
+  //   println!("{}", token);
+  // }
+
+  let stream = TokenStream::new(&lexer, 0);
+
+  for token in stream {
     println!("{}", token);
   }
-
-  // let mut stream = TokenStream::new(&mut lexer, 0);
   // let parser = SyntaxisParser {};
   // let ast = parser.parse(&mut stream);
 

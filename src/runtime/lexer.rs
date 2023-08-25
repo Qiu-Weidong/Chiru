@@ -1,5 +1,5 @@
 
-// use std::{collections::HashMap, vec};
+
 
 use regex::Regex;
 
@@ -12,7 +12,7 @@ use super::token::Token;
 
 // lexer 都不识别 start 和 stop，所有 start 和 stop 都交给 tokenstream 来添加
 pub trait Lexer {
-  fn iter(&self) -> LexerIter ;
+  fn iter(&self) -> TokenIter ;
 
 
   fn get_all_on_channel_tokens(&self, channel: usize) -> Vec<Token> {
@@ -55,10 +55,8 @@ pub trait Lexer {
 }
 
 
-
-// 好像连 Syntaxis_lexer 都不需要了。
 // 这里不管 start 和 stop，需要 Token_Stream 自己处理
-pub struct LexerIter<'a> {
+pub struct TokenIter<'a> {
   // 这些是对应的 Lexer 中成员的引用
   pub input: &'a str, // 输入文本 持有文本的不可变引用
   pub rules: &'a [(Regex, usize, usize, &'static str, bool)],
@@ -75,7 +73,7 @@ pub struct LexerIter<'a> {
 
 
 
-impl LexerIter<'_> {
+impl TokenIter<'_> {
 
   // 这个函数只管匹配，匹配不上就报一个 Error。且不会识别到 start 和 stop
   fn lexer_match(&mut self) -> Result<Token, Error> {
@@ -148,10 +146,11 @@ impl LexerIter<'_> {
     self.token_index = 1;
     self.position = Position { line: 0, char_position: 0};
   }
+
 }
 
 
-impl Iterator for LexerIter<'_> {
+impl Iterator for TokenIter<'_> {
   type Item = Token;
 
   fn next(&mut self) -> Option<Self::Item> {
@@ -167,6 +166,4 @@ impl Iterator for LexerIter<'_> {
     }
   }
 }
-
-
 

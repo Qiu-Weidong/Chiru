@@ -44,16 +44,6 @@ impl Display for Token {
 
 
 impl Token {
-  // pub const START : Token = Token { 
-  //   token_type: todo!(), 
-  //   token_name: todo!(), 
-  //   start: todo!(), 
-  //   stop: todo!(), 
-  //   channel: todo!(), 
-  //   text: todo!(), 
-  //   token_index: todo!(), 
-  //   char_start_index: todo!(), 
-  //   char_stop_index: todo!() };
   
 
   // 提供一个方法快速创建 start token

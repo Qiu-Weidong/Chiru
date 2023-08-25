@@ -3,7 +3,7 @@
 use regex::Regex;
 
 use crate::runtime::error_strategy::error_listener::{ErrorListener, ConsoleErrorListener};
-use crate::runtime::lexer::LexerIter;
+use crate::runtime::lexer::TokenIter;
 use crate::runtime::{lexer::Lexer, position::Position};
 
 pub struct SyntaxisLexer<'a> {
@@ -86,8 +86,8 @@ impl<'a> SyntaxisLexer<'a> {
 
 
 impl Lexer for SyntaxisLexer<'_> {
-  fn iter(&self) -> LexerIter {
-    LexerIter {
+  fn iter(&self) -> TokenIter {
+    TokenIter {
       input: self.input,
       rules: &LEXER_META_LIST[..],
       error_listeners: &self.error_listeners,
