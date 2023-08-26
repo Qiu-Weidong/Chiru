@@ -34,3 +34,21 @@ pub struct RuleRenderItem {
   pub upcase: String,
 }
 
+
+pub fn pascal(input: &str) -> String {
+  let mut result = String::new();
+
+  input.split("_").for_each(|word| {
+    let mut chars: Vec<char> = word.chars().collect();
+    if chars.len() >= 1 {
+      chars[0] = chars[0].to_ascii_uppercase();
+      let s: String = chars.into_iter().collect();
+      result += &s;
+    }
+    
+  });
+  result
+}
+
+
+

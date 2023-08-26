@@ -1,6 +1,8 @@
 
 
 
+use std::collections::HashMap;
+
 use regex::Regex;
 
 use super::error::{Error, ErrorKind};
@@ -23,33 +25,17 @@ pub trait Lexer {
     self.iter().collect::<Vec<_>>()
   }
 
-  // fn scan_all_tokens_and_group_by_channel(&mut self) -> HashMap<usize, Vec<Token>> {
-  //   let mut ret: HashMap<usize, Vec<Token>> = HashMap::new();
-  //   while let Ok(token) = self.scan() {
-  //     if token.token_type == 1 {
-  //       // 为所有的 token 序列添加 stop token
-  //       for (key, tokens) in ret.iter_mut() {
-  //         let mut stop = token.clone();
-  //         stop.channel = *key;
-  //         tokens.push(stop);
-  //       }
-
-  //       break;
-  //     }
-
-  //     if ret.contains_key(&token.channel) {
-  //       let x = ret.get_mut(&token.channel).unwrap();
-  //       x.push(token)
-  //     }
-  //     else {
-  //       ret.insert(token.channel, vec![Token::start(token.channel), token]);
-  //     }
-  //   }
-
-
-    
-  //   ret
-  // }
+  fn scan_all_tokens_and_group_by_channel(&mut self) -> HashMap<usize, Vec<Token>> {
+    let mut ret: HashMap<usize, Vec<Token>> = HashMap::new();
+    for token in self.iter() {
+      if ret.contains_key(&token.channel) {
+        ret.get_mut(&token.channel).unwrap().push(token);
+      } else {
+        ret.insert(token.channel, vec![token]);
+      }
+    }
+    ret
+  }
 
 
 }

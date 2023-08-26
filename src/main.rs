@@ -24,106 +24,48 @@
 use std::fs::File;
 
 use chiru::{tool::{visitor::{grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor}, lexer_rule_visitor::LexerRuleData}, 
-grammar::Grammar, serde_ast, syntaxis::{syntaxis_context::RuleListContext, syntaxis_parser::SyntaxisParser}, code_gen::parser_gen::{production_generate, ll1_table_generate}}, runtime::{token_stream::TokenStream, parser::Parser}};
+grammar::Grammar, serde_ast, syntaxis::{syntaxis_context::RuleListContext, syntaxis_parser::SyntaxisParser, syntaxis_lexer::SyntaxisLexer}, code_gen::parser_gen::{production_generate, ll1_table_generate, parser_generate}, gui::ast_drawer::ASTDrawer}, runtime::{token_stream::TokenStream, parser::Parser, lexer::Lexer}};
 
 
 
 
-use chiru::tool::syntaxis::syntaxis_lexer::SyntaxisLexer;
+// use chiru::tool::syntaxis::syntaxis_lexer::SyntaxisLexer;
 
 #[allow(unused_doc_comments)]
 fn main() {
-  let (grammar, _) = load_ast();
-
+  // let (grammar, _) = load_ast();
+  // let mut file = File::create("tests/generate/parser.rs").unwrap();
   
-  let (first, first_set) = grammar.first_set();
+  // file.write(parser_generate(grammar).as_bytes()).unwrap();
+  // println!("{}", parser_generate(grammar));
 
-  let follow = grammar.follow_set(&first);
-
-  let table = grammar.ll1_table(&first_set, &follow);
-
-
-  // 
-  // 输出预测分析表
-  println!("{}", ll1_table_generate(&table));
-  // 输出产生式
-  println!("{}", production_generate(&grammar.productions));
-  // 输出非终结符
-
-/* 
 
   let input = r####"
-  rule_list: (parser_rule | lexer_rule)*;
-
-  parser_rule: RULE_REF COLON block SEMI;
-  block: alternative (OR alternative)*;
-
-  alternative: element element* | epsilon;
-  epsilon: EPSILON;
-  element: (
-      TOKEN_REF
-      | STRING_LITERAL
-      | RULE_REF
-      | LPAREN block RPAREN
-    ) ebnf_suffix?;
-
-  ebnf_suffix: (STAR | PLUS | QUESTION) QUESTION?;
-
-
-  lexer_rule: TOKEN_REF COLON regular SEMI;
-  regular: REGULAR_LITERAL;
-
-  RULE_REF: /[a-z][a-zA-Z0-9_]+/;
-  TOKEN_REF: /[A-Z][a-zA-Z0-9_]+/;
-  COLON: /::=|:=|->|=>|:|=/;
-  SEMI: /;/;
-  OR: /\|/;
-  EPSILON: /ε|epsilon/;
-  STAR: /\* /;
-  PLUS: /\+/;
-  QUESTION: /\?/;
-  LPAREN: /\(/;
-  RPAREN: /\)/;
-  STRING_LITERAL: /"((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*"/;
-  REGULAR_LITERAL: /\/(\\\/|[^\/])+\//;
-  WHITE_SPACE: /[ \r\n\t\f]+/;
-  
+  stat : hello | world 
+  hello: HELLO +;
+  HELLO: /hello/;
   "####;
 
   let lexer = SyntaxisLexer::new(input);
 
-  // for token in lexer.iter() {
-  //   println!("{}", token);
-  // }
-
-  let stream = TokenStream::new(&lexer, 0);
-
-  for token in stream {
-    println!("{}", token);
+  for token in lexer.iter() {
+    print!("{}, ", token.token_name);
   }
 
-  // stream.next();
-  // let parser = SyntaxisParser {};
-  // let ast = parser.parse(&mut stream);
+  let mut stream = TokenStream::new(&lexer, 0);
 
-
-  // for token in stream.iter() {
-
-  // }
-
-  // let parser = SyntaxisParser::new(tokens, table, grammar);
-  // let ast = parser.parse();
-
-  // 我现在可以生成 lexer 和 visitor 了。
+  stream.consume().unwrap();
+  let parser = SyntaxisParser::new();
+  let ast = parser.rule_list(&mut stream);
 
 
   // 根据产生式构造 ast
   // let file = File::open("src/tool/syntaxis/syntaxis.json").unwrap();
   // let ast = serde_ast::from_reader(file).unwrap();
-  // ASTDrawer::new().draw(&ast, "parser", "output/foo2.html");
+  ASTDrawer::new().draw(ast.as_ref().as_rule(), "parser", "output/foo2.html");
 
 
-  print!("done")*/
+  print!("done")
 }
 
 
@@ -139,7 +81,7 @@ pub fn load_ast() -> (Grammar, Vec<LexerRuleData>) {
   // ASTDrawer::new().draw(&ast, "parser", "ast.html");
 
 
-  let mut grammar = Grammar::new("我的文法");
+  let mut grammar = Grammar::new("Chiru");
   let token_cnt;
   let data;
   {

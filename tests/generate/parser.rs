@@ -4,13 +4,13 @@ use std::collections::{HashMap, HashSet};
 use maplit::hashmap;
 use maplit::hashset;
 
-use crate::{runtime::{parser::LL1, token_stream::TokenStream, error_strategy::error_listener::ConsoleErrorListener}, 
+use chiru::{runtime::{parser::LL1, token_stream::TokenStream, error_strategy::error_listener::ConsoleErrorListener}, 
   tool::{grammar::{production::ProductionItem, production::Production}, 
   syntaxis::syntaxis_context::{RuleListContext, ParserRuleContext, BlockContext, 
     AlternativeContext, EpsilonContext, ElementContext, EbnfSuffixContext, LexerRuleContext, RegularContext}}};
 
 
-pub struct SyntaxisParser {
+pub struct ChiruParser {
   pub analyzer: LL1,
 }
 
@@ -236,18 +236,19 @@ lazy_static!{
 }
 
 
-impl SyntaxisParser {
+impl ChiruParser {
 
   // 使用模板生成 每个非终结符的编号
-  pub const RULE_LIST: usize = 0;
-  pub const PARSER_RULE: usize = 1;
-  pub const BLOCK: usize = 2;
-  pub const ALTERNATIVE: usize = 3;
-  pub const EPSILON: usize = 4;
-  pub const ELEMENT: usize = 5;
-  pub const EBNF_SUFFIX: usize = 6;
-  pub const LEXER_RULE: usize = 7;
-  pub const REGULAR: usize = 8;
+  
+  pub const BLOCK: usize = 2; 
+  pub const ALTERNATIVE: usize = 3; 
+  pub const EPSILON: usize = 4; 
+  pub const RULE_LIST: usize = 0; 
+  pub const ELEMENT: usize = 5; 
+  pub const REGULAR: usize = 8; 
+  pub const PARSER_RULE: usize = 1; 
+  pub const EBNF_SUFFIX: usize = 6; 
+  pub const LEXER_RULE: usize = 7; 
 
 
 
@@ -257,7 +258,7 @@ impl SyntaxisParser {
         error_listeners: vec![Box::new(ConsoleErrorListener::new()),], 
         table: &LL1_TABLE, 
         productions: &PRODUCTIONS, 
-        rule_names: &NONTERMINALS, 
+        rule_names: &TERMINALS, 
         sync: &SYNC, 
       }
     }
@@ -265,51 +266,43 @@ impl SyntaxisParser {
 
 
   // 使用模板生成
-  pub fn rule_list(&self, token_stream: &mut TokenStream) -> Box<dyn RuleListContext> {
-    let result = self.analyzer.analyse(token_stream, Self::RULE_LIST);
-    Box::new(result)
-  }
-
-  pub fn parser_rule(&self, token_stream: &mut TokenStream) -> Box<dyn ParserRuleContext> {
-    let result = self.analyzer.analyse(token_stream, Self::PARSER_RULE);
-    Box::new(result)
-  }
-
+  
   pub fn block(&self, token_stream: &mut TokenStream) -> Box<dyn BlockContext> {
     let result = self.analyzer.analyse(token_stream, Self::BLOCK);
     Box::new(result)
-  }
-
+  } 
   pub fn alternative(&self, token_stream: &mut TokenStream) -> Box<dyn AlternativeContext> {
     let result = self.analyzer.analyse(token_stream, Self::ALTERNATIVE);
     Box::new(result)
-  }
-
+  } 
   pub fn epsilon(&self, token_stream: &mut TokenStream) -> Box<dyn EpsilonContext> {
     let result = self.analyzer.analyse(token_stream, Self::EPSILON);
     Box::new(result)
-  }
-
+  } 
+  pub fn rule_list(&self, token_stream: &mut TokenStream) -> Box<dyn RuleListContext> {
+    let result = self.analyzer.analyse(token_stream, Self::RULE_LIST);
+    Box::new(result)
+  } 
   pub fn element(&self, token_stream: &mut TokenStream) -> Box<dyn ElementContext> {
     let result = self.analyzer.analyse(token_stream, Self::ELEMENT);
     Box::new(result)
-  }
-
-  pub fn ebnf_suffix(&self, token_stream: &mut TokenStream) -> Box<dyn EbnfSuffixContext> {
-    let result = self.analyzer.analyse(token_stream, Self::EBNF_SUFFIX);
-    Box::new(result)
-  }
-
-  pub fn lexer_rule(&self, token_stream: &mut TokenStream) -> Box<dyn LexerRuleContext> {
-    let result = self.analyzer.analyse(token_stream, Self::LEXER_RULE);
-    Box::new(result)
-  }
-
+  } 
   pub fn regular(&self, token_stream: &mut TokenStream) -> Box<dyn RegularContext> {
     let result = self.analyzer.analyse(token_stream, Self::REGULAR);
     Box::new(result)
-  }
-
+  } 
+  pub fn parser_rule(&self, token_stream: &mut TokenStream) -> Box<dyn ParserRuleContext> {
+    let result = self.analyzer.analyse(token_stream, Self::PARSER_RULE);
+    Box::new(result)
+  } 
+  pub fn ebnf_suffix(&self, token_stream: &mut TokenStream) -> Box<dyn EbnfSuffixContext> {
+    let result = self.analyzer.analyse(token_stream, Self::EBNF_SUFFIX);
+    Box::new(result)
+  } 
+  pub fn lexer_rule(&self, token_stream: &mut TokenStream) -> Box<dyn LexerRuleContext> {
+    let result = self.analyzer.analyse(token_stream, Self::LEXER_RULE);
+    Box::new(result)
+  } 
 
 }
 

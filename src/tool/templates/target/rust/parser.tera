@@ -1,89 +1,86 @@
-use std::{collections::HashMap, rc::Rc};
-
-use crate::{runtime::{token::Token, ast::{rule_context::RuleContext, terminal_context::TerminalContext, ast_context::ASTContext}, vocabulary::Vocabulary}, tool::{grammar::{Production, ProductionItem}, syntaxis::syntaxis_context::{RuleListContext, ParserRuleContext, BlockContext, AlternativeContext, EpsilonContext, ElementContext, EbnfSuffixContext, LexerRuleContext, RegularContext}}};
 
 
+use std::collections::{HashMap, HashSet};
+use maplit::hashmap;
+use maplit::hashset;
 
-pub struct SyntaxisParser {
-  pub tokens: Vec<Token>,
+use chiru::{runtime::{parser::LL1, token_stream::TokenStream, error_strategy::error_listener::ConsoleErrorListener}, 
+  tool::{grammar::{production::ProductionItem, production::Production}, 
+  syntaxis::syntaxis_context::{RuleListContext, ParserRuleContext, BlockContext, 
+    AlternativeContext, EpsilonContext, ElementContext, EbnfSuffixContext, LexerRuleContext, RegularContext}}};
 
-  // 这两个应该声明为常量
-  pub table: HashMap<(usize, usize), Rc<Production>>,
-  pub vocabulary: Vocabulary,
+
+pub struct {{name}}Parser {
+  pub analyzer: LL1,
 }
 
 
-impl SyntaxisParser {
+lazy_static!{
+  // 直接写预测分析表
+  static ref LL1_TABLE: HashMap<(usize, usize), usize> = hashmap!{
+    {% for item in table %}
+    ({{item.0}}, {{item.1}}) => {{item.2}},{% endfor %}
+  };
 
-  // 使用模板生成
-  {% for rule in rules %}
-  pub const {{rule.upcase}}: usize = {{rule.rule_index}};{% endfor %}
+  // 产生式
+  static ref PRODUCTIONS: HashMap<usize, Production>  = hashmap!{
+    {% for production in productions %}
+    {{production.0}} => Production::new({{production.0}}, {{production.1}}, &{{production.2}}),{% endfor %}
+  };
+
+  // 非终结符
+  pub static ref NONTERMINALS: HashMap<usize, &'static str> = hashmap! {
+    {% for nonterminal in nonterminals %}
+    {{nonterminal.0}} => "{{nonterminal.1}}",{% endfor %}
+  };
+
+  // 终结符
+  pub static ref TERMINALS: HashMap<usize, &'static str> = hashmap! {
+    {% for terminal in terminals %}
+    {{terminal.0}} => "{{terminal.1}}",{% endfor %}
+  };
+
+  pub static ref SYNC: HashSet<(usize, usize)> = hashset! {
+    {% for sync in sync_list %}
+    ({{sync.0}}, {{sync.1}}),{% endfor %}
+  };
+}
+
+
+impl {{name}}Parser {
+
+  // 使用模板生成 每个非终结符的编号
+  {% for nonterminal in nonterminals %}
+  pub const {{nonterminal.2}}: usize = {{nonterminal.0}}; {% endfor %}
 
 
 
-
-  pub fn new(tokens: Vec<Token>, table: HashMap<(usize, usize), Rc<Production>>, vocabulary: Vocabulary) -> Self {
-
+  pub fn new() -> Self {
     Self {
-      tokens,
-      table,
-      vocabulary,
+      analyzer: LL1 { 
+        error_listeners: vec![Box::new(ConsoleErrorListener::new()),], 
+        table: &LL1_TABLE, 
+        productions: &PRODUCTIONS, 
+        rule_names: &TERMINALS, 
+        sync: &SYNC, 
+      }
     }
   }
 
 
   // 使用模板生成
-  {% for rule in rules %}
-  pub fn {{rule.underscore}}(&self) -> Box<dyn {{ rule.pascal }}Context> {
-    let mut cursor = 0;
-    let result = self.parse_ast(&mut cursor, Self::{{rule.upcase}});
+  {% for nonterminal in nonterminals %}
+  pub fn {{nonterminal.1}}(&self, token_stream: &mut TokenStream) -> Box<dyn {{nonterminal.3}}Context> {
+    let result = self.analyzer.analyse(token_stream, Self::{{nonterminal.2}});
     Box::new(result)
-  }
-  {% endfor %}
-
-
-
-  // 直接照抄
-  fn parse_ast(&self, cursor: &mut usize, rule_index: usize) -> RuleContext {
-    // let mut cursor = cursor;
-
-    let token_type = self.tokens[*cursor].token_type;
-    let production = self.table.get(&(rule_index, token_type)).unwrap();
-    let name = self.vocabulary.get_nonterminal_name_with_default(rule_index);
-
-    let mut result = RuleContext { rule_index, rule_name: name, children: Vec::new(), };
-    
-    for child in production.right.iter() {
-      match child {
-        ProductionItem::NonTerminal(rule_id) => {
-          let rule = self.parse_ast(cursor, *rule_id);
-          // cursor = new_cursor;
-          if let Some(_) = self.vocabulary.get_nonterminal_name_by_id(*rule_id) {
-            let child = ASTContext::Rule(rule);
-            result.children.push(child);
-          } else {
-            for child in rule.children.iter() {
-              result.children.push(child.clone());
-            }
-          }
-          
-        },
-        ProductionItem::Terminal(token_type) => {
-          // 检查是否匹配
-          if *token_type != self.tokens[*cursor].token_type { println!("符号不匹配") }
-          let terminal = TerminalContext { symbol: self.tokens[*cursor].clone() };
-          *cursor += 1;
-          let child = ASTContext::Terminal(terminal);
-          result.children.push(child);
-        },
-      };
-    }
-    
-    result
-  }
+  } {% endfor %}
 
 }
 
 
 
+
+
+
+// impl Parser for SyntaxisParser {}
 
