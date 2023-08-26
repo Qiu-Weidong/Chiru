@@ -1,61 +1,33 @@
-use std::{collections::HashMap, slice::Iter};
+
 
 // 专门用来确认语法特性
 use regex::Regex;
 
 #[test]
 fn rust_test() {
-  let re = Regex::new(r##"^/([^/]|\\/)+/"##).unwrap();
+  // let re = Regex::new(r####"r(#*)".*?"\\1"####).unwrap();
 
-  let ma = re.find_at(r####"/[a-z][a-zA-Z0-9_]+/;
-  TOKEN_REF: /[A-Z][a-zA-Z0-9_]+/;
-  COLON: /::=|:=|->|=>|:|=/;
-  SEMI: /;/;
-  OR: /\|/;
-  EPSILON: /ε|epsilon/;
-  STAR: /\* /;
-  PLUS: /\+/;
-  QUESTION: /\?/;
-  LPAREN: /\(/;
-  RPAREN: /\)/;
-  STRING_LITERAL: /"([^\a\d\n\r\t\f\v\\"]|(\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*"/;
-  REGULAR_LITERAL: /\/([^\/]|\\\/)+\//;"####, 0);
+  // let input = r#####################"rule_list, foo, RTE, kkkk;
+  // r#"xxx"#
+  // "#####################;
+
+
+
+  // println!("{}", re.is_match(input));
+
+
+  // for mat in re.find_iter(input) {
+  //   println!("{}", &input[mat.start()..mat.end()])
+  // }
+
+  let re = Regex::new(r"(a*)b$1").unwrap();
+  let text = r"aab$1";
+  if re.is_match(text) {
+    println!("Pattern matched!");
+  } else {
+    println!("不匹配");
+  }
   
-  let ma = ma.unwrap();
-  println!("{:?}", ma);
-
-
-
-
-
-
-
-
-
-
-  let mut vec: Vec<i32> = Vec::new();
-  let it = vec.iter_mut();
-  let mut m: HashMap<i32, String> = HashMap::new();
-  let it = m.iter_mut();
-
-  for (k, v) in m.iter_mut() {}
-  let k  = m.into_iter();
-  let t = vec.into_iter();
 }
 
 
-
-fn foo() {
-  let v = vec![1,2,3,4,5,6,7,8];
-  let mut iter = v.iter();
-
-  while let Some(val) = iter.next() {
-    // 这就是循环体中的类容了
-  }
-
-  for val in iter {
-    
-  }
-
-  // Iter::new(&[]);
-}

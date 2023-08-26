@@ -17,21 +17,21 @@ pub struct SyntaxisLexer<'a> {
 // 使用模板生成正则列表和token名称列表
 lazy_static!{
   static ref LEXER_META_LIST: [(Regex, usize, usize, &'static str, bool); 14] = [
-     (Regex::new(r####"^([a-z][a-zA-Z0-9_]+)"####).unwrap(), 2,0, "RULE_REF", false),
-     (Regex::new(r####"^([A-Z][a-zA-Z0-9_]+)"####).unwrap(), 3,0, "TOKEN_REF", false),
-     (Regex::new(r####"^(::=|:=|->|=>|:|=)"####).unwrap(), 4,0, "COLON", false),
-     (Regex::new(r####"^(;)"####).unwrap(), 5,0, "SEMI", false),
-     (Regex::new(r####"^(\|)"####).unwrap(), 6,0, "OR", false),
-     (Regex::new(r####"^(ε|epsilon)"####).unwrap(), 7,0, "EPSILON", false),
-     (Regex::new(r####"^(\*)"####).unwrap(), 8,0, "STAR", false),
-     (Regex::new(r####"^(\+)"####).unwrap(), 9,0, "PLUS", false),
-     (Regex::new(r####"^(\?)"####).unwrap(), 10,0, "QUESTION", false),
-     (Regex::new(r####"^(\()"####).unwrap(), 11,0, "LPAREN", false),
-     (Regex::new(r####"^(\))"####).unwrap(), 12,0, "RPAREN", false),
-     (Regex::new(r####"^('([^\a\d\n\r\t\f\v\\']|(\\\\|\\'|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*')"####).unwrap(), 
-      13,0, "STRING_LITERAL", false),
-     (Regex::new(r####"^(/(\\/|[^/])+/)"####).unwrap(), 14,0, "REGULAR_LITERAL", false),
-     (Regex::new(r####"^([ \r\n\t\f]+)"####).unwrap(), 15,0, "WHITE_SPACE", true),
+    (Regex::new(r####"^([a-z][a-zA-Z0-9_]+)"####).unwrap(), 2,0, "RULE_REF", false),
+    (Regex::new(r####"^([A-Z][a-zA-Z0-9_]+)"####).unwrap(), 3,0, "TOKEN_REF", false),
+    (Regex::new(r####"^(::=|:=|->|=>|:|=)"####).unwrap(), 4,0, "COLON", false),
+    (Regex::new(r####"^(;)"####).unwrap(), 5,0, "SEMI", false),
+    (Regex::new(r####"^(\|)"####).unwrap(), 6,0, "OR", false),
+    (Regex::new(r####"^(ε|epsilon)"####).unwrap(), 7,0, "EPSILON", false),
+    (Regex::new(r####"^(\*)"####).unwrap(), 8,0, "STAR", false),
+    (Regex::new(r####"^(\+)"####).unwrap(), 9,0, "PLUS", false),
+    (Regex::new(r####"^(\?)"####).unwrap(), 10,0, "QUESTION", false),
+    (Regex::new(r####"^(\()"####).unwrap(), 11,0, "LPAREN", false),
+    (Regex::new(r####"^(\))"####).unwrap(), 12,0, "RPAREN", false),
+    (Regex::new(r####"^('([^\a\d\n\r\t\f\v\\']|(\\\\|\\'|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*')"####).unwrap(), 
+    13,0, "STRING_LITERAL", false),
+    (Regex::new(r####"^(/(\\/|[^/])+/)"####).unwrap(), 14,0, "REGULAR_LITERAL", false),
+    (Regex::new(r####"^([ \r\n\t\f]+)"####).unwrap(), 15,0, "WHITE_SPACE", true),
   ];
 }
 

@@ -1,10 +1,10 @@
-use std::io::Write;
+
 
 use tera::Context;
 
-use crate::tool::grammar::{vocabulary::Vocabulary, Grammar};
+use crate::tool::grammar::Grammar;
 
-use super::{RuleRenderContext, TEMPLATES, pascal};
+use super::{TEMPLATES, pascal};
 
 
 
