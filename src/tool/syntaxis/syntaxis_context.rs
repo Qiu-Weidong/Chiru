@@ -189,9 +189,7 @@ impl LexerRuleContext for RuleContext {
   }
 
   fn regular(&self) -> Option<&dyn RegularContext> {
-    if let Some(result) = self.get_rule_context(SyntaxisParser::REGULAR, 0) {
-      Some(result as &dyn RegularContext)
-    } else { None }
+    self.get_rule_context(SyntaxisParser::REGULAR, 0).map(|ctx| ctx as &dyn RegularContext)
   }
 
   fn accept(&self, visitor: &mut dyn SyntaxisVisitor) -> Box<dyn Any> {
@@ -209,11 +207,7 @@ impl LexerRuleContext for RuleContext {
 
 impl BlockContext for RuleContext {
   fn alternative_list(&self) -> Vec<&dyn AlternativeContext> {
-    let mut result = Vec::new();
-    for ctx in self.get_rule_contexts(SyntaxisParser::ALTERNATIVE).iter() {
-      result.push(*ctx as &dyn AlternativeContext);
-    }
-    result
+    self.get_rule_contexts(SyntaxisParser::ALTERNATIVE).iter().map(|ctx| *ctx as &dyn AlternativeContext).collect::<Vec<_>>()
   }
 
   fn or_list(&self) -> Vec<&TerminalContext> {

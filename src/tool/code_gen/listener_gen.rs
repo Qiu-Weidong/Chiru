@@ -1,20 +1,15 @@
-use std::io::Write;
-
 use tera::Context;
 
-use crate::tool::grammar::{vocabulary::Vocabulary, Grammar};
+use crate::tool::{grammar::Grammar, code_gen::pascal};
 
-use super::{RuleRenderContext, TEMPLATES, pascal};
-
-
+use super::TEMPLATES;
 
 
 
 
-// 生成 visitor 
-pub fn generate_visitor(grammar: &Grammar) -> String {
 
-
+// 生成 listener
+pub fn listener_generate(grammar: &Grammar) -> String {
 
   let mut nonterminals: Vec<(usize, String, String, String)> = Vec::new();
   for (id, t) in grammar.vocabulary.nonterminals.iter() {
@@ -26,10 +21,7 @@ pub fn generate_visitor(grammar: &Grammar) -> String {
   let mut context = Context::new();
   context.insert("nonterminals", &nonterminals);
   context.insert("grammar_name", &(grammar.name.to_lowercase(), grammar.name.to_uppercase(), pascal(&grammar.name)));
-  TEMPLATES.render("target/rust/visitor.tera", &context).unwrap()
-
+  TEMPLATES.render("target/rust/listener.tera", &context).unwrap()
 
 }
-
-
 

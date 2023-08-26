@@ -126,6 +126,11 @@ impl Vocabulary {
   pub fn get_all_nonterminals(&self) -> Vec<NonTerminal> {
     self.nonterminals.values().cloned().collect::<Vec<_>>()
   }
+
+  pub fn get_all_named_nonterminals(&self) -> Vec<usize> {
+    self.non_terminal_name_to_id.iter().map(|(_, v)| *v).collect()
+  }
+
 }
 
 

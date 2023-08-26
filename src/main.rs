@@ -21,10 +21,13 @@
  */
 
 
-use std::fs::File;
+use std::{fs::File, io::Write};
 
-use chiru::{tool::{visitor::{grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor}, lexer_rule_visitor::LexerRuleData}, 
-grammar::Grammar, serde_ast, syntaxis::{syntaxis_context::RuleListContext, syntaxis_parser::SyntaxisParser, syntaxis_lexer::SyntaxisLexer}, code_gen::parser_gen::{production_generate, ll1_table_generate, parser_generate}, gui::ast_drawer::ASTDrawer}, runtime::{token_stream::TokenStream, parser::Parser, lexer::Lexer}};
+use chiru::{tool::{visitor::{grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor}, 
+lexer_rule_visitor::LexerRuleData}, 
+grammar::Grammar, syntaxis::{syntaxis_context::RuleListContext, syntaxis_parser::SyntaxisParser, syntaxis_lexer::SyntaxisLexer}, 
+code_gen::{parser_gen::parser_generate, listener_gen::listener_generate, visitor_gen::generate_visitor}}, 
+runtime::{token_stream::TokenStream, ast::rule_context::RuleContext}};
 
 
 
@@ -33,28 +36,54 @@ grammar::Grammar, serde_ast, syntaxis::{syntaxis_context::RuleListContext, synta
 
 #[allow(unused_doc_comments)]
 fn main() {
-  // let (grammar, _) = load_ast();
-  // let mut file = File::create("tests/generate/parser.rs").unwrap();
-  
-  // file.write(parser_generate(grammar).as_bytes()).unwrap();
-  // println!("{}", parser_generate(grammar));
+
 
 
   let input = r####"
-  stat : hello | world 
-  hello: HELLO +;
-  HELLO: /hello/;
+
+  rule_list: (parser_rule | lexer_rule)*;
+
+  parser_rule: RULE_REF COLON block SEMI;
+  block: alternative (OR alternative)*;
+
+  alternative: element element* | epsilon;
+  epsilon: EPSILON;
+  element: (
+      TOKEN_REF
+      | STRING_LITERAL
+      | RULE_REF
+      | LPAREN block RPAREN
+    ) ebnf_suffix?;
+
+  ebnf_suffix: (STAR | PLUS | QUESTION) QUESTION?;
+
+
+  lexer_rule: TOKEN_REF COLON regular SEMI;
+  regular: REGULAR_LITERAL;
+
+  RULE_REF: /[a-z][a-zA-Z0-9_]+/;
+  TOKEN_REF: /[A-Z][a-zA-Z0-9_]+/;
+  COLON: /::=|:=|->|=>|:|=/;
+  SEMI: /;/;
+  OR: /\|/;
+  EPSILON: /ε|epsilon/;
+  STAR: /\* /;
+  PLUS: /\+/;
+  QUESTION: /\?/;
+  LPAREN: /\(/;
+  RPAREN: /\)/;
+  STRING_LITERAL: /"((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*"/;
+  REGULAR_LITERAL: /\/(\\\/|[^\/])+\//;
+  WHITE_SPACE: /[ \r\n\t\f]+/;
+
+
   "####;
 
   let lexer = SyntaxisLexer::new(input);
 
-  for token in lexer.iter() {
-    print!("{}, ", token.token_name);
-  }
-
   let mut stream = TokenStream::new(&lexer, 0);
 
-  stream.consume().unwrap();
+  stream.consume().unwrap(); // 注意要先将 _START 消耗掉
   let parser = SyntaxisParser::new();
   let ast = parser.rule_list(&mut stream);
 
@@ -62,17 +91,21 @@ fn main() {
   // 根据产生式构造 ast
   // let file = File::open("src/tool/syntaxis/syntaxis.json").unwrap();
   // let ast = serde_ast::from_reader(file).unwrap();
-  ASTDrawer::new().draw(ast.as_ref().as_rule(), "parser", "output/foo2.html");
+  // ASTDrawer::new().draw(ast.as_ref().as_rule(), "parser", "output/foo2.html");
+  let (grammar, _) = load_grammar(ast.as_rule());
+  let mut file = File::create("tests/generate/visitor.rs").unwrap();
+  
+  // file.write(generate_visitor(&grammar).as_bytes()).unwrap();
+  file.write(generate_visitor(&grammar).as_bytes()).unwrap();
+  
 
-
-  print!("done")
 }
 
 
-pub fn load_ast() -> (Grammar, Vec<LexerRuleData>) {
+pub fn load_grammar(ast: &RuleContext) -> (Grammar, Vec<LexerRuleData>) {
   // let file = File::open(path);
-  let file = File::open("src/tool/syntaxis/syntaxis2.json").unwrap();
-  let ast = serde_ast::from_reader(file).unwrap();
+  // let file = File::open("src/tool/syntaxis/syntaxis2.json").unwrap();
+  // let ast = serde_ast::from_reader(file).unwrap();
 
 
   // file.read_to_string(buf)

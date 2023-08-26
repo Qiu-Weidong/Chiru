@@ -4,10 +4,16 @@ use std::collections::{HashMap, HashSet};
 use maplit::hashmap;
 use maplit::hashset;
 
-use chiru::{runtime::{parser::LL1, token_stream::TokenStream, error_strategy::error_listener::ConsoleErrorListener}, 
-  tool::{grammar::{production::ProductionItem, production::Production}, 
-  syntaxis::syntaxis_context::{RuleListContext, ParserRuleContext, BlockContext, 
-    AlternativeContext, EpsilonContext, ElementContext, EbnfSuffixContext, LexerRuleContext, RegularContext}}};
+use chiru::{
+  runtime::{parser::LL1, token_stream::TokenStream, error_strategy::error_listener::ConsoleErrorListener}, 
+
+  tool::grammar::{production::ProductionItem, production::Production}
+
+};
+
+use chiru::tool::syntaxis::syntaxis_context::{
+  {% for nonterminal in nonterminals %} {{nonterminal.3}}Context,{% endfor %}
+};
 
 
 pub struct {{name}}Parser {
