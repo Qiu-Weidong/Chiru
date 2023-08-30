@@ -137,6 +137,8 @@ impl Iterator for TokenStream<'_> {
 
 
   fn next(&mut self) -> Option<Self::Item> {
+    // 如果 next_token 已经是 None，表示已经返回了 stop ，此时直接返回 None 即可。
+
     // 首先保存一下原来的 next_token, 即现在的 current_token 。
     let current_token = self.next_token.clone();
 
@@ -156,13 +158,21 @@ impl Iterator for TokenStream<'_> {
             Ok(next_token) => next_token,
 
             // 如果 lexer 扫描不到 token，则将 next_token 设置为 stop 。
-            Err(_) => Token::new(1, "_STOP", "_STOP", 
-              self.iter.position, 
-              self.iter.position, 
-              self.iter.token_index, 
-              self.channel, 
-              self.iter.cursor, 
-              self.iter.cursor),
+            Err(err) => { 
+              match err.kind {
+                ErrorKind::LexerScanOverflow => {
+                  // 添加 stop token
+                  Token::new(1, "_STOP", "_STOP", 
+                    self.iter.get_current_position(),
+                    self.iter.get_current_position(), 
+                    self.iter.token_index, 
+                    self.channel, 
+                    self.iter.cursor, 
+                    self.iter.cursor)
+                },
+                _ => { return None; }
+              }
+            },
           };
           if next_token.channel == self.channel {
             break next_token;

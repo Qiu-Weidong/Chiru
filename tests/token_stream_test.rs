@@ -1,13 +1,13 @@
 
 // 编写一个 token_stream 的测试
 
-use chiru::{runtime::token_stream::TokenStream, tool::syntaxis::syntaxis_lexer::SyntaxisLexer};
+use chiru::{runtime::{token_stream::TokenStream, lexer::Lexer}, tool::syntaxis::syntaxis_lexer::SyntaxisLexer};
 
 
 #[test]
 #[allow(unused_doc_comments)]
 fn token_stream_test() {
-  let input = r####"
+  let input = r######"
   rule_list: (parser_rule | lexer_rule)*;
 
   parser_rule: RULE_REF COLON block SEMI;
@@ -28,22 +28,22 @@ fn token_stream_test() {
   lexer_rule: TOKEN_REF COLON regular SEMI;
   regular: REGULAR_LITERAL;
 
-  RULE_REF: /[a-z][a-zA-Z0-9_]+/;
-  TOKEN_REF: /[A-Z][a-zA-Z0-9_]+/;
-  COLON: /::=|:=|->|=>|:|=/;
-  SEMI: /;/;
-  OR: /\|/;
-  EPSILON: /ε|epsilon/;
-  STAR: /\* /;
-  PLUS: /\+/;
-  QUESTION: /\?/;
-  LPAREN: /\(/;
-  RPAREN: /\)/;
-  STRING_LITERAL: /"((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*"/;
-  REGULAR_LITERAL: /\/(\\\/|[^\/])+\//;
-  WHITE_SPACE: /[ \r\n\t\f]+/;
+  RULE_REF: r###"[a-z][a-zA-Z0-9_]*"###;
+  TOKEN_REF: r###"[A-Z][a-zA-Z0-9_]*"###;
+  COLON: r###"::=|:=|->|=>|:|="###;
+  SEMI: r###";"###;
+  OR: r###"\|"###;
+  EPSILON: r###"ε|epsilon"###;
+  STAR: r###"\*"###;
+  PLUS: r###"\+"###;
+  QUESTION: r###"\?"###;
+  LPAREN: r###"\("###;
+  RPAREN: r###"\)"###;
+  STRING_LITERAL: r###""((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*""###;
+  REGULAR_LITERAL: r###"(?s)r##".*?"##"###;
+  WHITE_SPACE: r###"[ \r\n\t\f]+"###;
   
-  "####;
+  "######;
 
   /**
    * [@0, 0:0='_START', <_START>, <0>, start: <line: 0, position: 0>, stop: <line: 0, position: 0>]
@@ -209,6 +209,11 @@ fn token_stream_test() {
 
 
   let lexer = SyntaxisLexer::new(input);
+
+
+  for token in lexer.iter() {
+    println!("{}", token);
+  }
 
   let mut stream = TokenStream::new(&lexer, 0);
 

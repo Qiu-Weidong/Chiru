@@ -32,7 +32,7 @@ lazy_static!{
     13,0, "STRING_LITERAL", false),
 
     // 修改以下正则表达式的识别表达式 todo
-    (Regex::new(r#######"r####"(?s)r###".*?"###"####"#######).unwrap(), 14,0, "REGULAR_LITERAL", false),
+    (Regex::new(r####"(?s)r###".*?"###"####).unwrap(), 14,0, "REGULAR_LITERAL", false),
     (Regex::new(r####"[ \r\n\t\f]+"####).unwrap(), 15,0, "WHITE_SPACE", true),
   ];
 }

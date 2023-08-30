@@ -66,6 +66,9 @@ pub struct TokenIter<'a> {
 
 impl<'a> TokenIter<'a> {
 
+  pub fn get_current_position(&self) -> Position {
+    self.get_position_from_char_index(self.cursor)
+  }
 
   fn get_position_from_char_index(&self, char_index: usize) -> Position {
     let line = self.ranges.binary_search_by(|range| {
