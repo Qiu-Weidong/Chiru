@@ -1,128 +1,68 @@
-use std::{any::Any, collections::HashSet};
+use std::{any::Any, collections::HashMap};
 
-use serde::Serialize;
+use crate::tool::syntaxis::{syntaxis_visitor::SyntaxisVisitor, syntaxis_context::LexerRuleContext};
 
-use crate::tool::syntaxis::{syntaxis_visitor::SyntaxisVisitor, syntaxis_context::LexerRuleContext, syntaxis_lexer::SyntaxisLexer};
+use super::lexer_rule::LexerRule;
 
 
 
-// 这个 visitor 负责处理 lexer。
 
-#[derive(Debug, Serialize)]
-pub struct LexerRuleData {
-  pub token_type: usize,
-  pub token_name: String,
-  pub regex: String,
 
-  pub channel: usize,
-  pub skip: bool,
-}
 
 
 pub struct LexerRuleVisitor {
-  pub data: Vec<LexerRuleData>,
-  pub next_token_type: usize, // 注意初始化为 2
+  
+  pub next_token_id: usize, 
+
+  pub lexer_rule_map: HashMap<String, LexerRule>,
 }
 
-impl SyntaxisVisitor for LexerRuleVisitor {
-  fn visit_lexer_rule(&mut self, ctx: &dyn LexerRuleContext) -> Box<dyn Any> {
-    // 首先检查是否重复定义
-    let name = &ctx.token_ref().unwrap().symbol.text;
-    for item in self.data.iter() {
-      if item.token_name.eq(name)  {
-        println!("{} 重复定义", name);
-        return self.default_result();
-      }
+
+
+impl LexerRuleVisitor {
+  pub fn new(next_token_id: usize, lexer_rule_map: HashMap<String, LexerRule>) -> Self {
+    Self { 
+      next_token_id, 
+      lexer_rule_map,
     }
+  }
+}
+
+
+
+impl SyntaxisVisitor for LexerRuleVisitor {
+  
+  
+  fn visit_lexer_rule(&mut self, ctx: &dyn LexerRuleContext) -> Box<dyn Any> {
+    // 获取名称
+    let name = &ctx.token_ref().unwrap().symbol.text;
+
+    // 检查是否已经定义
+    if self.lexer_rule_map.contains_key(name) {
+      // 重复定义，报错
+
+      // 字符串字面量都使用了 '' 包裹，一定不会和普通 token 重复
+      return self.default_result();
+    }
+
+
 
     let regular = &ctx.regular().unwrap().regular_literal().unwrap().symbol.text; // .replace("\\/", "/");
 
-    self.data.push( LexerRuleData { 
-      token_type: self.next_token_type, 
-      token_name: name.to_owned(), 
-      regex: regular.to_owned(),
-      skip: false,
-      channel: 0,
-    });
-    self.next_token_type += 1;
+    let lexer_rule = LexerRule::new(self.next_token_id, &name, regular, 
+      0, false
+    );
+
+    self.next_token_id += 1;
+
+
+    self.lexer_rule_map.insert(name.to_string(), lexer_rule);
+
     
     self.default_result()
   }
 
 }
 
-impl LexerRuleVisitor {
-  pub fn new(data: Vec<LexerRuleData>, next_token_type: usize) -> Self {
-    Self {
-      data,
-      next_token_type,
-    }
-  }
-}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// pub struct StringLiteralVisitor {
-//   pub data: Vec<LexerRuleData>,
-//   pub next_token_type: usize, // 注意初始化为 2
-//   pub cache: HashSet<String>,
-// }
-
-// impl SyntaxisVisitor for StringLiteralVisitor {
-//   fn visit_terminal(&mut self, terminal: &crate::runtime::ast::terminal_context::TerminalContext) -> Box<dyn Any> {
-//     if terminal.symbol.token_type == SyntaxisLexer::STRING_LITERAL {
-//       let name = &terminal.symbol.text;
-//       if self.cache.contains(name) {
-//         return self.default_result();
-//       }
-
-//       self.cache.insert(name.to_string());
-
-
-//       // abc  ab\n
-//       let literal = &name[1..name.len()-1]
-//         .replace("\\n", "\n").replace("\\t", "\t").replace("\\\\", "\\")
-//         .replace("\\r", "\r").replace("\\'", "\'").replace("+", "\\+")
-//         .replace("*", "\\*")
-//       ;
-
-//       self.data.push( LexerRuleData {
-//         token_type: self.next_token_type, 
-//         token_name: format!("T_{}", self.next_token_type), 
-//         regex: format!("^({})", literal),
-//         skip: false,
-//         channel: 0, 
-//       });
-//       self.next_token_type += 1;
-//     }
-//     self.default_result()
-//   }
-// }
-
-// impl StringLiteralVisitor {
-//   pub fn new() -> Self {
-//     Self {
-//       data: Vec::new(),
-//       next_token_type: 2,
-//       cache: HashSet::new(),
-//     }
-//   }
-// }

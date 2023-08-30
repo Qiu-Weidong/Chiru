@@ -3,11 +3,11 @@ use std::fs::File;
 use chiru::tool::grammar::Grammar;
 use chiru::tool::serde_ast;
 use chiru::tool::syntaxis::syntaxis_context::RuleListContext;
-use chiru::tool::visitor::grammar_visitor::{SymbolVisitor, ProductionVisitor};
-use chiru::tool::visitor::lexer_rule_visitor::LexerRuleData;
+use chiru::tool::visitor::grammar_visitor::{GrammarVisitor};
+use chiru::tool::visitor::lexer_rule::LexerRule;
 
 #[allow(dead_code)]
-pub fn load_ast() -> (Grammar, Vec<LexerRuleData>) {
+pub fn load_ast() -> (Grammar, Vec<LexerRule>) {
   // let file = File::open("src/tool/chiru/chiru2.json").unwrap();
   // let ast = serde_ast::from_reader(file).unwrap();
 
