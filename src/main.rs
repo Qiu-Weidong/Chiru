@@ -23,10 +23,10 @@
 
 use std::{fs::File, io::Write};
 
-use chiru::{tool::{visitor::{lexer_rule::LexerRule, string_literal_to_token_visitor::StringLiteralToTokenVisitor, lexer_rule_visitor::LexerRuleVisitor, parser_rule_visitor::ParserRuleVisitor, grammar_visitor::GrammarVisitor}, 
-grammar::Grammar, syntaxis::{syntaxis_parser::SyntaxisParser, syntaxis_lexer::SyntaxisLexer}, 
-code_gen::visitor_gen::generate_visitor}, 
-runtime::{token_stream::TokenStream, ast::rule_context::RuleContext, lexer::Lexer}};
+use chiru::{tool::{visitor::{string_literal_to_token_visitor::StringLiteralToTokenVisitor, lexer_rule_visitor::LexerRuleVisitor, parser_rule_visitor::ParserRuleVisitor, grammar_visitor::GrammarVisitor}, 
+syntaxis::{syntaxis_parser::SyntaxisParser, syntaxis_lexer::SyntaxisLexer}, 
+code_gen::{visitor_gen::generate_visitor, listener_gen::listener_generate, parser_gen::parser_generate, lexer_gen::lexer_generate}}, 
+runtime::{token_stream::TokenStream, lexer::Lexer}};
 
 
 
@@ -104,62 +104,23 @@ fn main() {
   // println!("{}", grammar)
 
   // 根据产生式构造 ast
-  // let file = File::open("src/tool/syntaxis/syntaxis.json").unwrap();
-  // let ast = serde_ast::from_reader(file).unwrap();
-  // ASTDrawer::new().draw(ast.as_ref().as_rule(), "parser", "output/foo2.html");
-  // let (grammar, _) = load_grammar(ast.as_rule());
-  // let mut file = File::create("tests/generate/visitor.rs").unwrap();
+
+  // 生成 visitor 
+  let mut file = File::create("tests/generate/visitor.rs").unwrap();
+  file.write(generate_visitor(&grammar).as_bytes()).unwrap();
+
+  // 生成 listener
+  let mut file = File::create("tests/generate/listener.rs").unwrap();
+  file.write(listener_generate(&grammar).as_bytes()).unwrap();
+
+  // 生成 parser
+  let mut file = File::create("tests/generate/parser.rs").unwrap();
+  file.write(parser_generate(&grammar).as_bytes()).unwrap();
   
-  // // file.write(generate_visitor(&grammar).as_bytes()).unwrap();
-  // file.write(generate_visitor(&grammar).as_bytes()).unwrap();
+  let mut file = File::create("tests/generate/lexer.rs").unwrap();
+  file.write(lexer_generate(&lexer_visitor.lexer_rule_map, "chiru").as_bytes()).unwrap();
   
 
 }
-
-
-pub fn load_grammar(ast: &RuleContext) -> (Grammar, Vec<LexerRule>) {
-  // let file = File::open(path);
-  // let file = File::open("src/tool/syntaxis/syntaxis2.json").unwrap();
-  // let ast = serde_ast::from_reader(file).unwrap();
-
-
-  // file.read_to_string(buf)
-
-
-  // ASTDrawer::new().draw(&ast, "parser", "ast.html");
-
-
-  let mut grammar = Grammar::new("Chiru");
-  // let token_cnt;
-  // let data;
-  // {
-  //   let mut visitor = StringLiteralToTokenVisitor::new(
-  //     &mut grammar, 2
-  //   );
-
-  //   ast.accept(&mut visitor);
-  //   token_cnt = visitor.next_token_id;
-  //   data = visitor.data;
-  // }
-  
-  // let rule_cnt; 
-  // let lexer_data;
-  // {
-  //   let mut visitor = SymbolVisitor::new(&mut grammar, token_cnt, 0, data);
-  //   ast.accept(&mut visitor);
-  //   rule_cnt = visitor.next_rule_id;
-  //   lexer_data = visitor.data;
-  // }
-
-  // {
-  //   let mut visitor = ProductionVisitor::new(&mut grammar, rule_cnt);
-  //   ast.accept(&mut visitor);
-  // }
-
-  // (grammar, lexer_data)
-  todo!()
-
-}
-
 
 

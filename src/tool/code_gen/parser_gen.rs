@@ -29,7 +29,7 @@ fn production_right_generate(production: &Production) -> String {
 
 
 // 生成 parser 的函数
-pub fn parser_generate(grammar: Grammar) -> String {
+pub fn parser_generate(grammar: &Grammar) -> String {
   
   let (first, first_set) = grammar.first_set();
 

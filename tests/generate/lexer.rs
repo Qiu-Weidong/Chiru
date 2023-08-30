@@ -1,48 +1,55 @@
 
 
 
-
-
-
-
 use regex::Regex;
 
 use chiru::runtime::error_strategy::error_listener::{ErrorListener, ConsoleErrorListener};
 use chiru::runtime::lexer::TokenIter;
-use chiru::runtime::{lexer::Lexer, position::Position};
+use chiru::runtime::lexer::Lexer;
 
 pub struct ChiruLexer<'a> {
-  pub input: &'a str, // 输入文本 持有文本的不可变引用
+  pub input: &'a str, 
 
-  // 错误监听器列表
   pub error_listeners: Vec<Box<dyn ErrorListener>>,
 }
 
-
-// 使用模板生成正则列表和token名称列表
 lazy_static!{
-  static ref LEXER_META_LIST: [(Regex, usize, usize, &'static str, bool); 14] = [
-     (Regex::new(r####"^([a-z][a-zA-Z0-9_]+)"####).unwrap(), 2,0, "RULE_REF", false),
-     (Regex::new(r####"^([A-Z][a-zA-Z0-9_]+)"####).unwrap(), 3,0, "TOKEN_REF", false),
-     (Regex::new(r####"^(::=|:=|->|=>|:|=)"####).unwrap(), 4,0, "COLON", false),
-     (Regex::new(r####"^(;)"####).unwrap(), 5,0, "SEMI", false),
-     (Regex::new(r####"^(\|)"####).unwrap(), 6,0, "OR", false),
-     (Regex::new(r####"^(ε|epsilon)"####).unwrap(), 7,0, "EPSILON", false),
-     (Regex::new(r####"^(\*)"####).unwrap(), 8,0, "STAR", false),
-     (Regex::new(r####"^(\+)"####).unwrap(), 9,0, "PLUS", false),
-     (Regex::new(r####"^(\?)"####).unwrap(), 10,0, "QUESTION", false),
-     (Regex::new(r####"^(\()"####).unwrap(), 11,0, "LPAREN", false),
-     (Regex::new(r####"^(\))"####).unwrap(), 12,0, "RPAREN", false),
-     (Regex::new(r####"^('([^\a\d\n\r\t\f\v\\']|(\\\\|\\'|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d)*')"####).unwrap(), 
-      13,0, "STRING_LITERAL", false),
-     (Regex::new(r####"^(/(\\/|[^/])+/)"####).unwrap(), 14,0, "REGULAR_LITERAL", false),
-     (Regex::new(r####"^([ \r\n\t\f]+)"####).unwrap(), 15,0, "WHITE_SPACE", true),
+  static ref LEXER_RULE_LIST: Vec<(Regex, usize, usize, &'static str, bool)> = vec![
+    
+    (Regex::new(r###"[a-z][a-zA-Z0-9_]*"###).unwrap(), 2, 0, "RULEREF", false),
+    
+    (Regex::new(r###"[A-Z][a-zA-Z0-9_]*"###).unwrap(), 3, 0, "TOKENREF", false),
+    
+    (Regex::new(r###"::=|:=|->|=>|:|="###).unwrap(), 4, 0, "COLON", false),
+    
+    (Regex::new(r###";"###).unwrap(), 5, 0, "SEMI", false),
+    
+    (Regex::new(r###"\|"###).unwrap(), 6, 0, "OR", false),
+    
+    (Regex::new(r###"ε|epsilon"###).unwrap(), 7, 0, "EPSILON", false),
+    
+    (Regex::new(r###"\*"###).unwrap(), 8, 0, "STAR", false),
+    
+    (Regex::new(r###"\+"###).unwrap(), 9, 0, "PLUS", false),
+    
+    (Regex::new(r###"\?"###).unwrap(), 10, 0, "QUESTION", false),
+    
+    (Regex::new(r###"\("###).unwrap(), 11, 0, "LPAREN", false),
+    
+    (Regex::new(r###"\)"###).unwrap(), 12, 0, "RPAREN", false),
+    
+    (Regex::new(r###"'((\\\\|\\'|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\'])*'"###).unwrap(), 13, 0, "STRINGLITERAL", false),
+    
+    (Regex::new(r#####"(?s)r###".*?"###"#####).unwrap(), 14, 0, "REGULARLITERAL", false),
+    
+    (Regex::new(r###"[ \r\n\t\f]+"###).unwrap(), 15, 0, "WHITESPACE", false),
+    
   ];
 }
 
 
+
 impl<'a> ChiruLexer<'a> {
-  // 前两个是开始符号和结束符号
   pub const _START: usize = 0;
   pub const _STOP: usize = 1;
 
@@ -63,15 +70,12 @@ impl<'a> ChiruLexer<'a> {
   pub const REGULAR_LITERAL: usize = 14;
   pub const WHITE_SPACE: usize = 15;
 
-  
-
 
   pub fn new(input: &'a str) -> Self {
-
-    ChiruLexer { 
+    Self { 
       input, 
-      // 默认情况下，添加一个 ConsoleErrorListener
-      error_listeners: vec![Box::new(ConsoleErrorListener::new())],}
+      error_listeners: vec![Box::new(ConsoleErrorListener::new())],
+    }
   }
 
   // 考虑是否放入 trait 中
@@ -84,15 +88,14 @@ impl<'a> ChiruLexer<'a> {
   }
 
 
-  // 定义一些私有函数
+
 }
-
-
 
 
 impl Lexer for ChiruLexer<'_> {
   fn iter(&self) -> TokenIter {
-    TokenIter::new(self.input, &LEXER_META_LIST[..], &self.error_listeners)
+    TokenIter::new(self.input, &LEXER_RULE_LIST, &self.error_listeners)
   }
 }
+
 

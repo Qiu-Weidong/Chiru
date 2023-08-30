@@ -1,5 +1,7 @@
 
 
+
+
 use regex::Regex;
 
 use crate::runtime::error_strategy::error_listener::{ErrorListener, ConsoleErrorListener};
@@ -16,7 +18,7 @@ pub struct SyntaxisLexer<'a> {
 
 // 使用模板生成正则列表和token名称列表
 lazy_static!{
-  static ref LEXER_META_LIST: [(Regex, usize, usize, &'static str, bool); 14] = [
+  static ref LEXER_RULE_LIST: Vec<(Regex, usize, usize, &'static str, bool)> = vec![
     (Regex::new(r####"[a-z][a-zA-Z0-9_]*"####).unwrap(), 2,0, "RULE_REF", false),
     (Regex::new(r####"[A-Z][a-zA-Z0-9_]*"####).unwrap(), 3,0, "TOKEN_REF", false),
     (Regex::new(r####"::=|:=|->|=>|:|="####).unwrap(), 4,0, "COLON", false),
@@ -89,7 +91,7 @@ impl<'a> SyntaxisLexer<'a> {
 
 impl Lexer for SyntaxisLexer<'_> {
   fn iter(&self) -> TokenIter {
-    TokenIter::new(self.input, &LEXER_META_LIST[..], &self.error_listeners)
+    TokenIter::new(self.input, &LEXER_RULE_LIST, &self.error_listeners)
   }
 }
 
