@@ -101,7 +101,7 @@ fn main() {
 
   let grammar = grammar_visitor.grammar;
 
-  // println!("{}", grammar)
+  // println!("{:?}", grammar.vocabulary.nonterminals);
 
   // 根据产生式构造 ast
 

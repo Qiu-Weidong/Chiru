@@ -67,7 +67,7 @@ impl {{name}}Parser {
         error_listeners: vec![Box::new(ConsoleErrorListener::new()),], 
         table: &LL1_TABLE, 
         productions: &PRODUCTIONS, 
-        rule_names: &TERMINALS, 
+        rule_names: &NONTERMINALS, 
         sync: &SYNC, 
       }
     }

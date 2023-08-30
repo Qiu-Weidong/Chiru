@@ -8,7 +8,7 @@ pub mod context_gen;
 pub mod listener_gen;
 
 
-use serde::Serialize;
+
 
 lazy_static! {
   pub static ref TEMPLATES: Tera = {
@@ -18,23 +18,6 @@ lazy_static! {
   };
 }
 
-
-#[derive(Serialize)]
-pub struct RuleRenderContext {
-  pub pascal: String,
-  pub underscore: String,
-  pub upcase: String,
-  pub rule_index: usize,
-
-  pub items: Vec<RuleRenderItem>,
-}
-
-#[derive(Serialize)]
-pub struct RuleRenderItem {
-  pub pascal: String,
-  pub underscore: String,
-  pub upcase: String,
-}
 
 
 pub fn pascal(input: &str) -> String {

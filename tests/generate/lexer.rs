@@ -16,34 +16,20 @@ pub struct ChiruLexer<'a> {
 lazy_static!{
   static ref LEXER_RULE_LIST: Vec<(Regex, usize, usize, &'static str, bool)> = vec![
     
-    (Regex::new(r###"[a-z][a-zA-Z0-9_]*"###).unwrap(), 2, 0, "RULEREF", false),
-    
-    (Regex::new(r###"[A-Z][a-zA-Z0-9_]*"###).unwrap(), 3, 0, "TOKENREF", false),
-    
-    (Regex::new(r###"::=|:=|->|=>|:|="###).unwrap(), 4, 0, "COLON", false),
-    
-    (Regex::new(r###";"###).unwrap(), 5, 0, "SEMI", false),
-    
-    (Regex::new(r###"\|"###).unwrap(), 6, 0, "OR", false),
-    
-    (Regex::new(r###"ε|epsilon"###).unwrap(), 7, 0, "EPSILON", false),
-    
-    (Regex::new(r###"\*"###).unwrap(), 8, 0, "STAR", false),
-    
-    (Regex::new(r###"\+"###).unwrap(), 9, 0, "PLUS", false),
-    
-    (Regex::new(r###"\?"###).unwrap(), 10, 0, "QUESTION", false),
-    
-    (Regex::new(r###"\("###).unwrap(), 11, 0, "LPAREN", false),
-    
-    (Regex::new(r###"\)"###).unwrap(), 12, 0, "RPAREN", false),
-    
-    (Regex::new(r###"'((\\\\|\\'|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\'])*'"###).unwrap(), 13, 0, "STRINGLITERAL", false),
-    
-    (Regex::new(r#####"(?s)r###".*?"###"#####).unwrap(), 14, 0, "REGULARLITERAL", false),
-    
-    (Regex::new(r###"[ \r\n\t\f]+"###).unwrap(), 15, 0, "WHITESPACE", false),
-    
+    (Regex::new(r###"[a-z][a-zA-Z0-9_]*"###).unwrap(), 2, 0, "RULEREF", false), 
+    (Regex::new(r###"[A-Z][a-zA-Z0-9_]*"###).unwrap(), 3, 0, "TOKENREF", false), 
+    (Regex::new(r###"::=|:=|->|=>|:|="###).unwrap(), 4, 0, "COLON", false), 
+    (Regex::new(r###";"###).unwrap(), 5, 0, "SEMI", false), 
+    (Regex::new(r###"\|"###).unwrap(), 6, 0, "OR", false), 
+    (Regex::new(r###"ε|epsilon"###).unwrap(), 7, 0, "EPSILON", false), 
+    (Regex::new(r###"\*"###).unwrap(), 8, 0, "STAR", false), 
+    (Regex::new(r###"\+"###).unwrap(), 9, 0, "PLUS", false), 
+    (Regex::new(r###"\?"###).unwrap(), 10, 0, "QUESTION", false), 
+    (Regex::new(r###"\("###).unwrap(), 11, 0, "LPAREN", false), 
+    (Regex::new(r###"\)"###).unwrap(), 12, 0, "RPAREN", false), 
+    (Regex::new(r###""((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*""###).unwrap(), 13, 0, "STRINGLITERAL", false), 
+    (Regex::new(r#####"(?s)r###".*?"###"#####).unwrap(), 14, 0, "REGULARLITERAL", false), 
+    (Regex::new(r###"[ \r\n\t\f]+"###).unwrap(), 15, 0, "WHITESPACE", true), 
   ];
 }
 
