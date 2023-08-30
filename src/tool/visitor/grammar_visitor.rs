@@ -43,7 +43,7 @@ impl GrammarVisitor {
       grammar.vocabulary.add_named_nonterminal(*id, name);
     });
 
-    let next_rule_id = *parser_rule_map.values().max().unwrap_or(&0);
+    let next_rule_id = *parser_rule_map.values().max().unwrap_or(&0) + 1;
 
     Self { 
       grammar, 
