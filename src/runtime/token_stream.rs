@@ -59,7 +59,7 @@ impl<'a> TokenStream<'a> {
       return Err(Error::create_error_without_location(ErrorKind::Unknown, "look_ahead should gt 0"));
     }
     else if n == 1 {
-      return self.peer_next_token();
+      return self.peek_next_token();
     }
     else {
       let n = n - 2;
@@ -67,12 +67,7 @@ impl<'a> TokenStream<'a> {
         // 需要再获取 n - len + 1 个 token
         for _ in 0..(n - self.cached_tokens.len() + 2) {
           let next_token = loop {
-            let next_token = match self.iter.next() {
-              Some(next_token) => next_token,
-  
-              // 如果 lexer 扫描不到 token，则将 next_token 设置为 stop 。
-              None => Token::new(1, "_STOP", "_STOP", self.iter.position, self.iter.position, self.iter.token_index, self.channel, self.iter.cursor, self.iter.cursor),
-            };
+            let next_token = self.iter.lexer_match()?;
             if next_token.channel == self.channel {
               break next_token;
             }
@@ -101,14 +96,14 @@ impl<'a> TokenStream<'a> {
     Ok(self.consumed_tokens[self.consumed_tokens.len() - n].clone())
   }
 
-  pub fn peer_next_token(&self) -> Result<Token, Error> {
+  pub fn peek_next_token(&self) -> Result<Token, Error> {
     match &self.next_token {
       Some(next_token) => Ok(next_token.clone()),
       None => Err(Error::create_error_without_location(ErrorKind::TokenStreamOutOfRange, "msg")),
     }
   }
 
-  pub fn peer_previous_token(&self) -> Result<Token, Error> {
+  pub fn peek_previous_token(&self) -> Result<Token, Error> {
     match self.consumed_tokens.back() {
       Some(token) => Ok(token.clone()),
       None => Err(Error::create_error_without_location(ErrorKind::ConsumedTokenExhausted, "msg")),
@@ -157,11 +152,17 @@ impl Iterator for TokenStream<'_> {
       }
       else  {
         let next_token = loop {
-          let next_token = match self.iter.next() {
-            Some(next_token) => next_token,
+          let next_token = match self.iter.lexer_match() {
+            Ok(next_token) => next_token,
 
             // 如果 lexer 扫描不到 token，则将 next_token 设置为 stop 。
-            None => Token::new(1, "_STOP", "_STOP", self.iter.position, self.iter.position, self.iter.token_index, self.channel, self.iter.cursor, self.iter.cursor),
+            Err(_) => Token::new(1, "_STOP", "_STOP", 
+              self.iter.position, 
+              self.iter.position, 
+              self.iter.token_index, 
+              self.channel, 
+              self.iter.cursor, 
+              self.iter.cursor),
           };
           if next_token.channel == self.channel {
             break next_token;

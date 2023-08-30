@@ -37,7 +37,7 @@ impl LL1 {
     // 获取 production_id
     let production_id = loop {
       // 先查看一下下一个token是什么
-      let token = token_stream.peer_next_token().unwrap();
+      let token = token_stream.peek_next_token().unwrap();
 
       if let Some(production_id) = self.table.get(&(rule_index, token.token_type)) {
         break *production_id;
@@ -63,7 +63,7 @@ impl LL1 {
     
     
     for child in production.right.iter() {
-      let token = token_stream.peer_next_token().unwrap();
+      let token = token_stream.peek_next_token().unwrap();
 
       match child {
         ProductionItem::NonTerminal(rule_id) => {

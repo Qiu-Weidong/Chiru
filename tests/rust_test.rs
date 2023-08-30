@@ -1,31 +1,55 @@
+use std::ops::Range;
 
 
-// 专门用来确认语法特性
-use regex::Regex;
+
 
 #[test]
 fn rust_test() {
-  // let re = Regex::new(r####"r(#*)".*?"\\1"####).unwrap();
-
-  // let input = r#####################"rule_list, foo, RTE, kkkk;
-  // r#"xxx"#
-  // "#####################;
 
 
+  let input = r#####################"
 
-  // println!("{}", re.is_match(input));
+
+  fn main() {
+    let mut value = 42;
+
+    let mut closure = || {
+        value += 1;
+        println!("The value is: {}", value);
+    };
+
+    closure();
+
+    value += 1;
+    closure();
+  }
+  
+  
+  
+  "#####################;
 
 
-  // for mat in re.find_iter(input) {
-  //   println!("{}", &input[mat.start()..mat.end()])
-  // }
 
-  let re = Regex::new(r"(a*)b$1").unwrap();
-  let text = r"aab$1";
-  if re.is_match(text) {
-    println!("Pattern matched!");
-  } else {
-    println!("不匹配");
+  input.split("\n").for_each(|f| {
+    print!("{}, ", f.len())
+  });
+
+  // let r: &Range<usize> = &(0..4);
+  // let s = &input[*r];
+
+
+  let mut st = 0;
+
+  let ranges = input.split("\n").map(|f| {
+    let ed = st + f.len();
+    let ret = st..ed;
+    st = ed + 1;
+    ret
+  }).collect::<Vec<_>>();
+
+  println!("");
+  for (index, range) in ranges.iter().enumerate() {
+    println!("line {}: {}", index, &input[range.start..range.end])
   }
   
 }

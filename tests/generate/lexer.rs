@@ -92,15 +92,7 @@ impl<'a> ChiruLexer<'a> {
 
 impl Lexer for ChiruLexer<'_> {
   fn iter(&self) -> TokenIter {
-    TokenIter {
-      input: self.input,
-      rules: &LEXER_META_LIST[..],
-      error_listeners: &self.error_listeners,
-      
-      cursor: 0,
-      token_index: 1,
-      position: Position { line: 0, char_position: 0 },
-    }
+    TokenIter::new(self.input, &LEXER_META_LIST[..], &self.error_listeners)
   }
 }
 
