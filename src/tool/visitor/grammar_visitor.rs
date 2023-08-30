@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use crate::tool::{grammar::{Grammar, production::{ProductionItem, Production}}, syntaxis::{syntaxis_visitor::SyntaxisVisitor, syntaxis_context::{ElementContext, LexerRuleContext, ParserRuleContext, BlockContext}}};
+use crate::tool::{grammar::{Grammar, production::{ProductionItem, Production}}, syntaxis::{syntaxis_visitor::SyntaxisVisitor, syntaxis_context::{ElementContext, ParserRuleContext, BlockContext}}};
 
 use super::lexer_rule::LexerRule;
 

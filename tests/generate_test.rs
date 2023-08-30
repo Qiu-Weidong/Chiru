@@ -1,4 +1,4 @@
-use chiru::{runtime::{lexer::Lexer, token_stream::TokenStream}, tool::gui::ast_drawer::ASTDrawer};
+use chiru::{runtime::token_stream::TokenStream, tool::gui::ast_drawer::ASTDrawer};
 use generate::parser::ChiruParser;
 
 
@@ -29,8 +29,11 @@ fn generate_test() {
   ebnf_suffix: (STAR | PLUS | QUESTION) QUESTION?;
 
 
-  lexer_rule: TOKEN_REF COLON regular SEMI;
+  lexer_rule: attribute ? TOKEN_REF COLON regular SEMI;
   regular: REGULAR_LITERAL;
+  attribute: AT (TOKEN_REF|RULE_REF) ( LPAREN (TOKEN_REF | RULE_REF) RPAREN )?
+    | SHARP LBRACKET  RBRACKET
+  ;
 
   RULE_REF: r###"[a-z][a-zA-Z0-9_]*"###;
   TOKEN_REF: r###"[A-Z][a-zA-Z0-9_]*"###;
@@ -43,6 +46,10 @@ fn generate_test() {
   QUESTION: r###"\?"###;
   LPAREN: r###"\("###;
   RPAREN: r###"\)"###;
+  AT: r###"@"###;
+  SHARP: r###"#"###;
+  LBRACKET: r###"\["###;
+  RBRACKET: r###"\]"###;
   STRING_LITERAL: r###""((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*""###;
   REGULAR_LITERAL: r###"(?s)r##".*?"##"###;
   WHITE_SPACE: r###"[ \r\n\t\f]+"###;

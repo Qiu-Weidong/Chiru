@@ -241,7 +241,7 @@ lazy_static!{
   };
 }
 
-
+#[allow(dead_code)]
 impl ChiruParser {
 
   // 使用模板生成 每个非终结符的编号

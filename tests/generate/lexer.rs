@@ -34,7 +34,7 @@ lazy_static!{
 }
 
 
-
+#[allow(dead_code)]
 impl<'a> ChiruLexer<'a> {
   pub const _START: usize = 0;
   pub const _STOP: usize = 1;
