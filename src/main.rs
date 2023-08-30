@@ -23,10 +23,10 @@
 
 use std::{fs::File, io::Write};
 
-use chiru::{tool::{visitor::{grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor}, 
-lexer_rule_visitor::LexerRuleData}, 
+use chiru::{tool::{visitor::{grammar_visitor::{SymbolVisitor, ProductionVisitor}, 
+lexer_rule_visitor::LexerRuleData, lexer_visitor::StringLiteralToTokenVisitor}, 
 grammar::Grammar, syntaxis::{syntaxis_context::RuleListContext, syntaxis_parser::SyntaxisParser, syntaxis_lexer::SyntaxisLexer}, 
-code_gen::{parser_gen::parser_generate, listener_gen::listener_generate, visitor_gen::generate_visitor}}, 
+code_gen::visitor_gen::generate_visitor}, 
 runtime::{token_stream::TokenStream, ast::rule_context::RuleContext}};
 
 
@@ -115,33 +115,34 @@ pub fn load_grammar(ast: &RuleContext) -> (Grammar, Vec<LexerRuleData>) {
 
 
   let mut grammar = Grammar::new("Chiru");
-  let token_cnt;
-  let data;
-  {
-    let mut visitor = StringLiteralToTokenVisitor::new(
-      &mut grammar, 2
-    );
+  // let token_cnt;
+  // let data;
+  // {
+  //   let mut visitor = StringLiteralToTokenVisitor::new(
+  //     &mut grammar, 2
+  //   );
 
-    ast.accept(&mut visitor);
-    token_cnt = visitor.next_token_id;
-    data = visitor.data;
-  }
+  //   ast.accept(&mut visitor);
+  //   token_cnt = visitor.next_token_id;
+  //   data = visitor.data;
+  // }
   
-  let rule_cnt; 
-  let lexer_data;
-  {
-    let mut visitor = SymbolVisitor::new(&mut grammar, token_cnt, 0, data);
-    ast.accept(&mut visitor);
-    rule_cnt = visitor.next_rule_id;
-    lexer_data = visitor.data;
-  }
+  // let rule_cnt; 
+  // let lexer_data;
+  // {
+  //   let mut visitor = SymbolVisitor::new(&mut grammar, token_cnt, 0, data);
+  //   ast.accept(&mut visitor);
+  //   rule_cnt = visitor.next_rule_id;
+  //   lexer_data = visitor.data;
+  // }
 
-  {
-    let mut visitor = ProductionVisitor::new(&mut grammar, rule_cnt);
-    ast.accept(&mut visitor);
-  }
+  // {
+  //   let mut visitor = ProductionVisitor::new(&mut grammar, rule_cnt);
+  //   ast.accept(&mut visitor);
+  // }
 
-  (grammar, lexer_data)
+  // (grammar, lexer_data)
+  todo!()
 
 }
 

@@ -7,19 +7,15 @@ use crate::tool::syntaxis::{syntaxis_visitor::SyntaxisVisitor, syntaxis_context:
 
 
 // 这个 visitor 负责处理 lexer。
-/**
- * {
- *   token_type: number,
- *   token_name: string,
- *   regex: Regex,
- * }
- */
 
 #[derive(Debug, Serialize)]
 pub struct LexerRuleData {
   pub token_type: usize,
   pub token_name: String,
   pub regex: String,
+
+  pub channel: usize,
+  pub skip: bool,
 }
 
 
@@ -40,13 +36,14 @@ impl SyntaxisVisitor for LexerRuleVisitor {
     }
 
     let regular = &ctx.regular().unwrap().regular_literal().unwrap().symbol.text; // .replace("\\/", "/");
-    if regular.len() < 2 {
-      println!("非法正则表达式");
-      return self.default_result();
-    }
 
-    let regular = &regular[1..regular.len()-1].replace("\\/", "/");
-    self.data.push( LexerRuleData { token_type: self.next_token_type, token_name: name.to_owned(), regex: format!("^({})", regular) });
+    self.data.push( LexerRuleData { 
+      token_type: self.next_token_type, 
+      token_name: name.to_owned(), 
+      regex: regular.to_owned(),
+      skip: false,
+      channel: 0,
+    });
     self.next_token_type += 1;
     
     self.default_result()
@@ -64,43 +61,68 @@ impl LexerRuleVisitor {
 }
 
 
-pub struct StringLiteralVisitor {
-  pub data: Vec<LexerRuleData>,
-  pub next_token_type: usize, // 注意初始化为 2
-  pub cache: HashSet<String>,
-}
-
-impl SyntaxisVisitor for StringLiteralVisitor {
-  fn visit_terminal(&mut self, terminal: &crate::runtime::ast::terminal_context::TerminalContext) -> Box<dyn Any> {
-    if terminal.symbol.token_type == SyntaxisLexer::STRING_LITERAL {
-      let name = &terminal.symbol.text;
-      if self.cache.contains(name) {
-        return self.default_result();
-      }
-
-      self.cache.insert(name.to_string());
 
 
-      // abc  ab\n
-      let literal = &name[1..name.len()-1]
-        .replace("\\n", "\n").replace("\\t", "\t").replace("\\\\", "\\")
-        .replace("\\r", "\r").replace("\\'", "\'").replace("+", "\\+")
-        .replace("*", "\\*")
-      ;
 
-      self.data.push( LexerRuleData {token_type: self.next_token_type, token_name: format!("T_{}", self.next_token_type), regex: format!("^({})", literal) });
-      self.next_token_type += 1;
-    }
-    self.default_result()
-  }
-}
 
-impl StringLiteralVisitor {
-  pub fn new() -> Self {
-    Self {
-      data: Vec::new(),
-      next_token_type: 2,
-      cache: HashSet::new(),
-    }
-  }
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// pub struct StringLiteralVisitor {
+//   pub data: Vec<LexerRuleData>,
+//   pub next_token_type: usize, // 注意初始化为 2
+//   pub cache: HashSet<String>,
+// }
+
+// impl SyntaxisVisitor for StringLiteralVisitor {
+//   fn visit_terminal(&mut self, terminal: &crate::runtime::ast::terminal_context::TerminalContext) -> Box<dyn Any> {
+//     if terminal.symbol.token_type == SyntaxisLexer::STRING_LITERAL {
+//       let name = &terminal.symbol.text;
+//       if self.cache.contains(name) {
+//         return self.default_result();
+//       }
+
+//       self.cache.insert(name.to_string());
+
+
+//       // abc  ab\n
+//       let literal = &name[1..name.len()-1]
+//         .replace("\\n", "\n").replace("\\t", "\t").replace("\\\\", "\\")
+//         .replace("\\r", "\r").replace("\\'", "\'").replace("+", "\\+")
+//         .replace("*", "\\*")
+//       ;
+
+//       self.data.push( LexerRuleData {
+//         token_type: self.next_token_type, 
+//         token_name: format!("T_{}", self.next_token_type), 
+//         regex: format!("^({})", literal),
+//         skip: false,
+//         channel: 0, 
+//       });
+//       self.next_token_type += 1;
+//     }
+//     self.default_result()
+//   }
+// }
+
+// impl StringLiteralVisitor {
+//   pub fn new() -> Self {
+//     Self {
+//       data: Vec::new(),
+//       next_token_type: 2,
+//       cache: HashSet::new(),
+//     }
+//   }
+// }

@@ -1,6 +1,6 @@
 use std::{fs::File, io::Write};
 
-use chiru::{tool::{syntaxis::{syntaxis_lexer::SyntaxisLexer, syntaxis_parser::SyntaxisParser}, grammar::Grammar, visitor::grammar_visitor::{StringLiteralToTokenVisitor, SymbolVisitor, ProductionVisitor}, code_gen::parser_gen::parser_generate}, runtime::token_stream::TokenStream};
+use chiru::{tool::{syntaxis::{syntaxis_lexer::SyntaxisLexer, syntaxis_parser::SyntaxisParser}, grammar::Grammar, visitor::grammar_visitor::{SymbolVisitor, ProductionVisitor}, code_gen::parser_gen::parser_generate}, runtime::token_stream::TokenStream};
 
 
 #[macro_use]
@@ -54,42 +54,42 @@ fn generate_test() {
   let mut file = File::create("tests/generate/parser.rs").unwrap();
 
 
-  let lexer = SyntaxisLexer::new(input);
+  // let lexer = SyntaxisLexer::new(input);
 
-  let mut stream = TokenStream::new(&lexer, 0);
+  // let mut stream = TokenStream::new(&lexer, 0);
 
-  stream.consume().unwrap(); // 注意要先将 _START 消耗掉
-  let parser = SyntaxisParser::new();
-  let ast = parser.rule_list(&mut stream);
+  // stream.consume().unwrap(); // 注意要先将 _START 消耗掉
+  // let parser = SyntaxisParser::new();
+  // let ast = parser.rule_list(&mut stream);
 
-  let mut grammar = Grammar::new("Chiru");
-  let token_cnt;
-  let data;
-  {
-    let mut visitor = StringLiteralToTokenVisitor::new(
-      &mut grammar, 2
-    );
+  // let mut grammar = Grammar::new("Chiru");
+  // let token_cnt;
+  // let data;
+  // {
+  //   let mut visitor = StringLiteralToTokenVisitor::new(
+  //     &mut grammar, 2
+  //   );
 
-    ast.accept(&mut visitor);
-    token_cnt = visitor.next_token_id;
-    data = visitor.data;
-  }
+  //   ast.accept(&mut visitor);
+  //   token_cnt = visitor.next_token_id;
+  //   data = visitor.data;
+  // }
   
-  let rule_cnt; 
-  let lexer_data;
-  {
-    let mut visitor = SymbolVisitor::new(&mut grammar, token_cnt, 0, data);
-    ast.accept(&mut visitor);
-    rule_cnt = visitor.next_rule_id;
-    lexer_data = visitor.data;
-  }
+  // let rule_cnt; 
+  // let lexer_data;
+  // {
+  //   let mut visitor = SymbolVisitor::new(&mut grammar, token_cnt, 0, data);
+  //   ast.accept(&mut visitor);
+  //   rule_cnt = visitor.next_rule_id;
+  //   lexer_data = visitor.data;
+  // }
 
-  {
-    let mut visitor = ProductionVisitor::new(&mut grammar, rule_cnt);
-    ast.accept(&mut visitor);
-  }
+  // {
+  //   let mut visitor = ProductionVisitor::new(&mut grammar, rule_cnt);
+  //   ast.accept(&mut visitor);
+  // }
 
-  file.write(parser_generate(grammar).as_bytes()).unwrap();
+  // file.write(parser_generate(grammar).as_bytes()).unwrap();
 
 
   
