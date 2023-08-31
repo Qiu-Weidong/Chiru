@@ -37,21 +37,30 @@ impl ContextVisitor {
 
 impl SyntaxisVisitor for ContextVisitor {
   fn visit_rule_list(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::RuleListContext) -> Box<dyn std::any::Any> {
+    // println!("visit_rule_list");
+
     // 只需要访问 parser_rule
     ctx.parser_rule_list().iter().for_each(|ctx|  { ctx.accept(self); } );
     self.default_result()
   }
 
   fn visit_parser_rule(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::ParserRuleContext) -> Box<dyn std::any::Any> {
+    // println!("visit_parser_rule,  {} {}", ctx.as_rule().rule_index, ctx.as_rule().rule_name);
+    let name = &ctx.rule_ref().unwrap().symbol.text;
+
+    let id = *self.nonterminals.get(name).unwrap();
+    
     // 解析并填表
-    let rule_id = ctx.as_rule().rule_index;
     let result = ctx.block().unwrap().accept(self).downcast::<(HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>().unwrap();
-    self.table.insert(rule_id, *result);
+    self.table.insert(id, *result);
     self.default_result()
   }
 
   // 返回一个 hashset 的元组 (terminal_list, terminal, nonterminal_list, nonterminal) : (HashSet<usize>, ...)
   fn visit_block(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::BlockContext) -> Box<dyn std::any::Any> {
+    // println!("visit_block");
+
+
     let mut result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = (HashSet::new(), HashSet::new(), HashSet::new(), HashSet::new());
       
     ctx.alternative_list().iter().for_each(|v| {
@@ -65,6 +74,9 @@ impl SyntaxisVisitor for ContextVisitor {
   }
 
   fn visit_alternative(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::AlternativeContext) -> Box<dyn std::any::Any> {
+    // println!("visit_alternative");
+
+
     let mut result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = (HashSet::new(), HashSet::new(), HashSet::new(), HashSet::new());
     
     ctx.element_list().iter().for_each(|elem| {
@@ -97,6 +109,7 @@ impl SyntaxisVisitor for ContextVisitor {
 
   // (terminal_list, terminal, nonterminal_list, nonterminal)
   fn visit_element(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::ElementContext) -> Box<dyn std::any::Any> {
+    // println!("visit_element");
 
     if let Some(token) = ctx.token_ref() {
       let name = &token.symbol.text;

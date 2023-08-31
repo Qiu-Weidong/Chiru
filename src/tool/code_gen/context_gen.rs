@@ -17,12 +17,12 @@ fn ctx_gen(grammar: &Grammar, rule_id: usize, ctx: (HashSet<usize>, HashSet<usiz
 
   // 首先将 HashSet 转换为 vec
   let terminal_list = ctx.0.iter().map(|id| {
-    let name = vocabulary.get_nonterminal_name_by_id(*id).unwrap();
+    let name = vocabulary.get_terminal_name_by_id(*id).unwrap();
     (name.to_lowercase(), name.to_uppercase(), pascal(&name))
   }).collect::<Vec<_>>();
 
   let terminal = ctx.1.iter().map(|id| {
-    let name = vocabulary.get_nonterminal_name_by_id(*id).unwrap();
+    let name = vocabulary.get_terminal_name_by_id(*id).unwrap();
     (name.to_lowercase(), name.to_uppercase(), pascal(&name))
   }).collect::<Vec<_>>();
 
@@ -76,8 +76,17 @@ pub fn context_generate(grammar: &Grammar, ast: &dyn RuleListContext) -> String 
 
   let table = visitor.table;
 
+  println!("{:?}",table);
 
   let nonterminals = grammar.vocabulary.get_all_named_nonterminals();
+
+  nonterminals.iter().for_each(|x| {
+    if ! table.contains_key(x) {
+      println!("{} {}", x, grammar.vocabulary.get_nonterminal_name_by_id(*x).unwrap())
+    }
+  });
+
+
 
   let ctx_list = nonterminals.iter()
     .map(|id| { 

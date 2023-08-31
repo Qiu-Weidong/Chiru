@@ -111,11 +111,11 @@ fn main() {
 
   let grammar = grammar_visitor.grammar;
 
-  println!("{}", grammar);
+  // println!("{}", grammar);
 
   // 根据产生式构造 ast
 
-  // 生成 visitor 
+  // 生成 visitor 暂不写入文件
   let mut file = File::create("tests/generate/visitor.rs").unwrap();
   file.write(generate_visitor(&grammar).as_bytes()).unwrap();
 
@@ -132,7 +132,6 @@ fn main() {
 
   let mut file = File::create("tests/generate/context.rs").unwrap();
   file.write(context_generate(&grammar, ast.as_ref()).as_bytes()).unwrap();
-  
 
 }
 
