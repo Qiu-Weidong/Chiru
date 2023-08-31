@@ -4,41 +4,13 @@ use chiru::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext, er
 
 use super::{
   context::{
-    BlockContext,LexerRuleContext,RuleListContext,EbnfSuffixContext,EpsilonContext,RegularContext,AttributeContext,ElementContext,AttributeListContext,AnnotationContext,AlternativeContext,ParserRuleContext,
+    ElementContext,AttributeListContext,AnnotationContext,BlockContext,RegularContext,AlternativeContext,ParserRuleContext,LexerRuleContext,EpsilonContext,EbnfSuffixContext,RuleListContext,AttributeContext,
   },
   parser::ChiruParser, 
 };
 
 
 pub trait ChiruVisitor {
-  
-  fn visit_block(&mut self, ctx: &dyn BlockContext) -> Box<dyn Any> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_lexer_rule(&mut self, ctx: &dyn LexerRuleContext) -> Box<dyn Any> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_rule_list(&mut self, ctx: &dyn RuleListContext) -> Box<dyn Any> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_ebnf_suffix(&mut self, ctx: &dyn EbnfSuffixContext) -> Box<dyn Any> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_epsilon(&mut self, ctx: &dyn EpsilonContext) -> Box<dyn Any> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_regular(&mut self, ctx: &dyn RegularContext) -> Box<dyn Any> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_attribute(&mut self, ctx: &dyn AttributeContext) -> Box<dyn Any> {
-    self.visit_children(ctx.as_rule())
-  }
   
   fn visit_element(&mut self, ctx: &dyn ElementContext) -> Box<dyn Any> {
     self.visit_children(ctx.as_rule())
@@ -52,6 +24,14 @@ pub trait ChiruVisitor {
     self.visit_children(ctx.as_rule())
   }
   
+  fn visit_block(&mut self, ctx: &dyn BlockContext) -> Box<dyn Any> {
+    self.visit_children(ctx.as_rule())
+  }
+  
+  fn visit_regular(&mut self, ctx: &dyn RegularContext) -> Box<dyn Any> {
+    self.visit_children(ctx.as_rule())
+  }
+  
   fn visit_alternative(&mut self, ctx: &dyn AlternativeContext) -> Box<dyn Any> {
     self.visit_children(ctx.as_rule())
   }
@@ -60,23 +40,43 @@ pub trait ChiruVisitor {
     self.visit_children(ctx.as_rule())
   }
   
+  fn visit_lexer_rule(&mut self, ctx: &dyn LexerRuleContext) -> Box<dyn Any> {
+    self.visit_children(ctx.as_rule())
+  }
+  
+  fn visit_epsilon(&mut self, ctx: &dyn EpsilonContext) -> Box<dyn Any> {
+    self.visit_children(ctx.as_rule())
+  }
+  
+  fn visit_ebnf_suffix(&mut self, ctx: &dyn EbnfSuffixContext) -> Box<dyn Any> {
+    self.visit_children(ctx.as_rule())
+  }
+  
+  fn visit_rule_list(&mut self, ctx: &dyn RuleListContext) -> Box<dyn Any> {
+    self.visit_children(ctx.as_rule())
+  }
+  
+  fn visit_attribute(&mut self, ctx: &dyn AttributeContext) -> Box<dyn Any> {
+    self.visit_children(ctx.as_rule())
+  }
+  
 
   
   fn visit(&mut self, ast: &RuleContext) -> Box<dyn Any> {
     match ast.get_rule_index() {
       
-      ChiruParser::BLOCK => self.visit_block(ast),
-      ChiruParser::LEXER_RULE => self.visit_lexer_rule(ast),
-      ChiruParser::RULE_LIST => self.visit_rule_list(ast),
-      ChiruParser::EBNF_SUFFIX => self.visit_ebnf_suffix(ast),
-      ChiruParser::EPSILON => self.visit_epsilon(ast),
-      ChiruParser::REGULAR => self.visit_regular(ast),
-      ChiruParser::ATTRIBUTE => self.visit_attribute(ast),
       ChiruParser::ELEMENT => self.visit_element(ast),
       ChiruParser::ATTRIBUTE_LIST => self.visit_attribute_list(ast),
       ChiruParser::ANNOTATION => self.visit_annotation(ast),
+      ChiruParser::BLOCK => self.visit_block(ast),
+      ChiruParser::REGULAR => self.visit_regular(ast),
       ChiruParser::ALTERNATIVE => self.visit_alternative(ast),
       ChiruParser::PARSER_RULE => self.visit_parser_rule(ast),
+      ChiruParser::LEXER_RULE => self.visit_lexer_rule(ast),
+      ChiruParser::EPSILON => self.visit_epsilon(ast),
+      ChiruParser::EBNF_SUFFIX => self.visit_ebnf_suffix(ast),
+      ChiruParser::RULE_LIST => self.visit_rule_list(ast),
+      ChiruParser::ATTRIBUTE => self.visit_attribute(ast),
 
       _ => self.visit_children(ast)
     }

@@ -21,7 +21,7 @@ lazy_static!{
 }
 
 
-
+#[allow(unused)]
 impl<'a> {{ grammar_name.2 }}Lexer<'a> {
   pub const _START: usize = 0;
   pub const _STOP: usize = 1;

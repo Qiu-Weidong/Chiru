@@ -52,7 +52,7 @@ lazy_static!{
   };
 }
 
-
+#[allow(unused)]
 impl {{name}}Parser {
 
   // 使用模板生成 每个非终结符的编号

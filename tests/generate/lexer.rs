@@ -33,13 +33,13 @@ lazy_static!{
     (Regex::new(r###"\["###).unwrap(), 16, 0, "LBRACKET", false), 
     (Regex::new(r###"\]"###).unwrap(), 17, 0, "RBRACKET", false), 
     (Regex::new(r###""((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*""###).unwrap(), 18, 0, "STRINGLITERAL", false), 
-    (Regex::new(r#####"(?s)r###".*?"###"#####).unwrap(), 19, 0, "REGULARLITERAL", false), 
-    (Regex::new(r###"[ \r\n\t\f]+"###).unwrap(), 20, 0, "WHITESPACE", true), 
+    (Regex::new(r###"(?s)r##".*?"##"###).unwrap(), 19, 0, "REGULARLITERAL", false), 
+    (Regex::new(r###"[ \r\n\t\f]+"###).unwrap(), 20, 0, "WHITESPACE", false), 
   ];
 }
 
 
-
+#[allow(unused)]
 impl<'a> ChiruLexer<'a> {
   pub const _START: usize = 0;
   pub const _STOP: usize = 1;
