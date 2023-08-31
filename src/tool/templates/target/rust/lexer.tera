@@ -16,7 +16,7 @@ pub struct {{ grammar_name.2 }}Lexer<'a> {
 lazy_static!{
   static ref LEXER_RULE_LIST: Vec<(Regex, usize, usize, &'static str, bool)> = vec![
     {% for lexer_rule in lexer_rule_list %}
-    (Regex::new({{ lexer_rule.4 }}).unwrap(), {{lexer_rule.3}}, {{lexer_rule.5}}, "{{ lexer_rule.2 }}", {{lexer_rule.6}}), {% endfor %}
+    (Regex::new({{ lexer_rule.4 }}).unwrap(), {{lexer_rule.3}}, {{lexer_rule.5}}, "{{ lexer_rule.1 }}", {{lexer_rule.6}}), {% endfor %}
   ];
 }
 

@@ -16,8 +16,8 @@ pub struct ChiruLexer<'a> {
 lazy_static!{
   static ref LEXER_RULE_LIST: Vec<(Regex, usize, usize, &'static str, bool)> = vec![
     
-    (Regex::new(r###"[a-z][a-zA-Z0-9_]*"###).unwrap(), 2, 0, "RULEREF", false), 
-    (Regex::new(r###"[A-Z][a-zA-Z0-9_]*"###).unwrap(), 3, 0, "TOKENREF", false), 
+    (Regex::new(r###"[a-z][a-zA-Z0-9_]*"###).unwrap(), 2, 0, "RULE_REF", false), 
+    (Regex::new(r###"[A-Z][a-zA-Z0-9_]*"###).unwrap(), 3, 0, "TOKEN_REF", false), 
     (Regex::new(r###"::=|:=|->|=>|:|="###).unwrap(), 4, 0, "COLON", false), 
     (Regex::new(r###";"###).unwrap(), 5, 0, "SEMI", false), 
     (Regex::new(r###","###).unwrap(), 6, 0, "COMMA", false), 
@@ -32,9 +32,9 @@ lazy_static!{
     (Regex::new(r###"#"###).unwrap(), 15, 0, "SHARP", false), 
     (Regex::new(r###"\["###).unwrap(), 16, 0, "LBRACKET", false), 
     (Regex::new(r###"\]"###).unwrap(), 17, 0, "RBRACKET", false), 
-    (Regex::new(r###""((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*""###).unwrap(), 18, 0, "STRINGLITERAL", false), 
-    (Regex::new(r###"(?s)r##".*?"##"###).unwrap(), 19, 0, "REGULARLITERAL", false), 
-    (Regex::new(r###"[ \r\n\t\f]+"###).unwrap(), 20, 0, "WHITESPACE", false), 
+    (Regex::new(r###""((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*""###).unwrap(), 18, 0, "STRING_LITERAL", false), 
+    (Regex::new(r###"(?s)r##".*?"##"###).unwrap(), 19, 0, "REGULAR_LITERAL", false), 
+    (Regex::new(r###"[ \r\n\t\f]+"###).unwrap(), 20, 0, "WHITE_SPACE", false), 
   ];
 }
 
