@@ -58,8 +58,6 @@ impl SyntaxisVisitor for ContextVisitor {
 
   // 返回一个 hashset 的元组 (terminal_list, terminal, nonterminal_list, nonterminal) : (HashSet<usize>, ...)
   fn visit_block(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::BlockContext) -> Box<dyn std::any::Any> {
-    // println!("visit_block");
-
 
     let mut result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = (HashSet::new(), HashSet::new(), HashSet::new(), HashSet::new());
       
@@ -73,37 +71,48 @@ impl SyntaxisVisitor for ContextVisitor {
     Box::new(result)
   }
 
+  // (terminal_list, terminal, nonterminal_list, nonterminal)
   fn visit_alternative(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::AlternativeContext) -> Box<dyn std::any::Any> {
-    // println!("visit_alternative");
-
-
     let mut result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = (HashSet::new(), HashSet::new(), HashSet::new(), HashSet::new());
     
-    ctx.element_list().iter().for_each(|elem| {
-      let ret = elem.accept(self).downcast::<(HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>().unwrap();
-      result.0.extend(&ret.0);
-      result.2.extend(&ret.2);
+    let children = ctx.element_list().iter().map(|elem| {
+      elem.accept(self).downcast::<(HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>().unwrap()
+    }).collect::<Vec<_>>();
 
-      // 先处理终结符
-      for terminal in ret.1.iter() { 
+    for child in children.iter() {
+      result.0.extend(&child.0);
+      result.2.extend(&child.2);
+    }
+
+    for child in children.iter() {
+      // // 先处理终结符
+      for terminal in child.1.iter() { 
         if result.1.contains(terminal) {
           result.0.insert(*terminal);
           result.1.remove(terminal);
-        } else {
+        } else if result.0.contains(terminal) {
+          continue;
+        } 
+        else {
           result.1.insert(*terminal);
         }
       }
 
       // 然后处理非终结符
-      for nonterminal in ret.3.iter() {
+      for nonterminal in child.3.iter() {
         if result.3.contains(nonterminal) {
           result.2.insert(*nonterminal);
           result.3.remove(nonterminal);
-        } else {
+        } else if result.2.contains(nonterminal) {
+          continue;
+        } 
+        else {
           result.3.insert(*nonterminal);
         }
       }
-    });
+    }
+
+
     Box::new(result)
   }
 
