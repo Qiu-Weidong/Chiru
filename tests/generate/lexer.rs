@@ -20,21 +20,26 @@ lazy_static!{
     (Regex::new(r###"[A-Z][a-zA-Z0-9_]*"###).unwrap(), 3, 0, "TOKENREF", false), 
     (Regex::new(r###"::=|:=|->|=>|:|="###).unwrap(), 4, 0, "COLON", false), 
     (Regex::new(r###";"###).unwrap(), 5, 0, "SEMI", false), 
-    (Regex::new(r###"\|"###).unwrap(), 6, 0, "OR", false), 
-    (Regex::new(r###"ε|epsilon"###).unwrap(), 7, 0, "EPSILON", false), 
-    (Regex::new(r###"\*"###).unwrap(), 8, 0, "STAR", false), 
-    (Regex::new(r###"\+"###).unwrap(), 9, 0, "PLUS", false), 
-    (Regex::new(r###"\?"###).unwrap(), 10, 0, "QUESTION", false), 
-    (Regex::new(r###"\("###).unwrap(), 11, 0, "LPAREN", false), 
-    (Regex::new(r###"\)"###).unwrap(), 12, 0, "RPAREN", false), 
-    (Regex::new(r###""((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*""###).unwrap(), 13, 0, "STRINGLITERAL", false), 
-    (Regex::new(r#####"(?s)r###".*?"###"#####).unwrap(), 14, 0, "REGULARLITERAL", false), 
-    (Regex::new(r###"[ \r\n\t\f]+"###).unwrap(), 15, 0, "WHITESPACE", true), 
+    (Regex::new(r###","###).unwrap(), 6, 0, "COMMA", false), 
+    (Regex::new(r###"\|"###).unwrap(), 7, 0, "OR", false), 
+    (Regex::new(r###"ε|epsilon"###).unwrap(), 8, 0, "EPSILON", false), 
+    (Regex::new(r###"\*"###).unwrap(), 9, 0, "STAR", false), 
+    (Regex::new(r###"\+"###).unwrap(), 10, 0, "PLUS", false), 
+    (Regex::new(r###"\?"###).unwrap(), 11, 0, "QUESTION", false), 
+    (Regex::new(r###"\("###).unwrap(), 12, 0, "LPAREN", false), 
+    (Regex::new(r###"\)"###).unwrap(), 13, 0, "RPAREN", false), 
+    (Regex::new(r###"@"###).unwrap(), 14, 0, "AT", false), 
+    (Regex::new(r###"#"###).unwrap(), 15, 0, "SHARP", false), 
+    (Regex::new(r###"\["###).unwrap(), 16, 0, "LBRACKET", false), 
+    (Regex::new(r###"\]"###).unwrap(), 17, 0, "RBRACKET", false), 
+    (Regex::new(r###""((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*""###).unwrap(), 18, 0, "STRINGLITERAL", false), 
+    (Regex::new(r###"(?s)r##".*?"##"###).unwrap(), 19, 0, "REGULARLITERAL", false), 
+    (Regex::new(r###"[ \r\n\t\f]+"###).unwrap(), 20, 0, "WHITESPACE", false), 
   ];
 }
 
 
-#[allow(dead_code)]
+
 impl<'a> ChiruLexer<'a> {
   pub const _START: usize = 0;
   pub const _STOP: usize = 1;
@@ -45,16 +50,21 @@ impl<'a> ChiruLexer<'a> {
   pub const TOKEN_REF: usize = 3;
   pub const COLON: usize = 4;
   pub const SEMI: usize = 5;
-  pub const OR: usize = 6;
-  pub const EPSILON: usize = 7;
-  pub const STAR: usize = 8;
-  pub const PLUS: usize = 9;
-  pub const QUESTION: usize = 10;
-  pub const LPAREN: usize = 11;
-  pub const RPAREN: usize = 12;
-  pub const STRING_LITERAL: usize = 13;
-  pub const REGULAR_LITERAL: usize = 14;
-  pub const WHITE_SPACE: usize = 15;
+  pub const COMMA: usize = 6;
+  pub const OR: usize = 7;
+  pub const EPSILON: usize = 8;
+  pub const STAR: usize = 9;
+  pub const PLUS: usize = 10;
+  pub const QUESTION: usize = 11;
+  pub const LPAREN: usize = 12;
+  pub const RPAREN: usize = 13;
+  pub const AT: usize = 14;
+  pub const SHARP: usize = 15;
+  pub const LBRACKET: usize = 16;
+  pub const RBRACKET: usize = 17;
+  pub const STRING_LITERAL: usize = 18;
+  pub const REGULAR_LITERAL: usize = 19;
+  pub const WHITE_SPACE: usize = 20;
 
 
   pub fn new(input: &'a str) -> Self {
