@@ -26,7 +26,7 @@ use std::{fs::File, io::Write};
 use chiru::{tool::{visitor::{string_literal_to_token_visitor::StringLiteralToTokenVisitor, lexer_rule_visitor::LexerRuleVisitor, parser_rule_visitor::ParserRuleVisitor, grammar_visitor::GrammarVisitor}, 
 syntaxis::{syntaxis_parser::SyntaxisParser, syntaxis_lexer::SyntaxisLexer}, 
 code_gen::{visitor_gen::generate_visitor, listener_gen::listener_generate, parser_gen::parser_generate, lexer_gen::lexer_generate}}, 
-runtime::{token_stream::TokenStream, lexer::Lexer}};
+runtime::token_stream::TokenStream};
 
 
 
@@ -51,13 +51,19 @@ fn main() {
   ebnf_suffix: (STAR | PLUS | QUESTION) QUESTION?;
 
 
-  lexer_rule: TOKEN_REF COLON regular SEMI;
+  lexer_rule: annotation ? TOKEN_REF COLON regular SEMI;
   regular: REGULAR_LITERAL;
+  annotation: AT attribute
+    | SHARP LBRACKET attribute_list RBRACKET
+  ;
+  attribute_list: attribute (COMMA attribute)* ;
+  attribute: (TOKEN_REF|RULE_REF) ( LPAREN (TOKEN_REF | RULE_REF) RPAREN )? ;
 
   RULE_REF: r###"[a-z][a-zA-Z0-9_]*"###;
   TOKEN_REF: r###"[A-Z][a-zA-Z0-9_]*"###;
   COLON: r###"::=|:=|->|=>|:|="###;
   SEMI: r###";"###;
+  COMMA: r###","###;
   OR: r###"\|"###;
   EPSILON: r###"ε|epsilon"###;
   STAR: r###"\*"###;
@@ -65,6 +71,10 @@ fn main() {
   QUESTION: r###"\?"###;
   LPAREN: r###"\("###;
   RPAREN: r###"\)"###;
+  AT: r###"@"###;
+  SHARP: r###"#"###;
+  LBRACKET: r###"\["###;
+  RBRACKET: r###"\]"###;
   STRING_LITERAL: r###""((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*""###;
   REGULAR_LITERAL: r###"(?s)r##".*?"##"###;
   WHITE_SPACE: r###"[ \r\n\t\f]+"###;
@@ -73,9 +83,9 @@ fn main() {
 
   let lexer = SyntaxisLexer::new(input);
 
-  for token in lexer.iter() {
-    println!("{}", token);
-  }
+  // for token in lexer.iter() {
+  //   println!("{}", token);
+  // }
 
   let mut stream = TokenStream::new(&lexer, 0);
 
@@ -101,7 +111,7 @@ fn main() {
 
   let grammar = grammar_visitor.grammar;
 
-  // println!("{:?}", grammar.vocabulary.nonterminals);
+  println!("{}", grammar);
 
   // 根据产生式构造 ast
 

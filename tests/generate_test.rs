@@ -29,16 +29,19 @@ fn generate_test() {
   ebnf_suffix: (STAR | PLUS | QUESTION) QUESTION?;
 
 
-  lexer_rule: attribute ? TOKEN_REF COLON regular SEMI;
+  lexer_rule: annotation ? TOKEN_REF COLON regular SEMI;
   regular: REGULAR_LITERAL;
-  attribute: AT (TOKEN_REF|RULE_REF) ( LPAREN (TOKEN_REF | RULE_REF) RPAREN )?
-    | SHARP LBRACKET  RBRACKET
+  annotation: AT attribute
+    | SHARP LBRACKET attribute_list RBRACKET
   ;
+  attribute_list: attribute (COMMA attribute)* COMMA? ;
+  attribute: (TOKEN_REF|RULE_REF) ( LPAREN (TOKEN_REF | RULE_REF) RPAREN )? ;
 
   RULE_REF: r###"[a-z][a-zA-Z0-9_]*"###;
   TOKEN_REF: r###"[A-Z][a-zA-Z0-9_]*"###;
   COLON: r###"::=|:=|->|=>|:|="###;
   SEMI: r###";"###;
+  COMMA: r###","###;
   OR: r###"\|"###;
   EPSILON: r###"ε|epsilon"###;
   STAR: r###"\*"###;

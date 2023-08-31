@@ -222,7 +222,7 @@ impl Grammar {
       for token_type in first.set.iter() {
         if let Some(p) = result.insert((rule_id, *token_type), production.id) {
           // 这表示不是 ll1 文法
-          println!("{:?}, {:?}", production, p);
+          println!("不是 ll1 文法 {:?}, {}, {}", production, p, rule_id);
         }
       }
 
@@ -230,7 +230,7 @@ impl Grammar {
         let follow = follow_set.get(&rule_id).unwrap();
         for token_type in follow.iter() {
           if let Some(p) = result.insert((rule_id, *token_type), production.id) {
-            println!("{:?}, {:?}", production, p);
+            println!("不是 ll1 文法 {:?}, {:?}, {}", production, p, rule_id);
           }
         }
       }
