@@ -25,7 +25,7 @@ use std::{fs::File, io::Write};
 
 use chiru::{tool::{visitor::{string_literal_to_token_visitor::StringLiteralToTokenVisitor, lexer_rule_visitor::LexerRuleVisitor, parser_rule_visitor::ParserRuleVisitor, grammar_visitor::GrammarVisitor}, 
 syntaxis::{syntaxis_parser::SyntaxisParser, syntaxis_lexer::SyntaxisLexer}, 
-code_gen::{visitor_gen::generate_visitor, listener_gen::listener_generate, parser_gen::parser_generate, lexer_gen::lexer_generate}}, 
+code_gen::{visitor_gen::generate_visitor, listener_gen::listener_generate, parser_gen::parser_generate, lexer_gen::lexer_generate, context_gen::context_generate}}, 
 runtime::token_stream::TokenStream};
 
 
@@ -129,6 +129,9 @@ fn main() {
   
   let mut file = File::create("tests/generate/lexer.rs").unwrap();
   file.write(lexer_generate(&lexer_visitor.lexer_rule_map, "chiru").as_bytes()).unwrap();
+
+  let mut file = File::create("tests/generate/context.rs").unwrap();
+  file.write(context_generate(&grammar, ast.as_ref()).as_bytes()).unwrap();
   
 
 }

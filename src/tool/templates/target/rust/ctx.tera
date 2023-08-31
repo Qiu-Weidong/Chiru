@@ -19,7 +19,7 @@ pub trait {{ctx_name.2}}Context: ToRule {
   {% for item in nonterminal %}
   fn {{item.0}}(&self) -> Option<&dyn {{item.2}}Context>;{% endfor %}
 
-  {% for item in terminal_list %}
+  {% for item in terminal %}
   fn {{item.0}}(&self) -> Option<&TerminalContext>;{% endfor %}
 
 

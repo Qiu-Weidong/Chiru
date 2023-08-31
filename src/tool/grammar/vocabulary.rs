@@ -131,6 +131,10 @@ impl Vocabulary {
     self.non_terminal_name_to_id.iter().map(|(_, v)| *v).collect()
   }
 
+  pub fn get_all_named_nonterminals_map(&self) -> HashMap<String, usize> {
+    self.non_terminal_name_to_id.clone()
+  }
+
 }
 
 

@@ -1,5 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
+use maplit::hashset;
+
 use crate::tool::syntaxis::syntaxis_visitor::SyntaxisVisitor;
 
 
@@ -16,12 +18,20 @@ pub struct ContextVisitor {
   nonterminals: HashMap<String, usize>,
 
   terminals: HashMap<String, usize>,
+
+  pub table: HashMap<usize, (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>,
 }
 
 
 
 impl ContextVisitor {
-  
+  pub fn new(nonterminals: HashMap<String, usize>, terminals: HashMap<String, usize>) -> Self {
+    Self {
+      table: HashMap::new(),
+      nonterminals, 
+      terminals,
+    }
+  }
 }
 
 
@@ -34,7 +44,9 @@ impl SyntaxisVisitor for ContextVisitor {
 
   fn visit_parser_rule(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::ParserRuleContext) -> Box<dyn std::any::Any> {
     // 解析并填表
-    
+    let rule_id = ctx.as_rule().rule_index;
+    let result = ctx.block().unwrap().accept(self).downcast::<(HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>().unwrap();
+    self.table.insert(rule_id, *result);
     self.default_result()
   }
 
@@ -53,11 +65,133 @@ impl SyntaxisVisitor for ContextVisitor {
   }
 
   fn visit_alternative(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::AlternativeContext) -> Box<dyn std::any::Any> {
-    todo!()
+    let mut result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = (HashSet::new(), HashSet::new(), HashSet::new(), HashSet::new());
+    
+    ctx.element_list().iter().for_each(|elem| {
+      let ret = elem.accept(self).downcast::<(HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>().unwrap();
+      result.0.extend(&ret.0);
+      result.2.extend(&ret.2);
+
+      // 先处理终结符
+      for terminal in ret.1.iter() { 
+        if result.1.contains(terminal) {
+          result.0.insert(*terminal);
+          result.1.remove(terminal);
+        } else {
+          result.1.insert(*terminal);
+        }
+      }
+
+      // 然后处理非终结符
+      for nonterminal in ret.3.iter() {
+        if result.3.contains(nonterminal) {
+          result.2.insert(*nonterminal);
+          result.3.remove(nonterminal);
+        } else {
+          result.3.insert(*nonterminal);
+        }
+      }
+    });
+    Box::new(result)
   }
 
+  // (terminal_list, terminal, nonterminal_list, nonterminal)
   fn visit_element(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::ElementContext) -> Box<dyn std::any::Any> {
-    todo!()
+
+    if let Some(token) = ctx.token_ref() {
+      let name = &token.symbol.text;
+
+      // 获取其 id
+      let token_id = self.terminals.get(name).unwrap();
+
+
+      if let Some(suffix) = ctx.ebnf_suffix() {
+        // 如果有后缀
+        if let Some(_) = suffix.star() {
+          // item *
+          let result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
+            (hashset! { *token_id }, hashset! {}, hashset! {}, hashset! {});
+          return Box::new(result);
+        } else if let Some(_) = suffix.plus() {
+          // item +
+          let result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
+            (hashset! { *token_id }, hashset! {}, hashset! {}, hashset! {});
+          return Box::new(result);
+        } else {
+          // item ?
+          let result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
+            (hashset! {}, hashset! { *token_id }, hashset! {}, hashset! {});
+          return Box::new(result);
+        }
+        
+      } else {
+        // 如果没有后缀
+        let result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
+          (hashset! {}, hashset! { *token_id }, hashset! {}, hashset! {});
+        return Box::new(result);
+      }
+      
+    }
+    else if let Some(rule) = ctx.rule_ref() {
+      let name = &rule.symbol.text;
+      let rule_id = self.nonterminals.get(name).unwrap();
+
+      if let Some(suffix) = ctx.ebnf_suffix() {
+        if let Some(_) = suffix.star() {
+          // item *
+          let result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
+            (hashset! {}, hashset! {}, hashset! { *rule_id }, hashset! {});
+          return Box::new(result);
+        } else if let Some(_) = suffix.plus() {
+          // item +
+          let result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
+            (hashset! {}, hashset! {}, hashset! { *rule_id }, hashset! {});
+          return Box::new(result);
+        } else {
+          // item ?
+          let result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
+            (hashset! {}, hashset! {}, hashset! {}, hashset! { *rule_id });
+          return Box::new(result);
+        }
+      } else {
+        let result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
+          (hashset! {}, hashset! {}, hashset! {}, hashset! { *rule_id });
+        return Box::new(result);
+      }
+      
+    } else if let Some(block) = ctx.block() {
+
+      let mut result = block.accept(self).downcast::<(HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>().unwrap();
+      if let Some(suffix) = ctx.ebnf_suffix() {
+        // 将 0/1 全部添加到 list 中
+        if let Some(_) = suffix.star() {
+          result.0.extend(&result.1);
+          result.2.extend(&result.3);
+
+          result.1.clear();
+          result.3.clear();
+
+          return result;
+
+        } else if let Some(_) = suffix.plus() {
+          result.0.extend(&result.1);
+          result.2.extend(&result.3);
+
+          result.1.clear();
+          result.3.clear();
+          return result;
+
+        }
+      }
+
+
+      return result;
+    } else {
+      // 字符串常量，不管
+      let result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
+        (hashset! {}, hashset! {}, hashset! {}, hashset! {});
+      return Box::new(result);
+    }
   }
 
 
