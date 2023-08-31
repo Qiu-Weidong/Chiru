@@ -45,7 +45,7 @@ impl {{ ctx_name.2 }}Context for RuleContext {
   {% endfor %}
 
   {% for item in nonterminal %}
-  fn {{item.0}}(&self) -> Option<&{{item.2}}Context> {
+  fn {{item.0}}(&self) -> Option<&dyn {{item.2}}Context> {
     self.get_rule_context({{grammar_name.2}}Parser::{{item.1}}, 0).map(|ctx| ctx as &dyn {{item.2}}Context)
   }
   {% endfor %}

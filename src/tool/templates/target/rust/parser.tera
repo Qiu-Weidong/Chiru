@@ -11,7 +11,7 @@ use chiru::{
 
 };
 
-use chiru::tool::syntaxis::syntaxis_context::{
+use super::context::{
   {% for nonterminal in nonterminals %} {{nonterminal.3}}Context,{% endfor %}
 };
 

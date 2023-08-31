@@ -76,7 +76,7 @@ pub fn context_generate(grammar: &Grammar, ast: &dyn RuleListContext) -> String 
 
   let table = visitor.table;
 
-  println!("{:?}",table);
+  // println!("{:?}",table);
 
   let nonterminals = grammar.vocabulary.get_all_named_nonterminals();
 
