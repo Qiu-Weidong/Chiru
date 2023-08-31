@@ -1,13 +1,3 @@
-
-/**
- * grammar_name
- * ctx_name 小写, 大写, pascal
- * nonterminal_list [(小写, 大写, pascal)] 
- * nonterminal [(小写, 大写, pascal)] 只能出现 1 个或 0 个的情况
- * terminal_list [(小写, 大写, pascal)]
- * terminal [(小写, 大写, pascal)]
- */
-
 pub trait {{ctx_name.2}}Context: ToRule {
   {% for item in nonterminal_list %}
   fn {{item.0}}_list(&self) -> Vec<&dyn {{item.2}}Context>;{% endfor %}
@@ -15,46 +5,38 @@ pub trait {{ctx_name.2}}Context: ToRule {
   {% for item in terminal_list %}
   fn {{item.0}}_list(&self) -> Vec<&TerminalContext>;{% endfor %}
 
-
   {% for item in nonterminal %}
   fn {{item.0}}(&self) -> Option<&dyn {{item.2}}Context>;{% endfor %}
 
   {% for item in terminal %}
   fn {{item.0}}(&self) -> Option<&TerminalContext>;{% endfor %}
 
-
   fn accept(&self, visitor: &mut dyn {{grammar_name.2}}Visitor) -> Box<dyn Any>;
   fn enter(&self, listener: &mut dyn {{grammar_name.2}}Listener);
   fn exit(&self, listener: &mut dyn {{grammar_name.2}}Listener);
 }
-
-
 
 impl {{ ctx_name.2 }}Context for RuleContext {
 
   {% for item in nonterminal_list %}
   fn {{item.0}}_list(&self) -> Vec<&dyn {{item.2}}Context> {
     self.get_rule_contexts({{grammar_name.2}}Parser::{{item.1}}).iter().map(|ctx| *ctx as &dyn {{item.2}}Context).collect::<Vec<_>>()
-  } 
-  {% endfor %}
+  } {% endfor %}
 
   {% for item in terminal_list %}
   fn {{item.0}}_list(&self) -> Vec<&TerminalContext> {
     self.get_terminals({{grammar_name.2}}Lexer::{{item.1}})
-  }
-  {% endfor %}
+  } {% endfor %}
 
   {% for item in nonterminal %}
   fn {{item.0}}(&self) -> Option<&dyn {{item.2}}Context> {
     self.get_rule_context({{grammar_name.2}}Parser::{{item.1}}, 0).map(|ctx| ctx as &dyn {{item.2}}Context)
-  }
-  {% endfor %}
+  } {% endfor %}
 
   {% for item in terminal %}
   fn {{item.0}}(&self) -> Option<&TerminalContext> {
     self.get_terminal({{grammar_name.2}}Lexer::{{item.1}}, 0)
-  }
-  {% endfor %}
+  } {% endfor %}
 
 
   fn accept(&self, visitor: &mut dyn {{grammar_name.2}}Visitor) -> Box<dyn Any> {
