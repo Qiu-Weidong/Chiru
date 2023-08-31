@@ -56,7 +56,7 @@ fn main() {
   annotation: AT attribute
     | SHARP LBRACKET attribute_list RBRACKET
   ;
-  attribute_list: attribute (COMMA attribute)* ;
+  attribute_list: attribute (COMMA attribute)* COMMA? ;
   attribute: (TOKEN_REF|RULE_REF) ( LPAREN (TOKEN_REF | RULE_REF) RPAREN )? ;
 
   RULE_REF: r###"[a-z][a-zA-Z0-9_]*"###;
@@ -77,7 +77,14 @@ fn main() {
   RBRACKET: r###"\]"###;
   STRING_LITERAL: r###""((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*""###;
   REGULAR_LITERAL: r###"(?s)r##".*?"##"###;
+
+  @skip
   WHITE_SPACE: r###"[ \r\n\t\f]+"###;
+
+  @channel(HIDDEN)
+  LINE_COMMENT: r###"//.*?\n"###;
+  @channel(HIDDEN)
+  BLOCK_COMMENT: r###"/\*.*?\*\/"###;
   
   "######;
 

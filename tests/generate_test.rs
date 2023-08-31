@@ -55,7 +55,14 @@ fn generate_test() {
   RBRACKET: r###"\]"###;
   STRING_LITERAL: r###""((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*""###;
   REGULAR_LITERAL: r###"(?s)r##".*?"##"###;
+
+  @skip
   WHITE_SPACE: r###"[ \r\n\t\f]+"###;
+
+  @channel(HIDDEN)
+  LINE_COMMENT: r###"//.*?\n"###;
+  @channel(HIDDEN)
+  BLOCK_COMMENT: r###"/\*.*?\*\/"###;
   
   "######;
 
