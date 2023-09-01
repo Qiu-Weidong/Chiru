@@ -55,15 +55,15 @@ impl ParserRuleContext for RuleContext {
 
 
   fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Box<dyn Any> {
-    visitor.visit_rule_list(self)
+    visitor.visit_parser_rule(self)
   }
 
   fn enter(&self, listener: &mut dyn ChiruListener) {
-    listener.enter_rule_list(self)
+    listener.enter_parser_rule(self)
   }
 
   fn exit(&self, listener: &mut dyn ChiruListener) {
-    listener.exit_rule_list(self)
+    listener.exit_parser_rule(self)
   }
 }
 
@@ -102,15 +102,15 @@ impl BlockContext for RuleContext {
 
 
   fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Box<dyn Any> {
-    visitor.visit_rule_list(self)
+    visitor.visit_block(self)
   }
 
   fn enter(&self, listener: &mut dyn ChiruListener) {
-    listener.enter_rule_list(self)
+    listener.enter_block(self)
   }
 
   fn exit(&self, listener: &mut dyn ChiruListener) {
-    listener.exit_rule_list(self)
+    listener.exit_block(self)
   }
 }
 
@@ -149,15 +149,15 @@ impl AlternativeContext for RuleContext {
 
 
   fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Box<dyn Any> {
-    visitor.visit_rule_list(self)
+    visitor.visit_alternative(self)
   }
 
   fn enter(&self, listener: &mut dyn ChiruListener) {
-    listener.enter_rule_list(self)
+    listener.enter_alternative(self)
   }
 
   fn exit(&self, listener: &mut dyn ChiruListener) {
-    listener.exit_rule_list(self)
+    listener.exit_alternative(self)
   }
 }
 
@@ -212,15 +212,15 @@ impl AnnotationContext for RuleContext {
 
 
   fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Box<dyn Any> {
-    visitor.visit_rule_list(self)
+    visitor.visit_annotation(self)
   }
 
   fn enter(&self, listener: &mut dyn ChiruListener) {
-    listener.enter_rule_list(self)
+    listener.enter_annotation(self)
   }
 
   fn exit(&self, listener: &mut dyn ChiruListener) {
-    listener.exit_rule_list(self)
+    listener.exit_annotation(self)
   }
 }
 
@@ -263,15 +263,15 @@ impl EbnfSuffixContext for RuleContext {
 
 
   fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Box<dyn Any> {
-    visitor.visit_rule_list(self)
+    visitor.visit_ebnf_suffix(self)
   }
 
   fn enter(&self, listener: &mut dyn ChiruListener) {
-    listener.enter_rule_list(self)
+    listener.enter_ebnf_suffix(self)
   }
 
   fn exit(&self, listener: &mut dyn ChiruListener) {
-    listener.exit_rule_list(self)
+    listener.exit_ebnf_suffix(self)
   }
 }
 
@@ -322,15 +322,15 @@ impl LexerRuleContext for RuleContext {
 
 
   fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Box<dyn Any> {
-    visitor.visit_rule_list(self)
+    visitor.visit_lexer_rule(self)
   }
 
   fn enter(&self, listener: &mut dyn ChiruListener) {
-    listener.enter_rule_list(self)
+    listener.enter_lexer_rule(self)
   }
 
   fn exit(&self, listener: &mut dyn ChiruListener) {
-    listener.exit_rule_list(self)
+    listener.exit_lexer_rule(self)
   }
 }
 
@@ -369,15 +369,15 @@ impl AttributeListContext for RuleContext {
 
 
   fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Box<dyn Any> {
-    visitor.visit_rule_list(self)
+    visitor.visit_attribute_list(self)
   }
 
   fn enter(&self, listener: &mut dyn ChiruListener) {
-    listener.enter_rule_list(self)
+    listener.enter_attribute_list(self)
   }
 
   fn exit(&self, listener: &mut dyn ChiruListener) {
-    listener.exit_rule_list(self)
+    listener.exit_attribute_list(self)
   }
 }
 
@@ -412,15 +412,15 @@ impl RegularContext for RuleContext {
 
 
   fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Box<dyn Any> {
-    visitor.visit_rule_list(self)
+    visitor.visit_regular(self)
   }
 
   fn enter(&self, listener: &mut dyn ChiruListener) {
-    listener.enter_rule_list(self)
+    listener.enter_regular(self)
   }
 
   fn exit(&self, listener: &mut dyn ChiruListener) {
-    listener.exit_rule_list(self)
+    listener.exit_regular(self)
   }
 }
 
@@ -455,15 +455,15 @@ impl EpsilonContext for RuleContext {
 
 
   fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Box<dyn Any> {
-    visitor.visit_rule_list(self)
+    visitor.visit_epsilon(self)
   }
 
   fn enter(&self, listener: &mut dyn ChiruListener) {
-    listener.enter_rule_list(self)
+    listener.enter_epsilon(self)
   }
 
   fn exit(&self, listener: &mut dyn ChiruListener) {
-    listener.exit_rule_list(self)
+    listener.exit_epsilon(self)
   }
 }
 
@@ -569,15 +569,15 @@ impl ElementContext for RuleContext {
 
 
   fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Box<dyn Any> {
-    visitor.visit_rule_list(self)
+    visitor.visit_element(self)
   }
 
   fn enter(&self, listener: &mut dyn ChiruListener) {
-    listener.enter_rule_list(self)
+    listener.enter_element(self)
   }
 
   fn exit(&self, listener: &mut dyn ChiruListener) {
-    listener.exit_rule_list(self)
+    listener.exit_element(self)
   }
 }
 
@@ -624,15 +624,15 @@ impl AttributeContext for RuleContext {
 
 
   fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Box<dyn Any> {
-    visitor.visit_rule_list(self)
+    visitor.visit_attribute(self)
   }
 
   fn enter(&self, listener: &mut dyn ChiruListener) {
-    listener.enter_rule_list(self)
+    listener.enter_attribute(self)
   }
 
   fn exit(&self, listener: &mut dyn ChiruListener) {
-    listener.exit_rule_list(self)
+    listener.exit_attribute(self)
   }
 }
 

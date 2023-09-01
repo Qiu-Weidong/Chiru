@@ -40,14 +40,14 @@ impl {{ ctx_name.2 }}Context for RuleContext {
 
 
   fn accept(&self, visitor: &mut dyn {{grammar_name.2}}Visitor) -> Box<dyn Any> {
-    visitor.visit_rule_list(self)
+    visitor.visit_{{ ctx_name.0 }}(self)
   }
 
   fn enter(&self, listener: &mut dyn {{grammar_name.2}}Listener) {
-    listener.enter_rule_list(self)
+    listener.enter_{{ ctx_name.0 }}(self)
   }
 
   fn exit(&self, listener: &mut dyn {{grammar_name.2}}Listener) {
-    listener.exit_rule_list(self)
+    listener.exit_{{ ctx_name.0 }}(self)
   }
 }

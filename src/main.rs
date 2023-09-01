@@ -97,21 +97,34 @@ fn main() {
 
   let mut visitor = StringLiteralToTokenVisitor::new(2);
   ast.accept(&mut visitor);
+
+  println!("{} {:?}", visitor.next_token_id, visitor.lexer_rule_map);
   
   let mut lexer_visitor = LexerRuleVisitor::new(visitor.next_token_id, visitor.lexer_rule_map);
   ast.accept(&mut lexer_visitor);
 
+  println!("{} {:?}", lexer_visitor.next_token_id, lexer_visitor.lexer_rule_map);
+
   let mut parser_visitor = ParserRuleVisitor::new();
   ast.accept(&mut parser_visitor);
+
+  println!("{} {:?}", parser_visitor.next_rule_id, parser_visitor.parser_rule_map);
 
   let mut grammar_visitor = GrammarVisitor::new("chiru", &parser_visitor.parser_rule_map, &lexer_visitor.lexer_rule_map);
   ast.accept(&mut grammar_visitor);
 
   let grammar = grammar_visitor.grammar;
 
-  // println!("{}", grammar);
+  println!("{:?}", grammar.productions);
 
   // 根据产生式构造 ast
+
+
+
+
+
+
+
 
   // 生成 visitor 暂不写入文件
   let mut file = File::create(format!("tests/generate/{}_visitor.rs", grammar.name.to_lowercase())).unwrap();
