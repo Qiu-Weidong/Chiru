@@ -1,6 +1,6 @@
 use tera::Tera;
 
-
+use lazy_static::lazy_static;  // 这里导入了宏
 pub mod lexer_gen;
 pub mod visitor_gen;
 pub mod parser_gen;
