@@ -39,7 +39,10 @@ fn main() {
    * 多行注释
    * 看看是否会有问题
    */
-  rule_list: (parser_rule | lexer_rule)*;
+  grammar Chiru;
+  compilation_unit: grammar_name rules;
+  grammar_name: GRAMMAR (TOKEN_REF | RULE_REF) SEMI;
+  rules: (parser_rule | lexer_rule)*;
 
   parser_rule: RULE_REF COLON block SEMI;
   block: alternative (OR alternative)*;
@@ -60,11 +63,12 @@ fn main() {
   lexer_rule: annotation ? TOKEN_REF COLON regular SEMI;
   regular: REGULAR_LITERAL;
   annotation: AT attribute
-    | SHARP LBRACKET attribute_list RBRACKET
+    | SHARP LBRACKET attributes RBRACKET
   ;
-  attribute_list: attribute (COMMA attribute)* ;
+  attributes: attribute (COMMA attribute)* ;
   attribute: RULE_REF ( LPAREN TOKEN_REF RPAREN )? ;
 
+  GRAMMAR: r###"grammar"###;
   RULE_REF: r###"[a-z][a-zA-Z0-9_]*"###;
   TOKEN_REF: r###"[A-Z][a-zA-Z0-9_]*"###;
   COLON: r###"::=|:=|->|=>|:|="###;
@@ -99,10 +103,10 @@ fn main() {
 
   stream.consume().unwrap(); // 注意要先将 _START 消耗掉
   let parser = ChiruParser::new();
-  let ast = parser.rule_list(&mut stream);
+  let ast = parser.compilation_unit(&mut stream);
 
   // 打印一下语法树
-  ASTDrawer::new().draw(ast.as_rule(), "foo", "output/foo.html");
+  ASTDrawer::new().draw(ast.as_rule(), "foo", "output/foo3.html");
 
 
   // 从语法树解析出 grammar
@@ -111,17 +115,17 @@ fn main() {
   let mut visitor = StringLiteralToTokenVisitor::new(2);
   ast.accept(&mut visitor).unwrap();
 
-  println!("{} {:?}", visitor.next_token_id, visitor.lexer_rule_map);
+  // println!("{} {:?}", visitor.next_token_id, visitor.lexer_rule_map);
   
   let mut lexer_visitor = LexerRuleVisitor::new(visitor.next_token_id, visitor.lexer_rule_map);
   ast.accept(&mut lexer_visitor).unwrap();
 
-  println!("{} {:?}", lexer_visitor.next_token_id, lexer_visitor.lexer_rule_map);
+  // println!("{} {:?}", lexer_visitor.next_token_id, lexer_visitor.lexer_rule_map);
 
   let mut parser_visitor = ParserRuleVisitor::new();
   ast.accept(&mut parser_visitor).unwrap();
 
-  println!("{} {:?}", parser_visitor.next_rule_id, parser_visitor.parser_rule_map);
+  // println!("{} {:?}", parser_visitor.next_rule_id, parser_visitor.parser_rule_map);
 
   let mut grammar_visitor = GrammarVisitor::new("chiru", &parser_visitor.parser_rule_map, &lexer_visitor.lexer_rule_map);
   ast.accept(&mut grammar_visitor).unwrap();
@@ -137,31 +141,32 @@ fn main() {
 
 
 
-
+  let base_dir = "src/tool/syntaxis";
+  // let base_dir = "tests/generate";
 
   // 生成 visitor 暂不写入文件
-  let mut file = File::create(format!("tests/generate/{}_visitor.rs", grammar.name.to_lowercase())).unwrap();
+  let mut file = File::create(format!("{}/{}_visitor.rs",base_dir, grammar.name.to_lowercase())).unwrap();
   file.write(generate_visitor(&grammar).as_bytes()).unwrap();
 
   // 生成 listener
-  let mut file = File::create(format!("tests/generate/{}_listener.rs", grammar.name.to_lowercase())).unwrap();
+  let mut file = File::create(format!("{}/{}_listener.rs", base_dir, grammar.name.to_lowercase())).unwrap();
   file.write(listener_generate(&grammar).as_bytes()).unwrap();
 
   // 生成 parser
-  let mut file = File::create(format!("tests/generate/{}_parser.rs", grammar.name.to_lowercase())).unwrap();
+  let mut file = File::create(format!("{}/{}_parser.rs", base_dir, grammar.name.to_lowercase())).unwrap();
   file.write(parser_generate(&grammar).as_bytes()).unwrap();
   
-  let mut file = File::create(format!("tests/generate/{}_lexer.rs", grammar.name.to_lowercase())).unwrap();
+  let mut file = File::create(format!("{}/{}_lexer.rs", base_dir, grammar.name.to_lowercase())).unwrap();
   file.write(lexer_generate(&lexer_visitor.lexer_rule_map, "chiru").as_bytes()).unwrap();
 
-  let mut file = File::create(format!("tests/generate/{}_context.rs", grammar.name.to_lowercase())).unwrap();
-  file.write(context_generate(&grammar, ast.as_ref()).as_bytes()).unwrap();
+  let mut file = File::create(format!("{}/{}_context.rs", base_dir, grammar.name.to_lowercase())).unwrap();
+  file.write(context_generate(&grammar, ast.rules().unwrap()).as_bytes()).unwrap();
 
-  let mut file = File::create(format!("tests/generate/{}_walker.rs", grammar.name.to_lowercase())).unwrap();
+  let mut file = File::create(format!("{}/{}_walker.rs", base_dir, grammar.name.to_lowercase())).unwrap();
   file.write(walker_generate(&grammar).as_bytes()).unwrap();
 
   // 最后再写一个 mod 文件
-  let mut file = File::create("tests/generate/mod.rs").unwrap();
+  let mut file = File::create(format!("{}/mod.rs", base_dir)).unwrap();
   file.write(mod_generate(&grammar, true, true, true, true, true, true).as_bytes()).unwrap();
 
 }

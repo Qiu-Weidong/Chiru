@@ -57,9 +57,24 @@ impl GrammarVisitor {
 
 impl ChiruVisitor for GrammarVisitor {
 
+  fn visit_grammar_name(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::GrammarNameContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
 
+    let name;
+    if let Some(name_) = ctx.token_ref() {
+      name = &name_.symbol.text;
+    } else if let Some(name_) = ctx.rule_ref() {
+      name = &name_.symbol.text;
+    } else {
+      todo!()
+    }
+
+    self.grammar.name = name.to_owned();
+    self.default_result()
+  }
+  
   // 只需要访问 parser rule 无需返回值  -> void
-  fn visit_rule_list(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::RuleListContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+  fn visit_rules(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::RulesContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    println!("visit rules");
     for rule in ctx.parser_rule_list().iter() {
       rule.accept(self)?;
     }

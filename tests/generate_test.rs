@@ -15,6 +15,9 @@ mod generate;
 fn generate_test() {
   let input = r######"
   // 注释
+
+  grammar Chiru;
+
   rule_list: (parser_rule | lexer_rule)*;
 
   parser_rule: RULE_REF COLON block SEMI;
@@ -84,7 +87,7 @@ fn generate_test() {
 
   let parser = ChiruParser::new();
   token_stream.consume().unwrap();
-  let ast = parser.rule_list(&mut token_stream);
+  let ast = parser.compilation_unit(&mut token_stream);
 
   ASTDrawer::new().draw(ast.as_ref().as_rule(), "foo", "output/foo.html");
 

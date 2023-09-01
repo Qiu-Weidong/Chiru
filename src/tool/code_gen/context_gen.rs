@@ -5,7 +5,7 @@ use std::collections::{HashSet, HashMap};
 
 use tera::Context;
 
-use crate::tool::{grammar::{Grammar, vocabulary::Vocabulary}, syntaxis::chiru_context::RuleListContext, visitor::context_visitor::ContextVisitor};
+use crate::tool::{grammar::{Grammar, vocabulary::Vocabulary}, syntaxis::chiru_context::RulesContext, visitor::context_visitor::ContextVisitor};
 
 use super::{TEMPLATES, pascal};
 
@@ -58,7 +58,7 @@ fn ctx_gen(grammar: &Grammar, rule_id: usize, ctx: (HashSet<usize>, HashSet<usiz
 
 
 // 需要 ast
-pub fn context_generate(grammar: &Grammar, ast: &dyn RuleListContext) -> String {
+pub fn context_generate(grammar: &Grammar, ast: &dyn RulesContext) -> String {
 
   // 获取所有的终结符和非终结符
   let terminals = grammar.vocabulary.terminals.iter().map(|(id, terminal)| {

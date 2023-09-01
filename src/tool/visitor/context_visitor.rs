@@ -36,7 +36,7 @@ impl ContextVisitor {
 
 
 impl ChiruVisitor for ContextVisitor {
-  fn visit_rule_list(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::RuleListContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+  fn visit_rules(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::RulesContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
 
     // 只需要访问 parser_rule
     for ctx in ctx.parser_rule_list().iter() { 
