@@ -11,7 +11,7 @@ pub trait {{ctx_name.2}}Context: ToRule {
   {% for item in terminal %}
   fn {{item.0}}(&self) -> Option<&TerminalContext>;{% endfor %}
 
-  fn accept(&self, visitor: &mut dyn {{grammar_name.2}}Visitor) -> Box<dyn Any>;
+  fn accept(&self, visitor: &mut dyn {{grammar_name.2}}Visitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
   fn enter(&self, listener: &mut dyn {{grammar_name.2}}Listener);
   fn exit(&self, listener: &mut dyn {{grammar_name.2}}Listener);
 }
@@ -39,7 +39,7 @@ impl {{ ctx_name.2 }}Context for RuleContext {
   } {% endfor %}
 
 
-  fn accept(&self, visitor: &mut dyn {{grammar_name.2}}Visitor) -> Box<dyn Any> {
+  fn accept(&self, visitor: &mut dyn {{grammar_name.2}}Visitor) -> Result<Box<dyn Any>, Box<dyn Error>> {
     visitor.visit_{{ ctx_name.0 }}(self)
   }
 

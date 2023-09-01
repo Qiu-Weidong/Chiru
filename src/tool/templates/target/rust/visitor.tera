@@ -1,4 +1,4 @@
-use std::any::Any;
+use std::{any::Any, error::Error};
 
 use chiru::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext, error_context::ErrorContext, terminal_context::TerminalContext};
 
@@ -12,13 +12,13 @@ use super::{
 
 pub trait {{ grammar_name.2 }}Visitor {
   {% for item in nonterminals %}
-  fn visit_{{ item.1 }}(&mut self, ctx: &dyn {{ item.3 }}Context) -> Box<dyn Any> {
+  fn visit_{{ item.1 }}(&mut self, ctx: &dyn {{ item.3 }}Context) -> Result<Box<dyn Any>, Box<dyn Error>> {
     self.visit_children(ctx.as_rule())
   }
   {% endfor %}
 
   
-  fn visit(&mut self, ast: &RuleContext) -> Box<dyn Any> {
+  fn visit(&mut self, ast: &RuleContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     match ast.get_rule_index() {
       {% for item in nonterminals  %}
       {{grammar_name.2}}Parser::{{item.2}} => self.visit_{{ item.1 }}(ast),{% endfor %}
@@ -27,11 +27,11 @@ pub trait {{ grammar_name.2 }}Visitor {
     }
   }
 
-  fn visit_terminal(&mut self, _terminal: &TerminalContext) -> Box<dyn Any>  { self.default_result() }
+  fn visit_terminal(&mut self, _terminal: &TerminalContext) -> Result<Box<dyn Any>, Box<dyn Error>>  { self.default_result() }
 
-  fn visit_errornode(&mut self, _errornode: &ErrorContext) -> Box<dyn Any>  { self.default_result() }
+  fn visit_errornode(&mut self, _errornode: &ErrorContext) -> Result<Box<dyn Any>, Box<dyn Error>>  { self.default_result() }
 
-  fn visit_children(&mut self, ctx: &RuleContext) -> Box<dyn Any> {
+  fn visit_children(&mut self, ctx: &RuleContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     let mut result = self.default_result();
     for child in ctx.children.iter() {
       if ! self.should_visit_next_child(ctx, &result) { break; }
@@ -47,9 +47,9 @@ pub trait {{ grammar_name.2 }}Visitor {
     result
   }
 
-  fn default_result(&mut self) -> Box<dyn Any> { Box::new(()) }
+  fn default_result(&mut self) -> Result<Box<dyn Any>, Box<dyn Error>> { Ok(Box::new(())) }
 
-  fn aggregate_result(&mut self, _aggregate: Box<dyn Any> , next_result: Box<dyn Any> ) -> Box<dyn Any>  { next_result }
+  fn aggregate_result(&mut self, _aggregate: Result<Box<dyn Any>, Box<dyn Error>> , next_result: Result<Box<dyn Any>, Box<dyn Error>> ) -> Result<Box<dyn Any>, Box<dyn Error>>  { next_result }
 
   fn should_visit_next_child(&mut self, _context: &RuleContext, _current_result: &dyn Any) -> bool {true}
 }

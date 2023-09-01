@@ -96,22 +96,22 @@ fn main() {
 
 
   let mut visitor = StringLiteralToTokenVisitor::new(2);
-  ast.accept(&mut visitor);
+  ast.accept(&mut visitor).unwrap();
 
   println!("{} {:?}", visitor.next_token_id, visitor.lexer_rule_map);
   
   let mut lexer_visitor = LexerRuleVisitor::new(visitor.next_token_id, visitor.lexer_rule_map);
-  ast.accept(&mut lexer_visitor);
+  ast.accept(&mut lexer_visitor).unwrap();
 
   println!("{} {:?}", lexer_visitor.next_token_id, lexer_visitor.lexer_rule_map);
 
   let mut parser_visitor = ParserRuleVisitor::new();
-  ast.accept(&mut parser_visitor);
+  ast.accept(&mut parser_visitor).unwrap();
 
   println!("{} {:?}", parser_visitor.next_rule_id, parser_visitor.parser_rule_map);
 
   let mut grammar_visitor = GrammarVisitor::new("chiru", &parser_visitor.parser_rule_map, &lexer_visitor.lexer_rule_map);
-  ast.accept(&mut grammar_visitor);
+  ast.accept(&mut grammar_visitor).unwrap();
 
   let grammar = grammar_visitor.grammar;
 
