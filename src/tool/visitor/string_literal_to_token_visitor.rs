@@ -2,7 +2,7 @@
 
 // 重新写词法规则的分析器
 
-use std::collections::HashMap;
+use std::{collections::HashMap, any::Any, error::Error};
 
 use crate::tool::syntaxis::{chiru_visitor::ChiruVisitor, chiru_context::ElementContext};
 
@@ -39,7 +39,7 @@ impl StringLiteralToTokenVisitor {
 }
 
 impl ChiruVisitor for StringLiteralToTokenVisitor {
-  fn visit_element(&mut self, ctx: &dyn ElementContext) -> Box<dyn std::any::Any> {
+  fn visit_element(&mut self, ctx: &dyn ElementContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     
     // 处理 element 中的字符串常量即可
     if let Some(value) = ctx.string_literal() {

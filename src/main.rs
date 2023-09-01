@@ -57,7 +57,7 @@ fn main() {
     | SHARP LBRACKET attribute_list RBRACKET
   ;
   attribute_list: attribute (COMMA attribute)* ;
-  attribute: (TOKEN_REF|RULE_REF) ( LPAREN (TOKEN_REF | RULE_REF) RPAREN )? ;
+  attribute: RULE_REF ( LPAREN TOKEN_REF RPAREN )? ;
 
   RULE_REF: r###"[a-z][a-zA-Z0-9_]*"###;
   TOKEN_REF: r###"[A-Z][a-zA-Z0-9_]*"###;

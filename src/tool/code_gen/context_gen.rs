@@ -72,7 +72,7 @@ pub fn context_generate(grammar: &Grammar, ast: &dyn RuleListContext) -> String 
 
   // 首先解析 ast 获取 table
   let mut visitor = ContextVisitor::new(nonterminals, terminals);
-  ast.accept(&mut visitor);
+  ast.accept(&mut visitor).unwrap();
 
   let table = visitor.table;
 

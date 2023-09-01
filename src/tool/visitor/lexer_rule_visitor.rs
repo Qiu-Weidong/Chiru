@@ -1,4 +1,4 @@
-use std::{any::Any, collections::HashMap};
+use std::{any::Any, collections::HashMap, error::Error};
 
 use crate::tool::syntaxis::{chiru_visitor::ChiruVisitor, chiru_context::LexerRuleContext};
 
@@ -33,7 +33,7 @@ impl LexerRuleVisitor {
 impl ChiruVisitor for LexerRuleVisitor {
   
   
-  fn visit_lexer_rule(&mut self, ctx: &dyn LexerRuleContext) -> Box<dyn Any> {
+  fn visit_lexer_rule(&mut self, ctx: &dyn LexerRuleContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     // 获取名称
     let name = &ctx.token_ref().unwrap().symbol.text;
 
@@ -46,11 +46,28 @@ impl ChiruVisitor for LexerRuleVisitor {
     }
 
 
+    let mut channel = 0;
+    let mut skip = false;
+
+    if let Some(annotation) = ctx.annotation() {
+      // 查看注解
+      if let Some(att) = annotation.attribute() {
+        
+        
+      } else if let Some(attr_list) = annotation.attribute_list() {
+
+      }
+
+    } else {
+
+    }
+
+
 
     let regular = &ctx.regular().unwrap().regular_literal().unwrap().symbol.text; // .replace("\\/", "/");
 
     let lexer_rule = LexerRule::new(self.next_token_id, &name, regular, 
-      0, false
+      channel, skip
     );
 
     self.next_token_id += 1;

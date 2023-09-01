@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::{collections::{HashMap, HashSet}, any::Any, error::Error};
 
 use maplit::hashset;
 
@@ -36,48 +36,56 @@ impl ContextVisitor {
 
 
 impl ChiruVisitor for ContextVisitor {
-  fn visit_rule_list(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::RuleListContext) -> Box<dyn std::any::Any> {
+  fn visit_rule_list(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::RuleListContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     // println!("visit_rule_list");
 
     // 只需要访问 parser_rule
-    ctx.parser_rule_list().iter().for_each(|ctx|  { ctx.accept(self); } );
+    for ctx in ctx.parser_rule_list().iter() { 
+      ctx.accept(self)?; 
+    } 
     self.default_result()
   }
 
-  fn visit_parser_rule(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::ParserRuleContext) -> Box<dyn std::any::Any> {
+  fn visit_parser_rule(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::ParserRuleContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     // println!("visit_parser_rule,  {} {}", ctx.as_rule().rule_index, ctx.as_rule().rule_name);
     let name = &ctx.rule_ref().unwrap().symbol.text;
 
     let id = *self.nonterminals.get(name).unwrap();
     
     // 解析并填表
-    let result = ctx.block().unwrap().accept(self).downcast::<(HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>().unwrap();
+    let result = ctx.block().unwrap().accept(self)?.downcast::<(HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>().unwrap();
     self.table.insert(id, *result);
     self.default_result()
   }
 
   // 返回一个 hashset 的元组 (terminal_list, terminal, nonterminal_list, nonterminal) : (HashSet<usize>, ...)
-  fn visit_block(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::BlockContext) -> Box<dyn std::any::Any> {
+  fn visit_block(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::BlockContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
 
     let mut result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = (HashSet::new(), HashSet::new(), HashSet::new(), HashSet::new());
       
-    ctx.alternative_list().iter().for_each(|v| {
-      let re = v.accept(self).downcast::<(HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>().unwrap();
+    for v in ctx.alternative_list().iter() {
+      let re = v.accept(self)?.downcast::<(HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>().unwrap();
       result.0.extend(re.0);
       result.1.extend(re.1);
       result.2.extend(re.2);
       result.3.extend(re.3);
-    });
-    Box::new(result)
+    }
+    Ok(Box::new(result))
   }
 
   // (terminal_list, terminal, nonterminal_list, nonterminal)
-  fn visit_alternative(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::AlternativeContext) -> Box<dyn std::any::Any> {
+  fn visit_alternative(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::AlternativeContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     let mut result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = (HashSet::new(), HashSet::new(), HashSet::new(), HashSet::new());
     
-    let children = ctx.element_list().iter().map(|elem| {
-      elem.accept(self).downcast::<(HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>().unwrap()
-    }).collect::<Vec<_>>();
+    // let children = ctx.element_list().iter().map(|elem| {
+    //   elem.accept(self)?.downcast::<(HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>().unwrap()
+    // }).collect::<Vec<_>>();
+    let mut children: Vec<Box<(HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>> = Vec::new();
+    for elem in ctx.element_list().iter() {
+      let child = elem.accept(self)?.downcast::<(HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>().unwrap();
+      children.push(child);
+    }
+
 
     for child in children.iter() {
       result.0.extend(&child.0);
@@ -113,11 +121,11 @@ impl ChiruVisitor for ContextVisitor {
     }
 
 
-    Box::new(result)
+    Ok(Box::new(result))
   }
 
   // (terminal_list, terminal, nonterminal_list, nonterminal)
-  fn visit_element(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::ElementContext) -> Box<dyn std::any::Any> {
+  fn visit_element(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::ElementContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     // println!("visit_element");
 
     if let Some(token) = ctx.token_ref() {
@@ -133,24 +141,24 @@ impl ChiruVisitor for ContextVisitor {
           // item *
           let result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
             (hashset! { *token_id }, hashset! {}, hashset! {}, hashset! {});
-          return Box::new(result);
+          return Ok(Box::new(result));
         } else if let Some(_) = suffix.plus() {
           // item +
           let result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
             (hashset! { *token_id }, hashset! {}, hashset! {}, hashset! {});
-          return Box::new(result);
+          return Ok(Box::new(result));
         } else {
           // item ?
           let result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
             (hashset! {}, hashset! { *token_id }, hashset! {}, hashset! {});
-          return Box::new(result);
+          return Ok(Box::new(result));
         }
         
       } else {
         // 如果没有后缀
         let result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
           (hashset! {}, hashset! { *token_id }, hashset! {}, hashset! {});
-        return Box::new(result);
+        return Ok(Box::new(result));
       }
       
     }
@@ -163,27 +171,27 @@ impl ChiruVisitor for ContextVisitor {
           // item *
           let result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
             (hashset! {}, hashset! {}, hashset! { *rule_id }, hashset! {});
-          return Box::new(result);
+          return Ok(Box::new(result));
         } else if let Some(_) = suffix.plus() {
           // item +
           let result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
             (hashset! {}, hashset! {}, hashset! { *rule_id }, hashset! {});
-          return Box::new(result);
+          return Ok(Box::new(result));
         } else {
           // item ?
           let result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
             (hashset! {}, hashset! {}, hashset! {}, hashset! { *rule_id });
-          return Box::new(result);
+          return Ok(Box::new(result));
         }
       } else {
         let result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
           (hashset! {}, hashset! {}, hashset! {}, hashset! { *rule_id });
-        return Box::new(result);
+        return Ok(Box::new(result));
       }
       
     } else if let Some(block) = ctx.block() {
 
-      let mut result = block.accept(self).downcast::<(HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>().unwrap();
+      let mut result = block.accept(self)?.downcast::<(HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>().unwrap();
       if let Some(suffix) = ctx.ebnf_suffix() {
         // 将 0/1 全部添加到 list 中
         if let Some(_) = suffix.star() {
@@ -193,7 +201,7 @@ impl ChiruVisitor for ContextVisitor {
           result.1.clear();
           result.3.clear();
 
-          return result;
+          return Ok(result);
 
         } else if let Some(_) = suffix.plus() {
           result.0.extend(&result.1);
@@ -201,18 +209,18 @@ impl ChiruVisitor for ContextVisitor {
 
           result.1.clear();
           result.3.clear();
-          return result;
+          return Ok(result);
 
         }
       }
 
 
-      return result;
+      return Ok(result);
     } else {
       // 字符串常量，不管
       let result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
         (hashset! {}, hashset! {}, hashset! {}, hashset! {});
-      return Box::new(result);
+      return Ok(Box::new(result));
     }
   }
 

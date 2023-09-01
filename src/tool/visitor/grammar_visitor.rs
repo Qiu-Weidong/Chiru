@@ -1,6 +1,6 @@
 
 
-use std::collections::HashMap;
+use std::{collections::HashMap, error::Error, any::Any};
 
 use crate::tool::{grammar::{Grammar, production::{ProductionItem, Production}}, syntaxis::{chiru_visitor::ChiruVisitor, chiru_context::{ElementContext, ParserRuleContext, BlockContext}}};
 
@@ -59,9 +59,9 @@ impl ChiruVisitor for GrammarVisitor {
 
 
   // 只需要访问 parser rule 无需返回值  -> void
-  fn visit_rule_list(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::RuleListContext) -> Box<dyn std::any::Any> {
+  fn visit_rule_list(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::RuleListContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     for rule in ctx.parser_rule_list().iter() {
-      rule.accept(self);
+      rule.accept(self)?;
     }
     self.default_result()
   }
@@ -69,13 +69,13 @@ impl ChiruVisitor for GrammarVisitor {
 
 
   // 添加命名产生式 无需返回值 -> void
-  fn visit_parser_rule(&mut self, ctx: &dyn ParserRuleContext) -> Box<dyn std::any::Any> {
+  fn visit_parser_rule(&mut self, ctx: &dyn ParserRuleContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     // 这个地方不要调用 block.accept
     let name = &ctx.rule_ref().unwrap().symbol.text;
     let left_id = self.grammar.vocabulary.get_nonterminal_id_by_name(name).unwrap();
     
     for alternative in ctx.block().unwrap().alternative_list().iter() {
-      let right = alternative.accept(self);
+      let right = alternative.accept(self)?;
       let right = right.downcast::<Vec<ProductionItem>>().unwrap();
 
       let production_id = self.next_production_id;
@@ -91,25 +91,25 @@ impl ChiruVisitor for GrammarVisitor {
 
 
   // 返回一条产生式的右部分 -> Vec<ProductionItem>
-  fn visit_alternative(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::AlternativeContext) -> Box<dyn std::any::Any> {
+  fn visit_alternative(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::AlternativeContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     if let Some(_) = ctx.epsilon() {
-      return Box::new(Vec::<ProductionItem>::new());
+      return Ok(Box::new(Vec::<ProductionItem>::new()));
     }
 
     let mut result: Vec<ProductionItem> = Vec::new();
     for element in ctx.element_list().iter() {
-      let elem = element.accept(self)
+      let elem = element.accept(self)?
         .downcast::<ProductionItem>().unwrap();
       result.push(elem.as_ref().clone());
     }
 
-    Box::new(result)
+    Ok(Box::new(result))
   }
 
 
 
   // 返回产生式的元素 -> ProductionItem
-  fn visit_element(&mut self, ctx: &dyn ElementContext) -> Box<dyn std::any::Any> {
+  fn visit_element(&mut self, ctx: &dyn ElementContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
 
     // 首先解析出一个 item
     let item: ProductionItem; // let id: usize;
@@ -126,7 +126,7 @@ impl ChiruVisitor for GrammarVisitor {
       item = ProductionItem::NonTerminal(id);
     }
     else if let Some(block) = ctx.block() {
-      item = *block.accept(self).downcast::<ProductionItem>().unwrap();
+      item = *block.accept(self)?.downcast::<ProductionItem>().unwrap();
     }
     else {
       panic!("解析element出错");
@@ -139,7 +139,7 @@ impl ChiruVisitor for GrammarVisitor {
         // item * => item2 -> item item2 | epsilon
 
         if let Some(item_id) = self.star_cache.get(&item) {
-          return Box::new(ProductionItem::NonTerminal(*item_id));
+          return Ok(Box::new(ProductionItem::NonTerminal(*item_id)));
         }
 
         // 添加一个非终结符 匿名 item2
@@ -160,12 +160,12 @@ impl ChiruVisitor for GrammarVisitor {
         self.star_cache.insert(item, self.next_rule_id);
 
         self.next_rule_id += 1;
-        return Box::new(item2);
+        return Ok(Box::new(item2));
       }
       else if let Some(_) = suffix.plus() {
         // item * => item2 -> item item2 | item
         if let Some(item_id) = self.plus_cache.get(&item) {
-          return Box::new(ProductionItem::NonTerminal(*item_id));
+          return Ok(Box::new(ProductionItem::NonTerminal(*item_id)));
         }
 
         // 添加一个非终结符 匿名
@@ -184,12 +184,12 @@ impl ChiruVisitor for GrammarVisitor {
 
         self.plus_cache.insert(item, self.next_rule_id);
         self.next_rule_id += 1;
-        return Box::new(item2);
+        return Ok(Box::new(item2));
       }
       else {
         // item * => item2 -> item | epsilon
         if let Some(item_id) = self.question_cache.get(&item) {
-          return Box::new(ProductionItem::NonTerminal(*item_id));
+          return Ok(Box::new(ProductionItem::NonTerminal(*item_id)));
         }
 
         // 添加一个非终结符
@@ -208,12 +208,12 @@ impl ChiruVisitor for GrammarVisitor {
         self.grammar.productions.insert(production_id_2, p2);
         self.question_cache.insert(item, self.next_rule_id);
         self.next_rule_id += 1;
-        return Box::new(item2);
+        return Ok(Box::new(item2));
       }
     }
     else {
       // 直接返回 item 即可
-      Box::new(item)
+      Ok(Box::new(item))
     }
     // 先不管合并，直接走
   }
@@ -221,17 +221,17 @@ impl ChiruVisitor for GrammarVisitor {
 
 
   // 返回产生式的元素 -> ProductionItem
-  fn visit_block(&mut self, ctx: &dyn BlockContext) -> Box<dyn std::any::Any> {
+  fn visit_block(&mut self, ctx: &dyn BlockContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     // 先得出一个产生式右部的集合
     let rights = 
       ctx.alternative_list().iter().map(|alternative| {
-        alternative.accept(self)
+        alternative.accept(self).unwrap()
           .downcast::<Vec<ProductionItem>>().unwrap().as_ref().clone()
       }).collect::<Vec<_>>();
 
     // 先检查是否缓存中存在  
     if let Some(id) = self.block_cache.get(&rights) {
-      return Box::new(ProductionItem::NonTerminal(*id));
+      return Ok(Box::new(ProductionItem::NonTerminal(*id)));
     }
 
 
@@ -256,7 +256,7 @@ impl ChiruVisitor for GrammarVisitor {
 
 
     
-    Box::new(ProductionItem::NonTerminal(id))
+    Ok(Box::new(ProductionItem::NonTerminal(id)))
   }
 
 }

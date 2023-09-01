@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, any::Any, error::Error};
 
 use crate::tool::syntaxis::{chiru_visitor::ChiruVisitor, chiru_context::ParserRuleContext};
 
@@ -21,7 +21,7 @@ impl ParserRuleVisitor {
 
 impl ChiruVisitor for ParserRuleVisitor {
 
-  fn visit_parser_rule(&mut self, ctx: &dyn ParserRuleContext) -> Box<dyn std::any::Any> {
+  fn visit_parser_rule(&mut self, ctx: &dyn ParserRuleContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
 
 
     let name = &ctx.rule_ref().unwrap().symbol.text;
