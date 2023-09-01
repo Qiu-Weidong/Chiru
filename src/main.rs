@@ -141,8 +141,8 @@ fn main() {
 
 
 
-  let base_dir = "src/tool/syntaxis";
-  // let base_dir = "tests/generate";
+  // let base_dir = "src/tool/syntaxis";
+  let base_dir = "tests/generate";
 
   // 生成 visitor 暂不写入文件
   let mut file = File::create(format!("{}/{}_visitor.rs",base_dir, grammar.name.to_lowercase())).unwrap();

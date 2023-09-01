@@ -80,7 +80,7 @@ impl ChiruVisitor for LexerRuleVisitor {
           }
         }
         
-      } else if let Some(attr_list) = annotation.attribute_list() {
+      } else if let Some(attr_list) = annotation.attributes() {
         attr_list.attribute_list().iter().for_each(| att | {
           if let Some(text) = att.rule_ref() {
 
