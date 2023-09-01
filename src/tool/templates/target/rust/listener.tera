@@ -4,8 +4,8 @@
 use chiru::runtime::ast::{terminal_context::TerminalContext, error_context::ErrorContext, rule_context::RuleContext};
 
 use super::{
-  parser::{{grammar_name.2}}Parser, 
-  context::{
+  {{grammar_name.0}}_parser::{{grammar_name.2}}Parser, 
+  {{grammar_name.0}}_context::{
     {% for nonterminal in nonterminals %}{{nonterminal.3}}Context,{% endfor %}
   }
 };

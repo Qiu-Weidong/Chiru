@@ -3,40 +3,16 @@ use std::any::Any;
 use chiru::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext, error_context::ErrorContext, terminal_context::TerminalContext};
 
 use super::{
-  context::{
-    AttributeContext,LexerRuleContext,AttributeListContext,ElementContext,RegularContext,EpsilonContext,EbnfSuffixContext,AlternativeContext,RuleListContext,AnnotationContext,ParserRuleContext,BlockContext,
+  chiru_context::{
+    ParserRuleContext,AlternativeContext,BlockContext,EpsilonContext,RuleListContext,AttributeContext,AttributeListContext,RegularContext,ElementContext,LexerRuleContext,AnnotationContext,EbnfSuffixContext,
   },
-  parser::ChiruParser, 
+  chiru_parser::ChiruParser, 
 };
 
 
 pub trait ChiruVisitor {
   
-  fn visit_attribute(&mut self, ctx: &dyn AttributeContext) -> Box<dyn Any> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_lexer_rule(&mut self, ctx: &dyn LexerRuleContext) -> Box<dyn Any> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_attribute_list(&mut self, ctx: &dyn AttributeListContext) -> Box<dyn Any> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_element(&mut self, ctx: &dyn ElementContext) -> Box<dyn Any> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_regular(&mut self, ctx: &dyn RegularContext) -> Box<dyn Any> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_epsilon(&mut self, ctx: &dyn EpsilonContext) -> Box<dyn Any> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_ebnf_suffix(&mut self, ctx: &dyn EbnfSuffixContext) -> Box<dyn Any> {
+  fn visit_parser_rule(&mut self, ctx: &dyn ParserRuleContext) -> Box<dyn Any> {
     self.visit_children(ctx.as_rule())
   }
   
@@ -44,7 +20,35 @@ pub trait ChiruVisitor {
     self.visit_children(ctx.as_rule())
   }
   
+  fn visit_block(&mut self, ctx: &dyn BlockContext) -> Box<dyn Any> {
+    self.visit_children(ctx.as_rule())
+  }
+  
+  fn visit_epsilon(&mut self, ctx: &dyn EpsilonContext) -> Box<dyn Any> {
+    self.visit_children(ctx.as_rule())
+  }
+  
   fn visit_rule_list(&mut self, ctx: &dyn RuleListContext) -> Box<dyn Any> {
+    self.visit_children(ctx.as_rule())
+  }
+  
+  fn visit_attribute(&mut self, ctx: &dyn AttributeContext) -> Box<dyn Any> {
+    self.visit_children(ctx.as_rule())
+  }
+  
+  fn visit_attribute_list(&mut self, ctx: &dyn AttributeListContext) -> Box<dyn Any> {
+    self.visit_children(ctx.as_rule())
+  }
+  
+  fn visit_regular(&mut self, ctx: &dyn RegularContext) -> Box<dyn Any> {
+    self.visit_children(ctx.as_rule())
+  }
+  
+  fn visit_element(&mut self, ctx: &dyn ElementContext) -> Box<dyn Any> {
+    self.visit_children(ctx.as_rule())
+  }
+  
+  fn visit_lexer_rule(&mut self, ctx: &dyn LexerRuleContext) -> Box<dyn Any> {
     self.visit_children(ctx.as_rule())
   }
   
@@ -52,11 +56,7 @@ pub trait ChiruVisitor {
     self.visit_children(ctx.as_rule())
   }
   
-  fn visit_parser_rule(&mut self, ctx: &dyn ParserRuleContext) -> Box<dyn Any> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_block(&mut self, ctx: &dyn BlockContext) -> Box<dyn Any> {
+  fn visit_ebnf_suffix(&mut self, ctx: &dyn EbnfSuffixContext) -> Box<dyn Any> {
     self.visit_children(ctx.as_rule())
   }
   
@@ -65,18 +65,18 @@ pub trait ChiruVisitor {
   fn visit(&mut self, ast: &RuleContext) -> Box<dyn Any> {
     match ast.get_rule_index() {
       
-      ChiruParser::ATTRIBUTE => self.visit_attribute(ast),
-      ChiruParser::LEXER_RULE => self.visit_lexer_rule(ast),
-      ChiruParser::ATTRIBUTE_LIST => self.visit_attribute_list(ast),
-      ChiruParser::ELEMENT => self.visit_element(ast),
-      ChiruParser::REGULAR => self.visit_regular(ast),
-      ChiruParser::EPSILON => self.visit_epsilon(ast),
-      ChiruParser::EBNF_SUFFIX => self.visit_ebnf_suffix(ast),
-      ChiruParser::ALTERNATIVE => self.visit_alternative(ast),
-      ChiruParser::RULE_LIST => self.visit_rule_list(ast),
-      ChiruParser::ANNOTATION => self.visit_annotation(ast),
       ChiruParser::PARSER_RULE => self.visit_parser_rule(ast),
+      ChiruParser::ALTERNATIVE => self.visit_alternative(ast),
       ChiruParser::BLOCK => self.visit_block(ast),
+      ChiruParser::EPSILON => self.visit_epsilon(ast),
+      ChiruParser::RULE_LIST => self.visit_rule_list(ast),
+      ChiruParser::ATTRIBUTE => self.visit_attribute(ast),
+      ChiruParser::ATTRIBUTE_LIST => self.visit_attribute_list(ast),
+      ChiruParser::REGULAR => self.visit_regular(ast),
+      ChiruParser::ELEMENT => self.visit_element(ast),
+      ChiruParser::LEXER_RULE => self.visit_lexer_rule(ast),
+      ChiruParser::ANNOTATION => self.visit_annotation(ast),
+      ChiruParser::EBNF_SUFFIX => self.visit_ebnf_suffix(ast),
 
       _ => self.visit_children(ast)
     }

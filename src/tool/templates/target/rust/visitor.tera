@@ -3,10 +3,10 @@ use std::any::Any;
 use chiru::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext, error_context::ErrorContext, terminal_context::TerminalContext};
 
 use super::{
-  context::{
+  {{ grammar_name.0 }}_context::{
     {% for nonterminal in nonterminals %}{{nonterminal.3}}Context,{% endfor %}
   },
-  parser::{{grammar_name.2}}Parser, 
+  {{ grammar_name.0 }}_parser::{{grammar_name.2}}Parser, 
 };
 
 

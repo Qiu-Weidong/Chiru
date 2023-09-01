@@ -4,12 +4,12 @@
 
 use chiru::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext};
 
-use super::{{ grammar_name.0 }}_listener::{{grammar_name.2}}Listener;
+use super::chiru_listener::ChiruListener;
 
 
 
-pub trait {{grammar_name.2}}Walker {
-  fn walk(&self, listener: &mut dyn {{grammar_name.2}}Listener, ast: &RuleContext) {
+pub trait ChiruWalker {
+  fn walk(&self, listener: &mut dyn ChiruListener, ast: &RuleContext) {
     listener.enter_every_rule(ast);
     listener.enter(ast);
 

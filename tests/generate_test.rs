@@ -1,5 +1,5 @@
 use chiru::{runtime::token_stream::TokenStream, tool::gui::ast_drawer::ASTDrawer};
-use generate::parser::ChiruParser;
+use generate::chiru_parser::ChiruParser;
 
 
 
@@ -70,7 +70,7 @@ fn generate_test() {
 
 
   // 自动生成的 lexer 暂时还需要手动修改一下 regular 的正则和 whitespace 的 skip
-  let lexer = generate::lexer::ChiruLexer::new(input);
+  let lexer = generate::chiru_lexer::ChiruLexer::new(input);
 
   let mut token_stream = TokenStream::new(&lexer, 0);
 

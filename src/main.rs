@@ -25,7 +25,7 @@ use std::{fs::File, io::Write};
 
 use chiru::{tool::{visitor::{string_literal_to_token_visitor::StringLiteralToTokenVisitor, lexer_rule_visitor::LexerRuleVisitor, parser_rule_visitor::ParserRuleVisitor, grammar_visitor::GrammarVisitor}, 
 syntaxis::{syntaxis_parser::SyntaxisParser, syntaxis_lexer::SyntaxisLexer}, 
-code_gen::{visitor_gen::generate_visitor, listener_gen::listener_generate, parser_gen::parser_generate, lexer_gen::lexer_generate, context_gen::context_generate}, gui::ast_drawer::ASTDrawer}, 
+code_gen::{visitor_gen::generate_visitor, listener_gen::listener_generate, parser_gen::parser_generate, lexer_gen::lexer_generate, context_gen::context_generate, walker_gen::walker_generate, mod_gen::mod_generate}, gui::ast_drawer::ASTDrawer}, 
 runtime::token_stream::TokenStream};
 
 
@@ -119,22 +119,29 @@ fn main() {
   // 根据产生式构造 ast
 
   // 生成 visitor 暂不写入文件
-  let mut file = File::create("tests/generate/visitor.rs").unwrap();
+  let mut file = File::create(format!("tests/generate/{}_visitor.rs", grammar.name.to_lowercase())).unwrap();
   file.write(generate_visitor(&grammar).as_bytes()).unwrap();
 
   // 生成 listener
-  let mut file = File::create("tests/generate/listener.rs").unwrap();
+  let mut file = File::create(format!("tests/generate/{}_listener.rs", grammar.name.to_lowercase())).unwrap();
   file.write(listener_generate(&grammar).as_bytes()).unwrap();
 
   // 生成 parser
-  let mut file = File::create("tests/generate/parser.rs").unwrap();
+  let mut file = File::create(format!("tests/generate/{}_parser.rs", grammar.name.to_lowercase())).unwrap();
   file.write(parser_generate(&grammar).as_bytes()).unwrap();
   
-  let mut file = File::create("tests/generate/lexer.rs").unwrap();
+  let mut file = File::create(format!("tests/generate/{}_lexer.rs", grammar.name.to_lowercase())).unwrap();
   file.write(lexer_generate(&lexer_visitor.lexer_rule_map, "chiru").as_bytes()).unwrap();
 
-  let mut file = File::create("tests/generate/context.rs").unwrap();
+  let mut file = File::create(format!("tests/generate/{}_context.rs", grammar.name.to_lowercase())).unwrap();
   file.write(context_generate(&grammar, ast.as_ref()).as_bytes()).unwrap();
+
+  let mut file = File::create(format!("tests/generate/{}_walker.rs", grammar.name.to_lowercase())).unwrap();
+  file.write(walker_generate(&grammar).as_bytes()).unwrap();
+
+  // 最后再写一个 mod 文件
+  let mut file = File::create("tests/generate/mod.rs").unwrap();
+  file.write(mod_generate(&grammar, true, true, true, true, true, true).as_bytes()).unwrap();
 
 }
 

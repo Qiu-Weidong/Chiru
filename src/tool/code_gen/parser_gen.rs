@@ -82,7 +82,7 @@ pub fn parser_generate(grammar: &Grammar) -> String {
   context.insert("nonterminals", &nonterminals);
   context.insert("terminals", &terminals);
   context.insert("sync_list", &sync);
-  context.insert("name", &pascal(&grammar.name));
+  context.insert("grammar_name", &(grammar.name.to_lowercase(), grammar.name.to_uppercase(), pascal(&grammar.name)));
 
   let result = TEMPLATES.render("target/rust/parser.tera", &context).unwrap();
 

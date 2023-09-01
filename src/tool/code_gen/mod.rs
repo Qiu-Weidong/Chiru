@@ -6,6 +6,8 @@ pub mod visitor_gen;
 pub mod parser_gen;
 pub mod context_gen;
 pub mod listener_gen;
+pub mod mod_gen;
+pub mod walker_gen;
 
 
 

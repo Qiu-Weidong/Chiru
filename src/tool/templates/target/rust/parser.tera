@@ -11,12 +11,12 @@ use chiru::{
 
 };
 
-use super::context::{
+use super::{{ grammar_name.0 }}_context::{
   {% for nonterminal in nonterminals %} {{nonterminal.3}}Context,{% endfor %}
 };
 
 
-pub struct {{name}}Parser {
+pub struct {{grammar_name.2}}Parser {
   pub analyzer: LL1,
 }
 
@@ -53,7 +53,7 @@ lazy_static!{
 }
 
 #[allow(unused)]
-impl {{name}}Parser {
+impl {{grammar_name.2}}Parser {
 
   // 使用模板生成 每个非终结符的编号
   {% for nonterminal in nonterminals %}

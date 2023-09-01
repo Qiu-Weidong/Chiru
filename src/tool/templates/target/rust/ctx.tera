@@ -51,6 +51,3 @@ impl {{ ctx_name.2 }}Context for RuleContext {
     listener.exit_rule_list(self)
   }
 }
-
-
-

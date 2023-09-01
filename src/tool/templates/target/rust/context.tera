@@ -6,14 +6,10 @@ use chiru::runtime::ast::terminal_context::TerminalContext;
 use chiru::runtime::ast::to_rule::ToRule;
 
 
-// use super::{{grammar_name.0}}_lexer::{{grammar_name.2}}Lexer;
-// use super::{{grammar_name.0}}_parser::{{grammar_name.2}}Parser;
-// use super::{{grammar_name.0}}_visitor::{{grammar_name.2}}Visitor;
-// use super::{{grammar_name.0}}_listener::{{grammar_name.2}}Listener;
-use super::lexer::{{grammar_name.2}}Lexer;
-use super::parser::{{grammar_name.2}}Parser;
-use super::visitor::{{grammar_name.2}}Visitor;
-use super::listener::{{grammar_name.2}}Listener;
+use super::{{grammar_name.0}}_lexer::{{grammar_name.2}}Lexer;
+use super::{{grammar_name.0}}_parser::{{grammar_name.2}}Parser;
+use super::{{grammar_name.0}}_visitor::{{grammar_name.2}}Visitor;
+use super::{{grammar_name.0}}_listener::{{grammar_name.2}}Listener;
 
 
 {% for ctx in ctx_list %}
