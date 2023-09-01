@@ -1,3 +1,5 @@
+
+
 use chiru::{runtime::token_stream::TokenStream, tool::gui::ast_drawer::ASTDrawer};
 use generate::chiru_parser::ChiruParser;
 
@@ -79,10 +81,8 @@ fn generate_test() {
   token_stream.consume().unwrap();
   let ast = parser.rule_list(&mut token_stream);
 
-
-  print!("{}", ast.as_rule().rule_name);
-
   ASTDrawer::new().draw(ast.as_ref().as_rule(), "foo", "output/foo.html");
+
 
 
   
