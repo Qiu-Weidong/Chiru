@@ -4,7 +4,7 @@
 
 use std::collections::HashMap;
 
-use crate::tool::syntaxis::{syntaxis_visitor::SyntaxisVisitor, syntaxis_context::ElementContext};
+use crate::tool::syntaxis::{chiru_visitor::ChiruVisitor, chiru_context::ElementContext};
 
 use super::lexer_rule::LexerRule;
 
@@ -38,7 +38,7 @@ impl StringLiteralToTokenVisitor {
 
 }
 
-impl SyntaxisVisitor for StringLiteralToTokenVisitor {
+impl ChiruVisitor for StringLiteralToTokenVisitor {
   fn visit_element(&mut self, ctx: &dyn ElementContext) -> Box<dyn std::any::Any> {
     
     // 处理 element 中的字符串常量即可

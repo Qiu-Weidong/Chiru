@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::tool::syntaxis::{syntaxis_visitor::SyntaxisVisitor, syntaxis_context::ParserRuleContext};
+use crate::tool::syntaxis::{chiru_visitor::ChiruVisitor, chiru_context::ParserRuleContext};
 
 
 
@@ -19,7 +19,7 @@ impl ParserRuleVisitor {
   }
 }
 
-impl SyntaxisVisitor for ParserRuleVisitor {
+impl ChiruVisitor for ParserRuleVisitor {
 
   fn visit_parser_rule(&mut self, ctx: &dyn ParserRuleContext) -> Box<dyn std::any::Any> {
 

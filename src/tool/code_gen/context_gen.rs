@@ -5,7 +5,7 @@ use std::collections::{HashSet, HashMap};
 
 use tera::Context;
 
-use crate::tool::{grammar::{Grammar, vocabulary::Vocabulary}, syntaxis::syntaxis_context::RuleListContext, visitor::context_visitor::ContextVisitor};
+use crate::tool::{grammar::{Grammar, vocabulary::Vocabulary}, syntaxis::chiru_context::RuleListContext, visitor::context_visitor::ContextVisitor};
 
 use super::{TEMPLATES, pascal};
 

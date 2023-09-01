@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use maplit::hashset;
 
-use crate::tool::syntaxis::syntaxis_visitor::SyntaxisVisitor;
+use crate::tool::syntaxis::chiru_visitor::ChiruVisitor;
 
 
 
@@ -35,8 +35,8 @@ impl ContextVisitor {
 }
 
 
-impl SyntaxisVisitor for ContextVisitor {
-  fn visit_rule_list(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::RuleListContext) -> Box<dyn std::any::Any> {
+impl ChiruVisitor for ContextVisitor {
+  fn visit_rule_list(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::RuleListContext) -> Box<dyn std::any::Any> {
     // println!("visit_rule_list");
 
     // 只需要访问 parser_rule
@@ -44,7 +44,7 @@ impl SyntaxisVisitor for ContextVisitor {
     self.default_result()
   }
 
-  fn visit_parser_rule(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::ParserRuleContext) -> Box<dyn std::any::Any> {
+  fn visit_parser_rule(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::ParserRuleContext) -> Box<dyn std::any::Any> {
     // println!("visit_parser_rule,  {} {}", ctx.as_rule().rule_index, ctx.as_rule().rule_name);
     let name = &ctx.rule_ref().unwrap().symbol.text;
 
@@ -57,7 +57,7 @@ impl SyntaxisVisitor for ContextVisitor {
   }
 
   // 返回一个 hashset 的元组 (terminal_list, terminal, nonterminal_list, nonterminal) : (HashSet<usize>, ...)
-  fn visit_block(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::BlockContext) -> Box<dyn std::any::Any> {
+  fn visit_block(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::BlockContext) -> Box<dyn std::any::Any> {
 
     let mut result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = (HashSet::new(), HashSet::new(), HashSet::new(), HashSet::new());
       
@@ -72,7 +72,7 @@ impl SyntaxisVisitor for ContextVisitor {
   }
 
   // (terminal_list, terminal, nonterminal_list, nonterminal)
-  fn visit_alternative(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::AlternativeContext) -> Box<dyn std::any::Any> {
+  fn visit_alternative(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::AlternativeContext) -> Box<dyn std::any::Any> {
     let mut result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = (HashSet::new(), HashSet::new(), HashSet::new(), HashSet::new());
     
     let children = ctx.element_list().iter().map(|elem| {
@@ -117,7 +117,7 @@ impl SyntaxisVisitor for ContextVisitor {
   }
 
   // (terminal_list, terminal, nonterminal_list, nonterminal)
-  fn visit_element(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::ElementContext) -> Box<dyn std::any::Any> {
+  fn visit_element(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::ElementContext) -> Box<dyn std::any::Any> {
     // println!("visit_element");
 
     if let Some(token) = ctx.token_ref() {

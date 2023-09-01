@@ -24,7 +24,7 @@
 use std::{fs::File, io::Write};
 
 use chiru::{tool::{visitor::{string_literal_to_token_visitor::StringLiteralToTokenVisitor, lexer_rule_visitor::LexerRuleVisitor, parser_rule_visitor::ParserRuleVisitor, grammar_visitor::GrammarVisitor}, 
-syntaxis::{syntaxis_parser::SyntaxisParser, syntaxis_lexer::SyntaxisLexer}, 
+syntaxis::{chiru_parser::ChiruParser, chiru_lexer::ChiruLexer}, 
 code_gen::{visitor_gen::generate_visitor, listener_gen::listener_generate, parser_gen::parser_generate, lexer_gen::lexer_generate, context_gen::context_generate, walker_gen::walker_generate, mod_gen::mod_generate}, gui::ast_drawer::ASTDrawer}, 
 runtime::token_stream::TokenStream};
 
@@ -81,16 +81,11 @@ fn main() {
   
   "######;
 
-  let lexer = SyntaxisLexer::new(input);
-
-  // for token in lexer.iter() {
-  //   println!("{}", token);
-  // }
-
+  let lexer = ChiruLexer::new(input);
   let mut stream = TokenStream::new(&lexer, 0);
 
   stream.consume().unwrap(); // 注意要先将 _START 消耗掉
-  let parser = SyntaxisParser::new();
+  let parser = ChiruParser::new();
   let ast = parser.rule_list(&mut stream);
 
   // 打印一下语法树

@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use crate::tool::{grammar::{Grammar, production::{ProductionItem, Production}}, syntaxis::{syntaxis_visitor::SyntaxisVisitor, syntaxis_context::{ElementContext, ParserRuleContext, BlockContext}}};
+use crate::tool::{grammar::{Grammar, production::{ProductionItem, Production}}, syntaxis::{chiru_visitor::ChiruVisitor, chiru_context::{ElementContext, ParserRuleContext, BlockContext}}};
 
 use super::lexer_rule::LexerRule;
 
@@ -55,11 +55,11 @@ impl GrammarVisitor {
   }
 }
 
-impl SyntaxisVisitor for GrammarVisitor {
+impl ChiruVisitor for GrammarVisitor {
 
 
   // 只需要访问 parser rule 无需返回值  -> void
-  fn visit_rule_list(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::RuleListContext) -> Box<dyn std::any::Any> {
+  fn visit_rule_list(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::RuleListContext) -> Box<dyn std::any::Any> {
     for rule in ctx.parser_rule_list().iter() {
       rule.accept(self);
     }
@@ -91,7 +91,7 @@ impl SyntaxisVisitor for GrammarVisitor {
 
 
   // 返回一条产生式的右部分 -> Vec<ProductionItem>
-  fn visit_alternative(&mut self, ctx: &dyn crate::tool::syntaxis::syntaxis_context::AlternativeContext) -> Box<dyn std::any::Any> {
+  fn visit_alternative(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::AlternativeContext) -> Box<dyn std::any::Any> {
     if let Some(_) = ctx.epsilon() {
       return Box::new(Vec::<ProductionItem>::new());
     }

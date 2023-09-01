@@ -1,11 +1,15 @@
+
+
+
+
 use crate::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext};
 
-use super::syntaxis_listener::SyntaxisListener;
+use super::chiru_listener::ChiruListener;
 
 
 
-pub trait SyntaxisWalker {
-  fn walk(&self, listener: &mut dyn SyntaxisListener, ast: &RuleContext) {
+pub trait ChiruWalker {
+  fn walk(&self, listener: &mut dyn ChiruListener, ast: &RuleContext) {
     listener.enter_every_rule(ast);
     listener.enter(ast);
 
@@ -27,6 +31,10 @@ pub trait SyntaxisWalker {
     listener.exit_every_rule(ast);
   }
 }
+
+
+
+
 
 
 

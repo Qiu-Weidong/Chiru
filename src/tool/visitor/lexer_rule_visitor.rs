@@ -1,6 +1,6 @@
 use std::{any::Any, collections::HashMap};
 
-use crate::tool::syntaxis::{syntaxis_visitor::SyntaxisVisitor, syntaxis_context::LexerRuleContext};
+use crate::tool::syntaxis::{chiru_visitor::ChiruVisitor, chiru_context::LexerRuleContext};
 
 use super::lexer_rule::LexerRule;
 
@@ -30,7 +30,7 @@ impl LexerRuleVisitor {
 
 
 
-impl SyntaxisVisitor for LexerRuleVisitor {
+impl ChiruVisitor for LexerRuleVisitor {
   
   
   fn visit_lexer_rule(&mut self, ctx: &dyn LexerRuleContext) -> Box<dyn Any> {

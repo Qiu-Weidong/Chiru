@@ -1,7 +1,7 @@
 
 // 编写一个 token_stream 的测试
 
-use chiru::{runtime::{token_stream::TokenStream, lexer::Lexer}, tool::syntaxis::syntaxis_lexer::SyntaxisLexer};
+use chiru::{runtime::{token_stream::TokenStream, lexer::Lexer}, tool::syntaxis::chiru_lexer::ChiruLexer};
 
 
 #[test]
@@ -208,7 +208,7 @@ fn token_stream_test() {
 
 
 
-  let lexer = SyntaxisLexer::new(input);
+  let lexer = ChiruLexer::new(input);
 
 
   for token in lexer.iter() {

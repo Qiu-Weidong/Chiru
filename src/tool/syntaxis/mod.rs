@@ -1,11 +1,6 @@
-// 这里是直接加载的语法树的分析工具
-
-pub mod syntaxis_context;
-pub mod syntaxis_lexer;
-pub mod syntaxis_listener;
-pub mod syntaxis_parser;
-pub mod syntaxis_visitor;
-pub mod syntaxis_walker;
-
-// 模拟自动生成的文件
-
+pub mod chiru_lexer;
+pub mod chiru_parser;
+pub mod chiru_context;
+pub mod chiru_listener;
+pub mod chiru_visitor;
+pub mod chiru_walker;
