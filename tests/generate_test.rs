@@ -14,11 +14,12 @@ mod generate;
 #[test]
 fn generate_test() {
   let input = r######"
+  // 注释
   rule_list: (parser_rule | lexer_rule)*;
 
   parser_rule: RULE_REF COLON block SEMI;
   block: alternative (OR alternative)*;
-
+  /** 又是一条注释 */
   alternative: element element* | epsilon;
   epsilon: EPSILON;
   element: (
@@ -31,6 +32,9 @@ fn generate_test() {
   ebnf_suffix: (STAR | PLUS | QUESTION) QUESTION?;
 
 
+  /***
+   * 多行注释
+   */
   lexer_rule: annotation ? TOKEN_REF COLON regular SEMI;
   regular: REGULAR_LITERAL;
   annotation: AT attribute
@@ -60,6 +64,7 @@ fn generate_test() {
 
   @skip
   WHITE_SPACE: r###"[ \r\n\t\f]+"###;
+  // 看看是否能够识别注释
 
   @channel(HIDDEN)
   LINE_COMMENT: r###"//.*?\n"###;

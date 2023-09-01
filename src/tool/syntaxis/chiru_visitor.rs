@@ -4,21 +4,13 @@ use crate::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext, er
 
 use super::{
   chiru_context::{
-    AlternativeContext,RegularContext,EpsilonContext,ParserRuleContext,LexerRuleContext,EbnfSuffixContext,AttributeListContext,AnnotationContext,AttributeContext,ElementContext,BlockContext,RuleListContext,
+    EpsilonContext,ParserRuleContext,EbnfSuffixContext,AnnotationContext,ElementContext,LexerRuleContext,AlternativeContext,AttributeListContext,AttributeContext,BlockContext,RuleListContext,RegularContext,
   },
   chiru_parser::ChiruParser, 
 };
 
 
 pub trait ChiruVisitor {
-  
-  fn visit_alternative(&mut self, ctx: &dyn AlternativeContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_regular(&mut self, ctx: &dyn RegularContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    self.visit_children(ctx.as_rule())
-  }
   
   fn visit_epsilon(&mut self, ctx: &dyn EpsilonContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     self.visit_children(ctx.as_rule())
@@ -28,15 +20,7 @@ pub trait ChiruVisitor {
     self.visit_children(ctx.as_rule())
   }
   
-  fn visit_lexer_rule(&mut self, ctx: &dyn LexerRuleContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    self.visit_children(ctx.as_rule())
-  }
-  
   fn visit_ebnf_suffix(&mut self, ctx: &dyn EbnfSuffixContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_attribute_list(&mut self, ctx: &dyn AttributeListContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     self.visit_children(ctx.as_rule())
   }
   
@@ -44,11 +28,23 @@ pub trait ChiruVisitor {
     self.visit_children(ctx.as_rule())
   }
   
-  fn visit_attribute(&mut self, ctx: &dyn AttributeContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+  fn visit_element(&mut self, ctx: &dyn ElementContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     self.visit_children(ctx.as_rule())
   }
   
-  fn visit_element(&mut self, ctx: &dyn ElementContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+  fn visit_lexer_rule(&mut self, ctx: &dyn LexerRuleContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    self.visit_children(ctx.as_rule())
+  }
+  
+  fn visit_alternative(&mut self, ctx: &dyn AlternativeContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    self.visit_children(ctx.as_rule())
+  }
+  
+  fn visit_attribute_list(&mut self, ctx: &dyn AttributeListContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    self.visit_children(ctx.as_rule())
+  }
+  
+  fn visit_attribute(&mut self, ctx: &dyn AttributeContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     self.visit_children(ctx.as_rule())
   }
   
@@ -60,23 +56,27 @@ pub trait ChiruVisitor {
     self.visit_children(ctx.as_rule())
   }
   
+  fn visit_regular(&mut self, ctx: &dyn RegularContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    self.visit_children(ctx.as_rule())
+  }
+  
 
   
   fn visit(&mut self, ast: &RuleContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     match ast.get_rule_index() {
       
-      ChiruParser::ALTERNATIVE => self.visit_alternative(ast),
-      ChiruParser::REGULAR => self.visit_regular(ast),
       ChiruParser::EPSILON => self.visit_epsilon(ast),
       ChiruParser::PARSER_RULE => self.visit_parser_rule(ast),
-      ChiruParser::LEXER_RULE => self.visit_lexer_rule(ast),
       ChiruParser::EBNF_SUFFIX => self.visit_ebnf_suffix(ast),
-      ChiruParser::ATTRIBUTE_LIST => self.visit_attribute_list(ast),
       ChiruParser::ANNOTATION => self.visit_annotation(ast),
-      ChiruParser::ATTRIBUTE => self.visit_attribute(ast),
       ChiruParser::ELEMENT => self.visit_element(ast),
+      ChiruParser::LEXER_RULE => self.visit_lexer_rule(ast),
+      ChiruParser::ALTERNATIVE => self.visit_alternative(ast),
+      ChiruParser::ATTRIBUTE_LIST => self.visit_attribute_list(ast),
+      ChiruParser::ATTRIBUTE => self.visit_attribute(ast),
       ChiruParser::BLOCK => self.visit_block(ast),
       ChiruParser::RULE_LIST => self.visit_rule_list(ast),
+      ChiruParser::REGULAR => self.visit_regular(ast),
 
       _ => self.visit_children(ast)
     }

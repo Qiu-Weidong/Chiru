@@ -34,6 +34,11 @@ runtime::token_stream::TokenStream};
 fn main() {
 
   let input = r######"
+  /****
+   * 注释
+   * 多行注释
+   * 看看是否会有问题
+   */
   rule_list: (parser_rule | lexer_rule)*;
 
   parser_rule: RULE_REF COLON block SEMI;
@@ -48,6 +53,7 @@ fn main() {
       | LPAREN block RPAREN
     ) ebnf_suffix?;
 
+  // 这是一行注释
   ebnf_suffix: (STAR | PLUS | QUESTION) QUESTION?;
 
 
@@ -77,7 +83,14 @@ fn main() {
   RBRACKET: r###"\]"###;
   STRING_LITERAL: r###""((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*""###;
   REGULAR_LITERAL: r###"(?s)r##".*?"##"###;
+
+  @ignore
   WHITE_SPACE: r###"[ \r\n\t\f]+"###;
+
+  @channel(HIDDEN)
+  LINE_COMMENT: r###"//.*?\n"###;
+  @channel(HIDDEN)
+  BLOCK_COMMENT: r###"(?s)/\*.*?\*\/"###;
   
   "######;
 

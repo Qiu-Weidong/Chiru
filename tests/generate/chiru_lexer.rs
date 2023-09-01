@@ -33,8 +33,10 @@ lazy_static!{
     (Regex::new(r###"\["###).unwrap(), 16, 0, "LBRACKET", false), 
     (Regex::new(r###"\]"###).unwrap(), 17, 0, "RBRACKET", false), 
     (Regex::new(r###""((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*""###).unwrap(), 18, 0, "STRING_LITERAL", false), 
-    (Regex::new(r###"(?s)r##".*?"##"###).unwrap(), 19, 0, "REGULAR_LITERAL", false), 
-    (Regex::new(r###"[ \r\n\t\f]+"###).unwrap(), 20, 0, "WHITE_SPACE", false), 
+    (Regex::new(r####"(?s)r###".*?"###"####).unwrap(), 19, 0, "REGULAR_LITERAL", false), 
+    (Regex::new(r###"[ \r\n\t\f]+"###).unwrap(), 20, 0, "WHITE_SPACE", true), 
+    (Regex::new(r###"//.*?\n"###).unwrap(), 21, 1, "LINE_COMMENT", false), 
+    (Regex::new(r###"(?s)/\*.*?\*\/"###).unwrap(), 22, 1, "BLOCK_COMMENT", false), 
   ];
 }
 
@@ -65,6 +67,8 @@ impl<'a> ChiruLexer<'a> {
   pub const STRING_LITERAL: usize = 18;
   pub const REGULAR_LITERAL: usize = 19;
   pub const WHITE_SPACE: usize = 20;
+  pub const LINE_COMMENT: usize = 21;
+  pub const BLOCK_COMMENT: usize = 22;
 
 
   pub fn new(input: &'a str) -> Self {

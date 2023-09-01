@@ -14,7 +14,11 @@ pub struct LexerRuleVisitor {
   
   pub next_token_id: usize, 
 
+  pub next_channel_id: usize,
+
   pub lexer_rule_map: HashMap<String, LexerRule>,
+
+  pub channel_map: HashMap<String, usize>,
 }
 
 
@@ -24,6 +28,8 @@ impl LexerRuleVisitor {
     Self { 
       next_token_id, 
       lexer_rule_map,
+      channel_map: HashMap::new(),
+      next_channel_id: 1,
     }
   }
 }
@@ -52,16 +58,57 @@ impl ChiruVisitor for LexerRuleVisitor {
     if let Some(annotation) = ctx.annotation() {
       // 查看注解
       if let Some(att) = annotation.attribute() {
-        
+        if let Some(text) = att.rule_ref() {
+
+          // 处理annotation
+          let text = &text.symbol.text;
+          if text == "ignore" || text == "skip" {
+            skip = true;
+          }
+          else if text == "channel" {
+            if let Some(c) = att.token_ref() {
+              let text = &c.symbol.text;
+              if self.channel_map.contains_key(text) {
+                channel = *self.channel_map.get(text).unwrap();
+              }
+              else {
+                channel = self.next_channel_id;
+                self.channel_map.insert(text.to_owned(), channel);
+                self.next_channel_id += 1;
+              }
+            }
+          }
+        }
         
       } else if let Some(attr_list) = annotation.attribute_list() {
+        attr_list.attribute_list().iter().for_each(| att | {
+          if let Some(text) = att.rule_ref() {
 
+            // 处理annotation
+            let text = &text.symbol.text;
+            if text == "ignore" || text == "skip" {
+              skip = true;
+            }
+            else if text == "channel" {
+              if let Some(c) = att.token_ref() {
+                let text = &c.symbol.text;
+                if self.channel_map.contains_key(text) {
+                  channel = *self.channel_map.get(text).unwrap();
+                }
+                else {
+                  channel = self.next_channel_id;
+                  self.channel_map.insert(text.to_owned(), channel);
+                  self.next_channel_id += 1;
+                }
+              }
+            }
+          }
+          
+
+        });
       }
 
-    } else {
-
-    }
-
+    } 
 
 
     let regular = &ctx.regular().unwrap().regular_literal().unwrap().symbol.text; // .replace("\\/", "/");

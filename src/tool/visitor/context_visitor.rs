@@ -37,7 +37,6 @@ impl ContextVisitor {
 
 impl ChiruVisitor for ContextVisitor {
   fn visit_rule_list(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::RuleListContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    // println!("visit_rule_list");
 
     // 只需要访问 parser_rule
     for ctx in ctx.parser_rule_list().iter() { 
@@ -47,9 +46,7 @@ impl ChiruVisitor for ContextVisitor {
   }
 
   fn visit_parser_rule(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::ParserRuleContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    // println!("visit_parser_rule,  {} {}", ctx.as_rule().rule_index, ctx.as_rule().rule_name);
     let name = &ctx.rule_ref().unwrap().symbol.text;
-
     let id = *self.nonterminals.get(name).unwrap();
     
     // 解析并填表
@@ -76,10 +73,6 @@ impl ChiruVisitor for ContextVisitor {
   // (terminal_list, terminal, nonterminal_list, nonterminal)
   fn visit_alternative(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::AlternativeContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     let mut result: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>) = (HashSet::new(), HashSet::new(), HashSet::new(), HashSet::new());
-    
-    // let children = ctx.element_list().iter().map(|elem| {
-    //   elem.accept(self)?.downcast::<(HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>().unwrap()
-    // }).collect::<Vec<_>>();
     let mut children: Vec<Box<(HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>> = Vec::new();
     for elem in ctx.element_list().iter() {
       let child = elem.accept(self)?.downcast::<(HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>)>().unwrap();
@@ -126,8 +119,6 @@ impl ChiruVisitor for ContextVisitor {
 
   // (terminal_list, terminal, nonterminal_list, nonterminal)
   fn visit_element(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::ElementContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    // println!("visit_element");
-
     if let Some(token) = ctx.token_ref() {
       let name = &token.symbol.text;
 
