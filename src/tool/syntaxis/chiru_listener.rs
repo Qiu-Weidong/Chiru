@@ -1,7 +1,7 @@
 
 
 
-use crate::runtime::ast::{terminal_context::TerminalContext, error_context::ErrorContext, rule_context::RuleContext};
+use chiru::runtime::ast::{terminal_context::TerminalContext, error_context::ErrorContext, rule_context::RuleContext};
 
 use super::{
   chiru_parser::ChiruParser, 

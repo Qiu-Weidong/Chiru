@@ -36,6 +36,14 @@ impl ContextVisitor {
 
 
 impl ChiruVisitor for ContextVisitor {
+  fn visit_compilation_unit(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::CompilationUnitContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    if let Some(rules) = ctx.rules() {
+      rules.accept(self)
+    } else {
+      self.default_result()
+    }
+  }
+
   fn visit_rules(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::RulesContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
 
     // 只需要访问 parser_rule

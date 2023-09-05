@@ -1,8 +1,8 @@
 
 
 use std::{collections::HashMap, error::Error, any::Any};
-
-use crate::tool::{grammar::{Grammar, production::{ProductionItem, Production}}, syntaxis::{chiru_visitor::ChiruVisitor, chiru_context::{ElementContext, ParserRuleContext, BlockContext}}};
+use chiru::runtime::production::{Production, ProductionItem};
+use crate::tool::{grammar::Grammar, syntaxis::{chiru_visitor::ChiruVisitor, chiru_context::{ElementContext, ParserRuleContext, BlockContext}}};
 
 use super::lexer_rule::LexerRule;
 
@@ -35,6 +35,7 @@ impl GrammarVisitor {
   pub fn new(name: &str, parser_rule_map: &HashMap<String, usize>, lexer_rule_map: &HashMap<String, LexerRule>) -> Self {
     let mut grammar = Grammar::new(name);
 
+    grammar.lexer_rule_map = lexer_rule_map.clone();
 
     // 将已经识别的终结符加入 vocabulary 
     lexer_rule_map.values().for_each(|v| { grammar.vocabulary.add_terminal(v.token_type, &v.token_name); });

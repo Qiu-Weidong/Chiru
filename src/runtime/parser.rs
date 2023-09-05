@@ -1,8 +1,8 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::{tool::grammar::production::{Production, ProductionItem}, runtime::ast::error_context::ErrorContext};
+use crate::runtime::ast::error_context::ErrorContext;
 
-use super::{ast::{rule_context::RuleContext, ast_context::ASTContext, terminal_context::TerminalContext}, token_stream::TokenStream, error_strategy::error_listener::ErrorListener};
+use super::{ast::{rule_context::RuleContext, ast_context::ASTContext, terminal_context::TerminalContext}, token_stream::TokenStream, error_strategy::error_listener::ErrorListener, production::{ProductionItem, Production}};
 
 
 
@@ -31,7 +31,7 @@ impl LL1 {
       None => rule_index.to_string(),
     };
     
-    // println!("parsing rule {}", name);
+
     let mut result = RuleContext { rule_index, rule_name: name, children: Vec::new(), };
 
     // 获取 production_id
@@ -68,12 +68,12 @@ impl LL1 {
       match child {
         ProductionItem::NonTerminal(rule_id) => {
           let t = self.analyse(token_stream, *rule_id);
-            if let Some(_) = self.rule_names.get(rule_id) {
-              result.children.push(ASTContext::Rule(t));
-            }
-            else {
-              result.children.extend(t.children);
-            }
+          if let Some(_) = self.rule_names.get(rule_id) {
+            result.children.push(ASTContext::Rule(t));
+          }
+          else {
+            result.children.extend(t.children);
+          }
         },
         ProductionItem::Terminal(token_type) => {
           while *token_type != token.token_type {

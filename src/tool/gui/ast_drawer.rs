@@ -2,7 +2,7 @@
 use std::io::Write;
 use tera::{Context, Tera};
 
-use crate::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext};
+use chiru::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext};
 
 /**
  * let file = File::open("src/tool/ast.json").unwrap();

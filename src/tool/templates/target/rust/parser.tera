@@ -3,6 +3,7 @@
 use std::collections::{HashMap, HashSet};
 use maplit::hashmap;
 use maplit::hashset;
+use lazy_static::lazy_static;
 
 use chiru::{
   runtime::{parser::LL1, token_stream::TokenStream, error_strategy::error_listener::ConsoleErrorListener}, 

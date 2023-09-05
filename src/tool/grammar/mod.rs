@@ -1,6 +1,9 @@
+
+
+
+
 pub mod non_terminal;
 pub mod terminal;
-pub mod production;
 pub mod vocabulary;
 
 
@@ -9,7 +12,13 @@ pub mod vocabulary;
 
 use std::{collections::{HashMap, HashSet}, fmt::Display};
 
-use self::{production::{ProductionItem, Production}, vocabulary::Vocabulary};
+use chiru::runtime::production::{Production, ProductionItem};
+
+use crate::tool::visitor::{string_literal_to_token_visitor::StringLiteralToTokenVisitor, lexer_rule_visitor::LexerRuleVisitor, parser_rule_visitor::ParserRuleVisitor, grammar_visitor::GrammarVisitor};
+
+use self::vocabulary::Vocabulary;
+
+use super::{syntaxis::chiru_context::CompilationUnitContext, visitor::lexer_rule::LexerRule};
 
 
 
@@ -23,6 +32,8 @@ pub struct Grammar {
   
   // 所有产生式
   pub productions: HashMap<usize, Production>, 
+
+  pub lexer_rule_map: HashMap<String, LexerRule>,
 
   // 开始符号 ?
 }
@@ -39,7 +50,26 @@ impl Grammar {
       name: name.to_owned(),
       vocabulary: Vocabulary::new(),
       productions: HashMap::new(),
+      lexer_rule_map: HashMap::new(),
     }
+  }
+
+
+
+
+  pub fn from_ast(ast: &dyn CompilationUnitContext) -> Self {
+    let mut visitor = StringLiteralToTokenVisitor::new(2);
+    ast.accept(&mut visitor).unwrap();
+    
+    let mut lexer_visitor = LexerRuleVisitor::new(visitor.next_token_id, visitor.lexer_rule_map);
+    ast.accept(&mut lexer_visitor).unwrap();
+
+    let mut parser_visitor = ParserRuleVisitor::new();
+    ast.accept(&mut parser_visitor).unwrap();
+
+    let mut grammar_visitor = GrammarVisitor::new("<no name>", &parser_visitor.parser_rule_map, &lexer_visitor.lexer_rule_map);
+    ast.accept(&mut grammar_visitor).unwrap();
+    grammar_visitor.grammar
   }
   
   // 根据非终结符的first集合求一个串的first集合

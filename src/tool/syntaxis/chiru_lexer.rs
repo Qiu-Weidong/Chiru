@@ -2,10 +2,11 @@
 
 
 use regex::Regex;
+use lazy_static::lazy_static;
 
-use crate::runtime::error_strategy::error_listener::{ErrorListener, ConsoleErrorListener};
-use crate::runtime::lexer::TokenIter;
-use crate::runtime::lexer::Lexer;
+use chiru::runtime::error_strategy::error_listener::{ErrorListener, ConsoleErrorListener};
+use chiru::runtime::lexer::TokenIter;
+use chiru::runtime::lexer::Lexer;
 
 pub struct ChiruLexer<'a> {
   pub input: &'a str, 

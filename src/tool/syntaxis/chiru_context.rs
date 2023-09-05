@@ -2,9 +2,9 @@ use std::any::Any;
 use std::error::Error;
 
 
-use crate::runtime::ast::rule_context::RuleContext;
-use crate::runtime::ast::terminal_context::TerminalContext;
-use crate::runtime::ast::to_rule::ToRule;
+use chiru::runtime::ast::rule_context::RuleContext;
+use chiru::runtime::ast::terminal_context::TerminalContext;
+use chiru::runtime::ast::to_rule::ToRule;
 
 
 use super::chiru_lexer::ChiruLexer;

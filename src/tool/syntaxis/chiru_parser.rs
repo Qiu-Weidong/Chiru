@@ -3,13 +3,11 @@
 use std::collections::{HashMap, HashSet};
 use maplit::hashmap;
 use maplit::hashset;
+use lazy_static::lazy_static;
 
-use crate::{
-  runtime::{parser::LL1, token_stream::TokenStream, error_strategy::error_listener::ConsoleErrorListener}, 
-
-  tool::grammar::{production::ProductionItem, production::Production}
-
-};
+use chiru::runtime::production::Production;
+use chiru::runtime::production::ProductionItem;
+use chiru::runtime::{parser::LL1, token_stream::TokenStream, error_strategy::error_listener::ConsoleErrorListener};
 
 use super::chiru_context::{
    EbnfSuffixContext, ParserRuleContext, AttributesContext, BlockContext, LexerRuleContext, AttributeContext, ElementContext, AlternativeContext, RegularContext, EpsilonContext, AnnotationContext, CompilationUnitContext, GrammarNameContext, RulesContext,

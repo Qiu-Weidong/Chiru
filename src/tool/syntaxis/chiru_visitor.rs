@@ -1,6 +1,6 @@
 use std::{any::Any, error::Error};
 
-use crate::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext, error_context::ErrorContext, terminal_context::TerminalContext};
+use chiru::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext, error_context::ErrorContext, terminal_context::TerminalContext};
 
 use super::{
   chiru_context::{

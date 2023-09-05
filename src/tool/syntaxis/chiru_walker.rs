@@ -2,7 +2,7 @@
 
 
 
-use crate::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext};
+use chiru::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext};
 
 use super::chiru_listener::ChiruListener;
 
