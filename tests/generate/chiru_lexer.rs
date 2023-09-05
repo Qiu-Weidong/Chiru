@@ -1,11 +1,12 @@
 
 
-
+use lazy_static::lazy_static; 
 use regex::Regex;
 
 use chiru::runtime::error_strategy::error_listener::{ErrorListener, ConsoleErrorListener};
 use chiru::runtime::lexer::TokenIter;
 use chiru::runtime::lexer::Lexer;
+use lazy_static::lazy_static;
 
 pub struct ChiruLexer<'a> {
   pub input: &'a str, 
@@ -34,7 +35,7 @@ lazy_static!{
     (Regex::new(r###"\["###).unwrap(), 17, 0, "LBRACKET", false), 
     (Regex::new(r###"\]"###).unwrap(), 18, 0, "RBRACKET", false), 
     (Regex::new(r###""((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*""###).unwrap(), 19, 0, "STRING_LITERAL", false), 
-    (Regex::new(r####"(?s)r###".*?"###"####).unwrap(), 20, 0, "REGULAR_LITERAL", false), 
+    (Regex::new(r###"(?s)r##".*?"##"###).unwrap(), 20, 0, "REGULAR_LITERAL", false), 
     (Regex::new(r###"[ \r\n\t\f]+"###).unwrap(), 21, 0, "WHITE_SPACE", true), 
     (Regex::new(r###"//.*?\n"###).unwrap(), 22, 1, "LINE_COMMENT", false), 
     (Regex::new(r###"(?s)/\*.*?\*\/"###).unwrap(), 23, 1, "BLOCK_COMMENT", false), 

@@ -75,7 +75,6 @@ impl ChiruVisitor for GrammarVisitor {
   
   // 只需要访问 parser rule 无需返回值  -> void
   fn visit_rules(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::RulesContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    println!("visit rules");
     for rule in ctx.parser_rule_list().iter() {
       rule.accept(self)?;
     }

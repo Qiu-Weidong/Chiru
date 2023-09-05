@@ -5,9 +5,6 @@ use serde_json;
 use std::io::Read;
 use chiru::runtime::{ast::{rule_context::RuleContext, terminal_context::TerminalContext, ast_context::ASTContext}, token::{self}, position::Position};
 
-/**
- * { rule_index: 0, rule_name: "expr", children: [{ token_type: 1, token_name: "xxx", text: "xxx" }] }
- */
 
 #[derive(Debug)]
 pub struct Error;
