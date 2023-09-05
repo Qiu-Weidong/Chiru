@@ -13,7 +13,6 @@ pub trait Parser {
 
 // 定义一个 LL1
 pub struct LL1 {
-  // pub stream: &'a mut TokenStream<'a>, // 输入文本 持有文本的不可变引用
   pub error_listeners: Vec<Box<dyn ErrorListener>>,
 
   pub table: &'static HashMap<(usize, usize), usize>, 
