@@ -6,7 +6,7 @@ use maplit::hashmap;
 use maplit::hashset;
 
 use chiru::runtime::{
-  parser::LL1, token_stream::TokenStream, 
+  parser::LL1Analyzer, token_stream::TokenStream, 
   error_strategy::error_listener::ConsoleErrorListener,
   production::Production,
   production::ProductionItem
@@ -18,7 +18,7 @@ use super::chiru_context::{
 
 
 pub struct ChiruParser {
-  pub analyzer: LL1,
+  pub analyzer: LL1Analyzer,
 }
 
 
@@ -358,7 +358,7 @@ impl ChiruParser {
 
   pub fn new() -> Self {
     Self {
-      analyzer: LL1 { 
+      analyzer: LL1Analyzer { 
         error_listeners: vec![Box::new(ConsoleErrorListener::new()),], 
         table: &LL1_TABLE, 
         productions: &PRODUCTIONS, 

@@ -1,13 +1,5 @@
 
-use serde::Serialize;
-
-
-
-
-
-// 这个 visitor 负责处理 lexer。
-
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Clone)]
 pub struct LexerRule {
   pub token_type: usize,
   pub token_name: String,

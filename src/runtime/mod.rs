@@ -9,7 +9,7 @@ pub mod position;
 
 pub mod error_strategy;
 pub mod production;
-
+pub mod lexer_rule;
 
 
 

@@ -58,7 +58,6 @@ pub struct TokenIter<'a> {
   // 可变内容放入 Iter
   pub cursor: usize, // 字符游标，当前处理到的文本字符序号
   pub token_index: usize, // token 序号，表示当前扫描到了第几个 token
-  // pub position: Position, // 当前处理到的文本字符所在的位置
 }
 
 
@@ -157,7 +156,6 @@ impl<'a> TokenIter<'a> {
   pub fn reset(&mut self) {
     self.cursor = 0;
     self.token_index = 1;
-
   }
 
 

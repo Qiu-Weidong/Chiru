@@ -34,7 +34,7 @@ static LEXER_RULE_LIST: Lazy<Vec<(Regex, usize, usize, &'static str, bool)>> = L
     (Regex::new(r###"\["###).unwrap(), 17, 0, "LBRACKET", false), 
     (Regex::new(r###"\]"###).unwrap(), 18, 0, "RBRACKET", false), 
     (Regex::new(r###""((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*""###).unwrap(), 19, 0, "STRING_LITERAL", false), 
-    (Regex::new(r###"(?s)r##".*?"##"###).unwrap(), 20, 0, "REGULAR_LITERAL", false), 
+    (Regex::new(r####"(?s)r###".*?"###"####).unwrap(), 20, 0, "REGULAR_LITERAL", false), 
     (Regex::new(r###"[ \r\n\t\f]+"###).unwrap(), 21, 0, "WHITE_SPACE", true), 
     (Regex::new(r###"//.*?\n"###).unwrap(), 22, 1, "LINE_COMMENT", false), 
     (Regex::new(r###"(?s)/\*.*?\*\/"###).unwrap(), 23, 1, "BLOCK_COMMENT", false), 
@@ -47,8 +47,6 @@ static LEXER_RULE_LIST: Lazy<Vec<(Regex, usize, usize, &'static str, bool)>> = L
 impl<'a> ChiruLexer<'a> {
   pub const _START: usize = 0;
   pub const _STOP: usize = 1;
-
-  // 从这里开始使用模板
   
   pub const GRAMMAR: usize = 2;
   pub const RULE_REF: usize = 3;

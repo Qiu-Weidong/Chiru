@@ -7,8 +7,6 @@ use super::position::Position;
 
 #[derive(Debug, Clone)]
 pub struct Error {
-  
-
 
   pub kind: ErrorKind,
 

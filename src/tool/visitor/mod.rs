@@ -1,7 +1,5 @@
 // 定义一些 visitor 来进行处理
 
-pub mod lexer_rule;
-
 
 
 pub mod grammar_visitor;

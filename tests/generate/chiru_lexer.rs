@@ -1,6 +1,4 @@
-
-
-use lazy_static::lazy_static; 
+use once_cell::sync::Lazy;
 use regex::Regex;
 
 use chiru::runtime::error_strategy::error_listener::{ErrorListener, ConsoleErrorListener};
@@ -14,8 +12,9 @@ pub struct ChiruLexer<'a> {
   pub error_listeners: Vec<Box<dyn ErrorListener>>,
 }
 
-lazy_static!{
-  static ref LEXER_RULE_LIST: Vec<(Regex, usize, usize, &'static str, bool)> = vec![
+
+static LEXER_RULE_LIST: Lazy<Vec<(Regex, usize, usize, &'static str, bool)>> = Lazy::new(|| {
+  vec![
     
     (Regex::new(r###"grammar"###).unwrap(), 2, 0, "GRAMMAR", false), 
     (Regex::new(r###"[a-z][a-zA-Z0-9_]*"###).unwrap(), 3, 0, "RULE_REF", false), 
@@ -35,12 +34,12 @@ lazy_static!{
     (Regex::new(r###"\["###).unwrap(), 17, 0, "LBRACKET", false), 
     (Regex::new(r###"\]"###).unwrap(), 18, 0, "RBRACKET", false), 
     (Regex::new(r###""((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*""###).unwrap(), 19, 0, "STRING_LITERAL", false), 
-    (Regex::new(r####"(?s)r###".*?"###"####).unwrap(), 20, 0, "REGULAR_LITERAL", false), 
+    (Regex::new(r###"(?s)r##".*?"##"###).unwrap(), 20, 0, "REGULAR_LITERAL", false), 
     (Regex::new(r###"[ \r\n\t\f]+"###).unwrap(), 21, 0, "WHITE_SPACE", true), 
     (Regex::new(r###"//.*?\n"###).unwrap(), 22, 1, "LINE_COMMENT", false), 
     (Regex::new(r###"(?s)/\*.*?\*\/"###).unwrap(), 23, 1, "BLOCK_COMMENT", false), 
-  ];
-}
+  ]
+});
 
 
 #[allow(unused)]

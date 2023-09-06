@@ -6,13 +6,9 @@ use super::{ast::{rule_context::RuleContext, ast_context::ASTContext, terminal_c
 
 
 
-pub trait Parser {
-}
-
-
 
 // 定义一个 LL1
-pub struct LL1 {
+pub struct LL1Analyzer {
   pub error_listeners: Vec<Box<dyn ErrorListener>>,
 
   pub table: &'static HashMap<(usize, usize), usize>, 
@@ -22,7 +18,7 @@ pub struct LL1 {
   pub sync: &'static HashSet<(usize, usize)>,
 }
 
-impl LL1 {
+impl LL1Analyzer {
   pub fn analyse(&self, token_stream: &mut TokenStream,  rule_index: usize) -> RuleContext {
     
     let name = match self.rule_names.get(&rule_index) {
