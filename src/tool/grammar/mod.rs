@@ -5,6 +5,7 @@
 pub mod non_terminal;
 pub mod terminal;
 pub mod vocabulary;
+pub mod lexer_rule;
 
 
 
@@ -12,11 +13,11 @@ pub mod vocabulary;
 
 use std::{collections::{HashMap, HashSet}, fmt::Display};
 
-use chiru::runtime::{production::{Production, ProductionItem}, lexer_rule::LexerRule};
+use chiru::runtime::production::{Production, ProductionItem};
 
 use crate::tool::visitor::{string_literal_to_token_visitor::StringLiteralToTokenVisitor, lexer_rule_visitor::LexerRuleVisitor, parser_rule_visitor::ParserRuleVisitor, grammar_visitor::GrammarVisitor};
 
-use self::vocabulary::Vocabulary;
+use self::{vocabulary::Vocabulary, lexer_rule::LexerRule};
 
 use super::syntaxis::chiru_context::CompilationUnitContext;
 

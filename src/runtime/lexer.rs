@@ -5,11 +5,10 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::ops::Range;
 
-use regex::Regex;
-
 use super::error::{Error, ErrorKind};
 
 use super::error_strategy::error_listener::ErrorListener;
+use super::lexer_rule::LexerRule;
 use super::position::Position;
 use super::token::Token;
 
@@ -47,7 +46,7 @@ pub trait Lexer {
 pub struct TokenIter<'a> {
   // 这些是对应的 Lexer 中成员的引用
   pub input: &'a str, // 输入文本 持有文本的不可变引用
-  pub  rules: &'a [(Regex, usize, usize, &'static str, bool)],
+  pub  rules: &'a [LexerRule],
   pub error_listeners: &'a [Box<dyn ErrorListener>],
 
   // 存储一个每行的字符下标范围
@@ -97,13 +96,13 @@ impl<'a> TokenIter<'a> {
     let mut start = self.input.len();
     let mut stop = start;
 
-    let mut meta: Option<(Regex, usize, usize, &'static str, bool)> = None;
+    let mut meta: Option<LexerRule> = None;
 
     for lexer_meta in self.rules.iter() {
       // 为提高效率，可以检查是否匹配
-      if ! lexer_meta.0.is_match_at(self.input, self.cursor) { continue; }
+      if ! lexer_meta.rule.is_match_at(self.input, self.cursor) { continue; }
 
-      let result = lexer_meta.0.find_at(self.input, self.cursor) ;
+      let result = lexer_meta.rule.find_at(self.input, self.cursor) ;
       if let Some(result) = result {
         if result.start() < start || result.start() == start && result.end() - result.start() > len {
           meta = Some(lexer_meta.clone());
@@ -124,6 +123,9 @@ impl<'a> TokenIter<'a> {
 
     // 如果不是在当前位置匹配，那么报告给错误监听器
     if start != self.cursor {
+      for listener in self.error_listeners.iter() {
+        listener.syntax_error();
+      }
       todo!()
     }
 
@@ -133,10 +135,10 @@ impl<'a> TokenIter<'a> {
 
 
     let meta = meta.unwrap();
-    let token = Token::new(meta.1, meta.3, &text, 
+    let token = Token::new(meta.token_type, &meta.token_name, &text, 
       self.get_position_from_char_index(start),
       self.get_position_from_char_index(stop), self.token_index, 
-      meta.2, 
+      meta.channel, 
       self.cursor, 
       self.cursor + len);
 
@@ -144,7 +146,7 @@ impl<'a> TokenIter<'a> {
 
 
     // 如果需要跳过，则返回下一个
-    if meta.4 {
+    if meta.skip {
       return self.lexer_match();
     }
     
@@ -161,7 +163,7 @@ impl<'a> TokenIter<'a> {
 
 
 
-  pub fn new(input: &'a str, rules: &'a [(Regex, usize, usize, &'static str, bool)], error_listeners: &'a [Box<dyn ErrorListener>]) -> Self {
+  pub fn new(input: &'a str, rules: &'a [LexerRule], error_listeners: &'a [Box<dyn ErrorListener>]) -> Self {
     let mut st = 0;
     let ranges = input.split("\n").map(|f| { 
       let ed = st + f.len() + 1; // +1 是为了补上 \n 换行符

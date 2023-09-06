@@ -17,8 +17,8 @@ use super::chiru_context::{
 };
 
 
-pub struct ChiruParser {
-  pub analyzer: LL1Analyzer,
+pub struct ChiruParser<'a> {
+  pub analyzer: LL1Analyzer<'a>,
 }
 
 
@@ -174,54 +174,53 @@ static PRODUCTIONS: Lazy<HashMap<usize, Production>>  = Lazy::new(|| {
 }); 
 
 // 非终结符
-pub static NONTERMINALS: Lazy<HashMap<usize, &'static str>> = Lazy::new(|| {
+pub static NONTERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
   hashmap! {
-    
-    13 => "attribute",
-    6 => "epsilon",
-    4 => "block",
-    11 => "annotation",
-    0 => "compilation_unit",
-    12 => "attributes",
-    2 => "rules",
-    5 => "alternative",
-    9 => "lexer_rule",
-    10 => "regular",
-    8 => "ebnf_suffix",
-    1 => "grammar_name",
-    7 => "element",
-    3 => "parser_rule",
+    13 => String::from("attribute"),
+    6 => String::from("epsilon"),
+    4 => String::from("block"),
+    11 => String::from("annotation"),
+    0 => String::from("compilation_unit"),
+    12 => String::from("attributes"),
+    2 => String::from("rules"),
+    5 => String::from("alternative"),
+    9 => String::from("lexer_rule"),
+    10 => String::from("regular"),
+    8 => String::from("ebnf_suffix"),
+    1 => String::from("grammar_name"),
+    7 => String::from("element"),
+    3 => String::from("parser_rule"),
   }
 });
 
 // 终结符
-pub static TERMINALS: Lazy<HashMap<usize, &'static str>> = Lazy::new(|| {
+pub static TERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
   hashmap! {
     
-    17 => "LBRACKET",
-    11 => "PLUS",
-    14 => "RPAREN",
-    6 => "SEMI",
-    1 => "_STOP",
-    4 => "TOKEN_REF",
-    15 => "AT",
-    19 => "STRING_LITERAL",
-    23 => "BLOCK_COMMENT",
-    9 => "EPSILON",
-    5 => "COLON",
-    13 => "LPAREN",
-    10 => "STAR",
-    8 => "OR",
-    21 => "WHITE_SPACE",
-    12 => "QUESTION",
-    7 => "COMMA",
-    22 => "LINE_COMMENT",
-    0 => "_START",
-    18 => "RBRACKET",
-    16 => "SHARP",
-    3 => "RULE_REF",
-    20 => "REGULAR_LITERAL",
-    2 => "GRAMMAR",
+    17 => String::from("LBRACKET"),
+    11 => String::from("PLUS"),
+    14 => String::from("RPAREN"),
+    6 => String::from("SEMI"),
+    1 => String::from("_STOP"),
+    4 => String::from("TOKEN_REF"),
+    15 => String::from("AT"),
+    19 => String::from("STRING_LITERAL"),
+    23 => String::from("BLOCK_COMMENT"),
+    9 => String::from("EPSILON"),
+    5 => String::from("COLON"),
+    13 => String::from("LPAREN"),
+    10 => String::from("STAR"),
+    8 => String::from("OR"),
+    21 => String::from("WHITE_SPACE"),
+    12 => String::from("QUESTION"),
+    7 => String::from("COMMA"),
+    22 => String::from("LINE_COMMENT"),
+    0 => String::from("_START"),
+    18 => String::from("RBRACKET"),
+    16 => String::from("SHARP"),
+    3 => String::from("RULE_REF"),
+    20 => String::from("REGULAR_LITERAL"),
+    2 => String::from("GRAMMAR"),
   }
 });
 
@@ -335,7 +334,7 @@ pub static SYNC: Lazy<HashSet<(usize, usize)>> = Lazy::new(|| {
 
 
 #[allow(unused)]
-impl ChiruParser {
+impl ChiruParser<'_> {
 
   // 使用模板生成 每个非终结符的编号
   

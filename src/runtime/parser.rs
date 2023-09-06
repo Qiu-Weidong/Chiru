@@ -8,17 +8,17 @@ use super::{ast::{rule_context::RuleContext, ast_context::ASTContext, terminal_c
 
 
 // 定义一个 LL1
-pub struct LL1Analyzer {
+pub struct LL1Analyzer<'a> {
   pub error_listeners: Vec<Box<dyn ErrorListener>>,
 
-  pub table: &'static HashMap<(usize, usize), usize>, 
-  pub productions: &'static HashMap<usize, Production>, 
-  pub rule_names: &'static HashMap<usize, &'static str>,
+  pub table: &'a HashMap<(usize, usize), usize>, 
+  pub productions: &'a HashMap<usize, Production>, 
+  pub rule_names: &'a HashMap<usize, String>,
 
-  pub sync: &'static HashSet<(usize, usize)>,
+  pub sync: &'a HashSet<(usize, usize)>,
 }
 
-impl LL1Analyzer {
+impl<'a> LL1Analyzer<'a> {
   pub fn analyse(&self, token_stream: &mut TokenStream,  rule_index: usize) -> RuleContext {
     
     let name = match self.rule_names.get(&rule_index) {
@@ -87,10 +87,32 @@ impl LL1Analyzer {
     // ASTContext::Rule(result)
     result
   }
+
+  pub fn new(
+    error_listeners: Vec<Box<dyn ErrorListener>>, 
+    table: &'a HashMap<(usize, usize), usize>, 
+    productions: &'a HashMap<usize, Production>, 
+    rule_names: &'a HashMap<usize, String>,
+    sync: &'a HashSet<(usize, usize)>
+  ) -> Self {
+    Self {
+      error_listeners, table, productions, rule_names, sync
+    }
+  }
+
+
+
+
+
+
+
+
+
+
 }
 
 
-
+// 定义一个 lalr 分析器
 
 
 

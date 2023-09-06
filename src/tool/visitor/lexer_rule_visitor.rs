@@ -1,8 +1,6 @@
 use std::{any::Any, collections::HashMap, error::Error};
 
-use chiru::runtime::lexer_rule::LexerRule;
-
-use crate::tool::syntaxis::{chiru_visitor::ChiruVisitor, chiru_context::LexerRuleContext};
+use crate::tool::{syntaxis::{chiru_visitor::ChiruVisitor, chiru_context::LexerRuleContext}, grammar::lexer_rule::LexerRule};
 
 
 

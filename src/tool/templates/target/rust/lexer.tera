@@ -4,7 +4,7 @@ use regex::Regex;
 use chiru::runtime::error_strategy::error_listener::{ErrorListener, ConsoleErrorListener};
 use chiru::runtime::lexer::TokenIter;
 use chiru::runtime::lexer::Lexer;
-
+use chiru::runtime::lexer_rule::LexerRule;
 
 pub struct {{ grammar_name.2 }}Lexer<'a> {
   pub input: &'a str, 
@@ -13,10 +13,16 @@ pub struct {{ grammar_name.2 }}Lexer<'a> {
 }
 
 
-static LEXER_RULE_LIST: Lazy<Vec<(Regex, usize, usize, &'static str, bool)>> = Lazy::new(|| {
+static LEXER_RULE_LIST: Lazy<Vec<LexerRule>> = Lazy::new(|| {
   vec![
     {% for lexer_rule in lexer_rule_list %}
-    (Regex::new({{ lexer_rule.4 }}).unwrap(), {{lexer_rule.3}}, {{lexer_rule.5}}, "{{ lexer_rule.1 }}", {{lexer_rule.6}}), {% endfor %}
+    LexerRule { 
+      rule: Regex::new({{ lexer_rule.4 }}).unwrap(),  
+      token_type: {{lexer_rule.3}}, 
+      channel: {{lexer_rule.5}}, 
+      token_name: String::from("{{ lexer_rule.1 }}"), 
+      skip: {{lexer_rule.6}},
+    }, {% endfor %}
   ]
 });
 

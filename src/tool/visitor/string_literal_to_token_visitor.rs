@@ -4,9 +4,7 @@
 
 use std::{collections::HashMap, any::Any, error::Error};
 
-use chiru::runtime::lexer_rule::LexerRule;
-
-use crate::tool::syntaxis::{chiru_visitor::ChiruVisitor, chiru_context::ElementContext};
+use crate::tool::{syntaxis::{chiru_visitor::ChiruVisitor, chiru_context::ElementContext}, grammar::lexer_rule::LexerRule};
 
 
 

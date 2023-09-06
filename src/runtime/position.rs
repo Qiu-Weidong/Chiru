@@ -13,6 +13,11 @@ impl Position {
   }
 
   pub fn default_position() -> Self { Self::new(0, 0) }
+
+  pub fn to_string(&self) -> String {
+    format!("line: {}, position: {}", self.line, self.char_position)
+  }
+
 }
 
 
