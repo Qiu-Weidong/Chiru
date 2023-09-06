@@ -6,8 +6,6 @@ use generate::chiru_parser::ChiruParser;
 
 
 
-#[macro_use]
-extern crate lazy_static;
 
 mod generate;
 

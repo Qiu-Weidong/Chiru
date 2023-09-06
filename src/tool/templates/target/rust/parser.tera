@@ -4,13 +4,12 @@ use lazy_static::lazy_static;
 use std::collections::{HashMap, HashSet};
 use maplit::hashmap;
 use maplit::hashset;
-use lazy_static::lazy_static;
 
-use chiru::{
-  runtime::{parser::LL1, token_stream::TokenStream, error_strategy::error_listener::ConsoleErrorListener}, 
-
-  tool::grammar::{production::ProductionItem, production::Production}
-
+use chiru::runtime::{
+  parser::LL1, token_stream::TokenStream, 
+  error_strategy::error_listener::ConsoleErrorListener,
+  production::Production,
+  production::ProductionItem
 };
 
 use super::{{ grammar_name.0 }}_context::{
@@ -89,6 +88,4 @@ impl {{grammar_name.2}}Parser {
 
 
 
-
-// impl Parser for SyntaxisParser {}
 

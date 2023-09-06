@@ -1,23 +1,37 @@
 pub mod tool;
 
-
 use std::{fs::File, io::Read};
 use std::env;
 use chiru::runtime::token_stream::TokenStream;
+use clap::Parser;
+use std::error::Error;
 use tool::{syntaxis::{chiru_lexer::ChiruLexer, chiru_parser::ChiruParser}, grammar::Grammar, code_generator::CodeGenerator};
+
+use tool::cli::Cli;
 
 
 #[allow(unused_doc_comments)]
-fn main() {
-  if let Ok(current_dir) = env::current_dir() {
-    println!("Current directory: {:?}", current_dir);
+fn main() -> Result<(), Box<dyn Error>> {
+  let cli = Cli::parse();
+
+
+
+
+  println!("{:?}", cli.language);
+
+  /// 首先获取输出目录。
+  let output_dir;
+  if let Some(output) = cli.output_dir {
+    output_dir = output;
   } else {
-    println!("Failed to retrieve current directory");
+    output_dir = env::current_dir()?;
   }
 
-  let mut file = File::open("src/tool/syntaxis/chiru.chiru").unwrap();
+
+
+  let mut file = File::open(&cli.input)?;
   let mut contents = String::new();
-  file.read_to_string(&mut contents).unwrap();
+  file.read_to_string(&mut contents)?;
   
 
   let lexer = ChiruLexer::new(&contents);
@@ -29,14 +43,14 @@ fn main() {
 
   let grammar = Grammar::from_ast(ast.as_ref());
 
-  // let base_dir = "src/tool/syntaxis";
-  let base_dir = "tests/generate";
 
 
 
   let code_generator = CodeGenerator::new(grammar, ast.as_ref());
-  code_generator.generate(base_dir);
+  code_generator.generate(&output_dir);
 
+  Ok(())
 }
+
 
 

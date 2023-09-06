@@ -51,7 +51,7 @@ impl<'a> CodeGenerator<'a> {
 
 
   // 直接写文件即可
-  pub fn generate(&self, base_dir: &str) {
+  pub fn generate(&self, base_dir: &Path) {
     let name = self.grammar.name.to_lowercase();
     
     // 生成 mod.rs 文件
