@@ -38,18 +38,18 @@ static PRODUCTIONS: Lazy<HashMap<usize, Production>>  = Lazy::new(|| {
 }); 
 
 // 非终结符
-pub static NONTERMINALS: Lazy<HashMap<usize, &'static str>> = Lazy::new(|| {
+pub static NONTERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
   hashmap! {
     {% for nonterminal in nonterminals %}
-    {{nonterminal.0}} => "{{nonterminal.1}}",{% endfor %}
+    {{nonterminal.0}} => String::from("{{nonterminal.1}}"),{% endfor %}
   }
 });
 
 // 终结符
-pub static TERMINALS: Lazy<HashMap<usize, &'static str>> = Lazy::new(|| {
+pub static TERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
   hashmap! {
     {% for terminal in terminals %}
-    {{terminal.0}} => "{{terminal.1}}",{% endfor %}
+    {{terminal.0}} => String::from("{{terminal.1}}"),{% endfor %}
   }
 });
 
