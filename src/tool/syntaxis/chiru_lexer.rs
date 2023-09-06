@@ -16,29 +16,160 @@ pub struct ChiruLexer<'a> {
 static LEXER_RULE_LIST: Lazy<Vec<LexerRule>> = Lazy::new(|| {
   vec![
     
-    LexerRule {rule:Regex::new(r###"grammar"###).unwrap(), token_type: 2, channel: 0, token_name: String::from("GRAMMAR"), skip: false}, 
-    LexerRule { rule: Regex::new(r###"[a-z][a-zA-Z0-9_]*"###).unwrap(), token_type: 3, channel: 0, token_name: String::from("RULE_REF"), skip: false }, 
-    LexerRule { rule: Regex::new(r###"[A-Z][a-zA-Z0-9_]*"###).unwrap(), token_type: 4, channel: 0, token_name: String::from("TOKEN_REF"), skip: false}, 
-    LexerRule { rule: Regex::new(r###"::=|:=|->|=>|:|="###).unwrap(), token_type: 5, channel: 0, token_name: String::from("COLON"), skip: false }, 
-    LexerRule { rule: Regex::new(r###";"###).unwrap(), token_type: 6, channel: 0, token_name: String::from("SEMI"), skip: false }, 
-    LexerRule { rule: Regex::new(r###","###).unwrap(), token_type: 7,channel: 0, token_name: String::from("COMMA"), skip: false }, 
-    LexerRule { rule: Regex::new(r###"\|"###).unwrap(), token_type: 8, channel: 0, token_name: String::from("OR"), skip: false }, 
-    LexerRule { rule: Regex::new(r###"ε|epsilon"###).unwrap(), token_type: 9, channel: 0, token_name: String::from( "EPSILON"), skip: false }, 
-    LexerRule { rule: Regex::new(r###"\*"###).unwrap(), token_type: 10, channel: 0, token_name: String::from("STAR"), skip: false }, 
-    LexerRule { rule: Regex::new(r###"\+"###).unwrap(), token_type: 11, channel: 0,  token_name: String::from("PLUS"), skip: false }, 
-    LexerRule { rule: Regex::new(r###"\?"###).unwrap(), token_type: 12, channel: 0, token_name: String::from("QUESTION"), skip: false }, 
-    LexerRule { rule: Regex::new(r###"\("###).unwrap(), token_type: 13, channel: 0, token_name: String::from("LPAREN"), skip: false }, 
-    LexerRule { rule: Regex::new(r###"\)"###).unwrap(), token_type: 14, channel: 0, token_name: String::from("RPAREN"), skip: false }, 
-    LexerRule { rule: Regex::new(r###"@"###).unwrap(), token_type: 15, channel: 0, token_name: String::from("AT"), skip: false }, 
-    LexerRule { rule: Regex::new(r###"#"###).unwrap(), token_type: 16, channel: 0, token_name: String::from("SHARP"), skip: false }, 
-    LexerRule { rule: Regex::new(r###"\["###).unwrap(), token_type: 17, channel: 0, token_name: String::from("LBRACKET"), skip: false }, 
-    LexerRule { rule: Regex::new(r###"\]"###).unwrap(), token_type: 18, channel: 0, token_name: String::from("RBRACKET"), skip: false }, 
-    LexerRule { rule: Regex::new(r###""((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*""###).unwrap(), 
-    token_type: 19, channel: 0, token_name: String::from("STRING_LITERAL"), skip: false }, 
-    LexerRule { rule: Regex::new(r####"(?s)r###".*?"###"####).unwrap(), token_type: 20, channel: 0, token_name: String::from("REGULAR_LITERAL"), skip: false }, 
-    LexerRule { rule: Regex::new(r###"[ \r\n\t\f]+"###).unwrap(), token_type: 21, channel: 0, token_name: String::from("WHITE_SPACE"), skip: true }, 
-    LexerRule { rule: Regex::new(r###"//.*?\n"###).unwrap(), token_type: 22, channel: 1, token_name: String::from("LINE_COMMENT"), skip: false }, 
-    LexerRule { rule: Regex::new(r###"(?s)/\*.*?\*\/"###).unwrap(), token_type: 23, channel: 1, token_name: String::from("BLOCK_COMMENT"), skip: false }, 
+    LexerRule { 
+      rule: Regex::new(r###"grammar"###).unwrap(),  
+      token_type: 2, 
+      channel: 0, 
+      token_name: String::from("GRAMMAR"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###"[a-z][a-zA-Z0-9_]*"###).unwrap(),  
+      token_type: 3, 
+      channel: 0, 
+      token_name: String::from("RULE_REF"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###"[A-Z][a-zA-Z0-9_]*"###).unwrap(),  
+      token_type: 4, 
+      channel: 0, 
+      token_name: String::from("TOKEN_REF"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###"::=|:=|->|=>|:|="###).unwrap(),  
+      token_type: 5, 
+      channel: 0, 
+      token_name: String::from("COLON"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###";"###).unwrap(),  
+      token_type: 6, 
+      channel: 0, 
+      token_name: String::from("SEMI"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###","###).unwrap(),  
+      token_type: 7, 
+      channel: 0, 
+      token_name: String::from("COMMA"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###"\|"###).unwrap(),  
+      token_type: 8, 
+      channel: 0, 
+      token_name: String::from("OR"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###"ε|epsilon"###).unwrap(),  
+      token_type: 9, 
+      channel: 0, 
+      token_name: String::from("EPSILON"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###"\*"###).unwrap(),  
+      token_type: 10, 
+      channel: 0, 
+      token_name: String::from("STAR"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###"\+"###).unwrap(),  
+      token_type: 11, 
+      channel: 0, 
+      token_name: String::from("PLUS"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###"\?"###).unwrap(),  
+      token_type: 12, 
+      channel: 0, 
+      token_name: String::from("QUESTION"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###"\("###).unwrap(),  
+      token_type: 13, 
+      channel: 0, 
+      token_name: String::from("LPAREN"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###"\)"###).unwrap(),  
+      token_type: 14, 
+      channel: 0, 
+      token_name: String::from("RPAREN"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###"@"###).unwrap(),  
+      token_type: 15, 
+      channel: 0, 
+      token_name: String::from("AT"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###"#"###).unwrap(),  
+      token_type: 16, 
+      channel: 0, 
+      token_name: String::from("SHARP"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###"\["###).unwrap(),  
+      token_type: 17, 
+      channel: 0, 
+      token_name: String::from("LBRACKET"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###"\]"###).unwrap(),  
+      token_type: 18, 
+      channel: 0, 
+      token_name: String::from("RBRACKET"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###""((\\\\|\\"|\\a|\\d|\\n|\\r|\\t|\\f|\\v|\\u\{(0x|0)?[a-f0-9]+\})|\d|[^\a\d\n\r\t\f\v\\"])*""###).unwrap(),  
+      token_type: 19, 
+      channel: 0, 
+      token_name: String::from("STRING_LITERAL"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r####"(?s)r###".*?"###"####).unwrap(),  
+      token_type: 20, 
+      channel: 0, 
+      token_name: String::from("REGULAR_LITERAL"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###"[ \r\n\t\f]+"###).unwrap(),  
+      token_type: 21, 
+      channel: 0, 
+      token_name: String::from("WHITE_SPACE"), 
+      skip: true,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###"//.*?\n"###).unwrap(),  
+      token_type: 22, 
+      channel: 1, 
+      token_name: String::from("LINE_COMMENT"), 
+      skip: false,
+    }, 
+    LexerRule { 
+      rule: Regex::new(r###"(?s)/\*.*?\*\/"###).unwrap(),  
+      token_type: 23, 
+      channel: 1, 
+      token_name: String::from("BLOCK_COMMENT"), 
+      skip: false,
+    }, 
   ]
 });
 
@@ -48,6 +179,8 @@ static LEXER_RULE_LIST: Lazy<Vec<LexerRule>> = Lazy::new(|| {
 impl<'a> ChiruLexer<'a> {
   pub const _START: usize = 0;
   pub const _STOP: usize = 1;
+
+  // 从这里开始使用模板
   
   pub const GRAMMAR: usize = 2;
   pub const RULE_REF: usize = 3;
