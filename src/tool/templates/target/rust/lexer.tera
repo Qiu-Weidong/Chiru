@@ -1,6 +1,4 @@
-
-
-use lazy_static::lazy_static; 
+use once_cell::sync::Lazy;
 use regex::Regex;
 
 use chiru::runtime::error_strategy::error_listener::{ErrorListener, ConsoleErrorListener};
@@ -14,12 +12,14 @@ pub struct {{ grammar_name.2 }}Lexer<'a> {
   pub error_listeners: Vec<Box<dyn ErrorListener>>,
 }
 
-lazy_static!{
-  static ref LEXER_RULE_LIST: Vec<(Regex, usize, usize, &'static str, bool)> = vec![
+
+static LEXER_RULE_LIST: Lazy<Vec<(Regex, usize, usize, &'static str, bool)>> = Lazy::new(|| {
+  vec![
     {% for lexer_rule in lexer_rule_list %}
     (Regex::new({{ lexer_rule.4 }}).unwrap(), {{lexer_rule.3}}, {{lexer_rule.5}}, "{{ lexer_rule.1 }}", {{lexer_rule.6}}), {% endfor %}
-  ];
-}
+  ]
+});
+
 
 
 #[allow(unused)]

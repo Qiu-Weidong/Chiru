@@ -1,5 +1,5 @@
 
-use lazy_static::lazy_static; 
+use once_cell::sync::Lazy;
 
 use std::collections::{HashMap, HashSet};
 use maplit::hashmap;
@@ -22,36 +22,44 @@ pub struct {{grammar_name.2}}Parser {
 }
 
 
-lazy_static!{
-  // 直接写预测分析表
-  static ref LL1_TABLE: HashMap<(usize, usize), usize> = hashmap!{
+static LL1_TABLE: Lazy<HashMap<(usize, usize), usize>> = Lazy::new(|| { 
+  hashmap!{
     {% for item in table %}
     ({{item.0}}, {{item.1}}) => {{item.2}},{% endfor %}
-  };
+  }
+});
 
-  // 产生式
-  static ref PRODUCTIONS: HashMap<usize, Production>  = hashmap!{
+
+static PRODUCTIONS: Lazy<HashMap<usize, Production>>  = Lazy::new(|| {
+  hashmap!{
     {% for production in productions %}
     {{production.0}} => Production::new({{production.0}}, {{production.1}}, &{{production.2}}),{% endfor %}
-  };
+  }
+}); 
 
-  // 非终结符
-  pub static ref NONTERMINALS: HashMap<usize, &'static str> = hashmap! {
+// 非终结符
+pub static NONTERMINALS: Lazy<HashMap<usize, &'static str>> = Lazy::new(|| {
+  hashmap! {
     {% for nonterminal in nonterminals %}
     {{nonterminal.0}} => "{{nonterminal.1}}",{% endfor %}
-  };
+  }
+});
 
-  // 终结符
-  pub static ref TERMINALS: HashMap<usize, &'static str> = hashmap! {
+// 终结符
+pub static TERMINALS: Lazy<HashMap<usize, &'static str>> = Lazy::new(|| {
+  hashmap! {
     {% for terminal in terminals %}
     {{terminal.0}} => "{{terminal.1}}",{% endfor %}
-  };
+  }
+});
 
-  pub static ref SYNC: HashSet<(usize, usize)> = hashset! {
+pub static SYNC: Lazy<HashSet<(usize, usize)>> = Lazy::new(|| {
+  hashset! {
     {% for sync in sync_list %}
     ({{sync.0}}, {{sync.1}}),{% endfor %}
-  };
-}
+  }
+});
+
 
 #[allow(unused)]
 impl {{grammar_name.2}}Parser {

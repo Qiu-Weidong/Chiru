@@ -127,6 +127,19 @@ impl RuleContext {
     let stop = stop.unwrap();
     &input[start.char_start_index .. stop.char_stop_index]
   }
+
+
+
+
+  pub fn to_string(&self) -> String {
+    let mut result = String::new();
+    for child in self.children.iter() {
+      result += &format!("{} ", child);
+    }
+
+    format!("{} ({})", self.rule_name, result)
+  }
+
 }
 
 impl Display for RuleContext {

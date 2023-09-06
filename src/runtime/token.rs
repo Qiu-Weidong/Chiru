@@ -74,6 +74,21 @@ impl Token {
       text: text.to_owned(),
     }
   }
+
+
+  pub fn to_string(&self) -> String {
+    format!("[@{}, {}:{}='{}', <{}>, <{}>, start: <{}>, stop: <{}>]", 
+      self.token_index, 
+      self.char_start_index, 
+      self.char_stop_index,
+      self.text,
+      self.token_name,
+      self.token_type,
+      self.start,
+      self.stop
+    )
+  }
+
 }
 
 
