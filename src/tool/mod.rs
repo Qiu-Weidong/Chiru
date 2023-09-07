@@ -7,3 +7,4 @@ pub mod grammar;
 
 pub mod code_generator;
 pub mod cli;
+pub mod analyzer;
