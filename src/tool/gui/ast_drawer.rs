@@ -12,7 +12,10 @@ pub struct ASTDrawer {
 
 impl ASTDrawer {
   pub fn new() -> Self {
-    let mut tera = Tera::new("src/tool/templates/**/*.html").unwrap();
+
+    // let mut tera = Tera::new("src/tool/templates/**/*.html").unwrap();
+    let mut tera = Tera::default();
+    tera.add_raw_template("ast", include_str!("../templates/gui/ast.html")).unwrap();
     tera.autoescape_on(vec![]);
 
     ASTDrawer { tera }
@@ -46,7 +49,7 @@ impl ASTDrawer {
     context.insert("name", name);
 
 
-    let result = self.tera.render("gui/ast.html", &context).unwrap();
+    let result = self.tera.render("ast", &context).unwrap();
     
 
     let mut file = std::fs::File::create(filename).unwrap();

@@ -29,7 +29,18 @@ pub struct CodeGenerator<'a> {
 
 impl<'a> CodeGenerator<'a> {
   pub fn new(grammar: Grammar, ast: &'a dyn CompilationUnitContext) -> Self {
-    let mut template = Tera::new("src/tool/templates/**/*").unwrap();
+    let mut template = Tera::default();
+    // 添加
+    template.add_raw_template("lexer", include_str!("../templates/target/rust/lexer.tera")).unwrap();
+    template.add_raw_template("parser", include_str!("../templates/target/rust/parser.tera")).unwrap();
+    template.add_raw_template("context", include_str!("../templates/target/rust/context.tera")).unwrap();
+    template.add_raw_template("ctx", include_str!("../templates/target/rust/ctx.tera")).unwrap();
+    template.add_raw_template("listener", include_str!("../templates/target/rust/listener.tera")).unwrap();
+    template.add_raw_template("visitor", include_str!("../templates/target/rust/visitor.tera")).unwrap();
+    template.add_raw_template("walker", include_str!("../templates/target/rust/walker.tera")).unwrap();
+    template.add_raw_template("production", include_str!("../templates/target/rust/production.tera")).unwrap();
+    template.add_raw_template("ll1_table", include_str!("../templates/target/rust/ll1_table.tera")).unwrap();
+    template.add_raw_template("parser", include_str!("../templates/target/rust/parser.tera")).unwrap();
     template.autoescape_on(vec![]);
 
 
@@ -231,7 +242,7 @@ impl<'a> CodeGenerator<'a> {
   
   
   
-    self.template.render("target/rust/ctx.tera", &context).unwrap()
+    self.template.render("ctx", &context).unwrap()
   }
   fn production_right_generate(&self, production: &Production) -> String {
     let mut result = String::from("vec![");
@@ -290,7 +301,7 @@ impl<'a> CodeGenerator<'a> {
     context.insert("ctx_list", &ctx_list);
     context.insert("grammar_name", &(self.grammar.name.to_lowercase(), self.grammar.name.to_uppercase(), self.pascal(&self.grammar.name)));
   
-    self.template.render("target/rust/context.tera", &context).unwrap()
+    self.template.render("context", &context).unwrap()
   }
   
   pub fn lexer_generate(&self) -> String {
@@ -316,7 +327,7 @@ impl<'a> CodeGenerator<'a> {
   
   
   
-    let result = self.template.render("target/rust/lexer.tera", &context).unwrap();
+    let result = self.template.render("lexer", &context).unwrap();
     result
   }
 
@@ -332,7 +343,7 @@ impl<'a> CodeGenerator<'a> {
     let mut context = Context::new();
     context.insert("nonterminals", &nonterminals);
     context.insert("grammar_name", &(self.grammar.name.to_lowercase(), self.grammar.name.to_uppercase(), self.pascal(&self.grammar.name)));
-    self.template.render("target/rust/listener.tera", &context).unwrap()
+    self.template.render("listener", &context).unwrap()
   
   }
 
@@ -388,7 +399,7 @@ impl<'a> CodeGenerator<'a> {
     context.insert("sync_list", &sync);
     context.insert("grammar_name", &(self.grammar.name.to_lowercase(), self.grammar.name.to_uppercase(), self.pascal(&self.grammar.name)));
   
-    let result = self.template.render("target/rust/parser.tera", &context).unwrap();
+    let result = self.template.render("parser", &context).unwrap();
   
     
     result
@@ -408,7 +419,7 @@ impl<'a> CodeGenerator<'a> {
     let mut context = Context::new();
     context.insert("nonterminals", &nonterminals);
     context.insert("grammar_name", &(self.grammar.name.to_lowercase(), self.grammar.name.to_uppercase(), self.pascal(&self.grammar.name)));
-    self.template.render("target/rust/visitor.tera", &context).unwrap()
+    self.template.render("visitor", &context).unwrap()
   
   
   }
@@ -416,7 +427,7 @@ impl<'a> CodeGenerator<'a> {
   pub fn walker_generate(&self) -> String {
     let mut context = Context::new();
     context.insert("grammar_name", &(self.grammar.name.to_lowercase(), self.grammar.name.to_uppercase(), self.pascal(&self.grammar.name)));
-    self.template.render("target/rust/walker.tera", &context).unwrap()
+    self.template.render("walker", &context).unwrap()
   }
 }
 
