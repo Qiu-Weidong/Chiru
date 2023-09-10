@@ -45,7 +45,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 
     // 代码生成
-    let code_generator = CodeGenerator::new(grammar, ast.as_ref());
+    let code_generator = CodeGenerator::new(grammar, ast.as_ref(), cli.language);
     code_generator.generate(&output_dir);
   } else {
 

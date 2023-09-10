@@ -8,6 +8,8 @@ use tera::{Tera, Context};
 
 use crate::tool::{grammar::Grammar, syntaxis::chiru_context::CompilationUnitContext, visitor::context_visitor::ContextVisitor};
 
+use super::cli::Language;
+
 pub struct CodeGenerator<'a> {
   // 解析出来的语法
   grammar: Grammar,
@@ -28,19 +30,23 @@ pub struct CodeGenerator<'a> {
 }
 
 impl<'a> CodeGenerator<'a> {
-  pub fn new(grammar: Grammar, ast: &'a dyn CompilationUnitContext) -> Self {
+  pub fn new(grammar: Grammar, ast: &'a dyn CompilationUnitContext, target: Language) -> Self {
     let mut template = Tera::default();
-    // 添加
-    template.add_raw_template("lexer", include_str!("../templates/target/rust/lexer.tera")).unwrap();
-    template.add_raw_template("parser", include_str!("../templates/target/rust/parser.tera")).unwrap();
-    template.add_raw_template("context", include_str!("../templates/target/rust/context.tera")).unwrap();
-    template.add_raw_template("ctx", include_str!("../templates/target/rust/ctx.tera")).unwrap();
-    template.add_raw_template("listener", include_str!("../templates/target/rust/listener.tera")).unwrap();
-    template.add_raw_template("visitor", include_str!("../templates/target/rust/visitor.tera")).unwrap();
-    template.add_raw_template("walker", include_str!("../templates/target/rust/walker.tera")).unwrap();
-    template.add_raw_template("production", include_str!("../templates/target/rust/production.tera")).unwrap();
-    template.add_raw_template("ll1_table", include_str!("../templates/target/rust/ll1_table.tera")).unwrap();
-    template.add_raw_template("parser", include_str!("../templates/target/rust/parser.tera")).unwrap();
+    
+    // 添加 rust 模板
+    if let Language::Rust = target {
+      template.add_raw_template("lexer", include_str!("../templates/target/rust/lexer.tera")).unwrap();
+      template.add_raw_template("parser", include_str!("../templates/target/rust/parser.tera")).unwrap();
+      template.add_raw_template("context", include_str!("../templates/target/rust/context.tera")).unwrap();
+      template.add_raw_template("ctx", include_str!("../templates/target/rust/ctx.tera")).unwrap();
+      template.add_raw_template("listener", include_str!("../templates/target/rust/listener.tera")).unwrap();
+      template.add_raw_template("visitor", include_str!("../templates/target/rust/visitor.tera")).unwrap();
+      template.add_raw_template("walker", include_str!("../templates/target/rust/walker.tera")).unwrap();
+      template.add_raw_template("production", include_str!("../templates/target/rust/production.tera")).unwrap();
+      template.add_raw_template("ll1_table", include_str!("../templates/target/rust/ll1_table.tera")).unwrap();
+      template.add_raw_template("parser", include_str!("../templates/target/rust/parser.tera")).unwrap();
+    }
+    
     template.autoescape_on(vec![]);
 
 
