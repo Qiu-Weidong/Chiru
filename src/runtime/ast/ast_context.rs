@@ -5,7 +5,7 @@ use serde::Serialize;
 use super::{terminal_context::TerminalContext, rule_context::RuleContext, error_context::ErrorContext};
 
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
 pub enum ASTContext {
   Terminal(TerminalContext),
   Rule(RuleContext),
@@ -19,6 +19,19 @@ impl Display for ASTContext {
       ASTContext::Rule(ctx) => write!(f, "{}", ctx),
       ASTContext::Error(ctx) => write!(f, "{}", ctx),
     }
+  }
+}
+
+impl Serialize for ASTContext {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: serde::Serializer {
+    match &self {
+      ASTContext::Terminal(ctx) => ctx.serialize(serializer),
+      ASTContext::Rule(ctx) => ctx.serialize(serializer),
+      ASTContext::Error(ctx) => ctx.serialize(serializer),
+    }
+    
   }
 }
 

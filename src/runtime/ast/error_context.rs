@@ -1,9 +1,9 @@
 
 use std::fmt::Display;
-use serde::Serialize;
+use serde::{Serialize, ser::SerializeStruct};
 use crate::runtime::token::Token;
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
 pub struct ErrorContext {
   pub symbol: Token,
 
@@ -23,3 +23,17 @@ impl Display for ErrorContext {
     write!(f, "{}", self.symbol.token_name)
   }
 }
+
+impl Serialize for ErrorContext {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: serde::Serializer {
+      
+    let mut state = serializer.serialize_struct("ErrorContext", 3)?;
+    state.serialize_field("token_name", &self.symbol.token_name)?;
+    state.serialize_field("token_type", &self.symbol.token_type)?;
+    state.serialize_field("text", &self.symbol.text)?;
+    state.end()
+  }
+}
+

@@ -1,8 +1,8 @@
 
 use std::fmt::Display;
-use serde::Serialize;
 
-#[derive(Clone, Debug, Copy, Serialize)]
+
+#[derive(Clone, Debug, Copy)]
 pub struct Position {
   pub line: usize, 
   pub char_position: usize,

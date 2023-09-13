@@ -1,3 +1,4 @@
+
 pub mod tool;
 use clap::Parser;
 use tool::cli::Cli;
@@ -8,6 +9,7 @@ fn main() {
   
   cli.execute_command().unwrap();
 }
+
 
 
 

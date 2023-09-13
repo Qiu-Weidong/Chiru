@@ -164,7 +164,7 @@ static LEXER_RULE_LIST: Lazy<Vec<LexerRule>> = Lazy::new(|| {
       skip: false,
     }, 
     LexerRule { 
-      rule: Regex::new(r###"(?s)/\*.*?\*\/"###).unwrap(),  
+      rule: Regex::new(r###"(?s)/\*.*?\*/"###).unwrap(),  
       token_type: 23, 
       channel: 1, 
       token_name: String::from("BLOCK_COMMENT"), 
