@@ -8,6 +8,7 @@ pub struct ErrorContext {
   pub symbol: Token,
 
   // error message
+  // 多余、缺少和错误，其中
 }
 
 

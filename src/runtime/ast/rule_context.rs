@@ -28,53 +28,48 @@ impl ToRule for RuleContext {
 
 // 其他函数
 impl RuleContext {
-  pub fn get_children(&self) -> &Vec<ASTContext> { &self.children }
+  pub fn get_children(&self) -> &[ASTContext] { &self.children }
 
   pub fn get_child_count(&self) -> usize { self.children.len() }
 
   pub fn get_rule_index(&self) -> usize { self.rule_index }
 
   pub fn get_first_terminal(&self) -> Option<&TerminalContext> { 
-    if self.children.len() <= 0 { return None }
-    match &self.children[0] {
+    match self.children.first()? {
       ASTContext::Terminal(ctx) => Some(ctx),
       ASTContext::Rule(ctx) => ctx.get_first_terminal(),
       ASTContext::Error(_) => None,
     }
-
   }
 
   pub fn get_last_terminal(&self) -> Option<&TerminalContext> { 
-    if self.children.len() <= 0 { return None }
-    match &self.children.last().unwrap() {
+    match self.children.last()? {
       ASTContext::Terminal(ctx) => Some(ctx),
-      ASTContext::Rule(ctx) => ctx.get_last_terminal(),
+      ASTContext::Rule(ctx) => ctx.get_first_terminal(),
       ASTContext::Error(_) => None,
     }
   }
 
   pub fn get_start_token(&self) -> Option<Token> {
-    if self.children.len() <= 0 { return None }
-    match &self.children[0] {
+    match self.children.first()? {
       ASTContext::Terminal(ctx) => Some(ctx.symbol.clone()),
       ASTContext::Rule(ctx) => ctx.get_start_token(),
-      ASTContext::Error(ctx) => Some(ctx.symbol.clone()),
+      ASTContext::Error(_) => None,
     }
-
   }
 
   pub fn get_stop_token(&self) -> Option<Token> {
-    if self.children.len() <= 0 { return None }
-    match self.children.last().unwrap() {
+    match self.children.last()? {
       ASTContext::Terminal(ctx) => Some(ctx.symbol.clone()),
-      ASTContext::Rule(ctx) => ctx.get_stop_token(),
-      ASTContext::Error(ctx) => Some(ctx.symbol.clone()),
+      ASTContext::Rule(ctx) => ctx.get_start_token(),
+      ASTContext::Error(_) => None,
     }
   }
 
   pub fn get_terminal(&self, token_type: usize, i: usize) -> Option<&TerminalContext> {
     let tokens = self.get_terminals(token_type);
-    if i < tokens.len() { Some(&tokens[i]) } else { None }
+    let token = tokens.get(i)?;
+    Some(token)
   }
 
   pub fn get_terminals(&self, token_type: usize) -> Vec<&TerminalContext> { 
@@ -89,7 +84,8 @@ impl RuleContext {
 
   pub fn get_errornode(&self, token_type: usize, i: usize) -> Option<&ErrorContext> { 
     let errors = self.get_errornodes(token_type);
-    if i < errors.len() { Some(&errors[i]) } else { None }
+    let error = errors.get(i)?;
+    Some(error)
   }
 
   pub fn get_errornodes(&self, token_type: usize) -> Vec<&ErrorContext> { 
@@ -104,7 +100,8 @@ impl RuleContext {
 
   pub fn get_rule_context(&self, rule_type: usize, index: usize) -> Option<&RuleContext> {  
     let rules = self.get_rule_contexts(rule_type);
-    if index < rules.len() { Some(&rules[index]) } else { None }
+    let rule = rules.get(index)?;
+    Some(rule)
   }
 
   pub fn get_rule_contexts(&self, rule_type: usize) -> Vec<&RuleContext> { 
@@ -132,12 +129,18 @@ impl RuleContext {
 
 
   pub fn to_string(&self) -> String {
-    let mut result = String::new();
-    for child in self.children.iter() {
-      result += &format!("{} ", child);
-    }
+    let mut result = format!("({}", self.rule_name);
+    self.children.iter().for_each(|child| {
+      result += " ";
+      match child {
+        ASTContext::Terminal(ctx) => result += &ctx.symbol.token_name,
+        ASTContext::Rule(ctx) => result += &ctx.to_string(),
+        ASTContext::Error(ctx) => result += &ctx.symbol.token_name,
+      }
+    });
 
-    format!("{} ({})", self.rule_name, result)
+    result += ")";
+    result
   }
 
 }

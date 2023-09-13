@@ -1,7 +1,14 @@
+use std::error::Error;
 use std::path::PathBuf;
 
 use clap::Parser;
 use clap::ValueEnum;
+
+use std::{fs::File, io::Read};
+use std::env;
+use chiru::runtime::token_stream::TokenStream;
+use super::{syntaxis::{chiru_lexer::ChiruLexer, chiru_parser::ChiruParser}, grammar::Grammar, code_generator::CodeGenerator};
+
 
 
 
@@ -19,6 +26,9 @@ pub struct Cli {
 
   #[arg(short, long, value_name = "LANGUAGE", value_enum, default_value_t = Language::Rust)]
   pub language: Language,
+
+  #[arg(short, long, value_name = "ANALYZER", value_enum, default_value_t = Analyzer::LALR)]
+  pub analyzer: Analyzer,
 
   #[arg(short, long, value_name = "PACKAGE")]
   pub package_name: Option<String>,
@@ -81,3 +91,24 @@ pub enum Language {
 
   Python,
 }
+
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
+pub enum Analyzer {
+  LL1,
+
+  LALR,
+}
+
+
+impl Cli {
+  pub fn execute_command(&self) -> Result<(), Box<dyn Error>> {
+    
+    todo!()
+  }
+}
+
+
+
+
+
+

@@ -1,4 +1,9 @@
 
+pub mod rust_generator;
+pub mod typescript_generator;
+pub mod python_generator;
+
+
 // 代码生成器
 
 use std::{collections::{HashMap, HashSet}, fs::File, path::Path, io::Write};

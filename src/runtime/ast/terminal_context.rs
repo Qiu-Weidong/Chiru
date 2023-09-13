@@ -12,6 +12,10 @@ impl TerminalContext {
   pub fn get_text(&self) -> &str {
     &self.symbol.text
   }
+
+  pub fn to_string(&self) -> String {
+    self.symbol.to_string()
+  }
 }
 
 

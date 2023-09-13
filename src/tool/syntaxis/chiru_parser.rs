@@ -1,4 +1,6 @@
 
+use chiru::runtime::error_strategy::error_listener::ErrorListener;
+use chiru::runtime::ll1_analyzer::ll1_analyze;
 use once_cell::sync::Lazy;
 
 use std::collections::{HashMap, HashSet};
@@ -6,7 +8,7 @@ use maplit::hashmap;
 use maplit::hashset;
 
 use chiru::runtime::{
-  parser::LL1Analyzer, token_stream::TokenStream, 
+  token_stream::TokenStream, 
   error_strategy::error_listener::ConsoleErrorListener,
   production::Production,
   production::ProductionItem
@@ -17,8 +19,8 @@ use super::chiru_context::{
 };
 
 
-pub struct ChiruParser<'a> {
-  pub analyzer: LL1Analyzer<'a>,
+pub struct ChiruParser {
+  pub error_listeners: Vec<Box<dyn ErrorListener>>,
 }
 
 
@@ -335,7 +337,7 @@ pub static SYNC: Lazy<HashSet<(usize, usize)>> = Lazy::new(|| {
 
 
 #[allow(unused)]
-impl ChiruParser<'_> {
+impl ChiruParser{
 
   // 使用模板生成 每个非终结符的编号
   
@@ -358,13 +360,8 @@ impl ChiruParser<'_> {
 
   pub fn new() -> Self {
     Self {
-      analyzer: LL1Analyzer { 
-        error_listeners: vec![Box::new(ConsoleErrorListener::new()),], 
-        table: &LL1_TABLE, 
-        productions: &PRODUCTIONS, 
-        rule_names: &NONTERMINALS, 
-        sync: &SYNC, 
-      }
+      error_listeners: vec![Box::new(ConsoleErrorListener::new()),], 
+
     }
   }
 
@@ -372,59 +369,73 @@ impl ChiruParser<'_> {
   // 使用模板生成
   
   pub fn parser_rule(&self, token_stream: &mut TokenStream) -> Box<dyn ParserRuleContext> {
-    let result = self.analyzer.analyse(token_stream, Self::PARSER_RULE);
+    let result = ll1_analyze(token_stream, Self::PARSER_RULE, 
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners).unwrap();
     Box::new(result)
   } 
   pub fn element(&self, token_stream: &mut TokenStream) -> Box<dyn ElementContext> {
-    let result = self.analyzer.analyse(token_stream, Self::ELEMENT);
+    let result = ll1_analyze(token_stream, Self::PARSER_RULE, 
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners).unwrap();
     Box::new(result)
   } 
   pub fn attribute(&self, token_stream: &mut TokenStream) -> Box<dyn AttributeContext> {
-    let result = self.analyzer.analyse(token_stream, Self::ATTRIBUTE);
+    let result = ll1_analyze(token_stream, Self::PARSER_RULE, 
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners).unwrap();
     Box::new(result)
   } 
   pub fn annotation(&self, token_stream: &mut TokenStream) -> Box<dyn AnnotationContext> {
-    let result = self.analyzer.analyse(token_stream, Self::ANNOTATION);
+    let result = ll1_analyze(token_stream, Self::PARSER_RULE, 
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners).unwrap();
     Box::new(result)
   } 
   pub fn ebnf_suffix(&self, token_stream: &mut TokenStream) -> Box<dyn EbnfSuffixContext> {
-    let result = self.analyzer.analyse(token_stream, Self::EBNF_SUFFIX);
+    let result = ll1_analyze(token_stream, Self::PARSER_RULE, 
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners).unwrap();
     Box::new(result)
   } 
   pub fn block(&self, token_stream: &mut TokenStream) -> Box<dyn BlockContext> {
-    let result = self.analyzer.analyse(token_stream, Self::BLOCK);
+    let result = ll1_analyze(token_stream, Self::PARSER_RULE, 
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners).unwrap();
     Box::new(result)
   } 
   pub fn lexer_rule(&self, token_stream: &mut TokenStream) -> Box<dyn LexerRuleContext> {
-    let result = self.analyzer.analyse(token_stream, Self::LEXER_RULE);
+    let result = ll1_analyze(token_stream, Self::PARSER_RULE, 
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners).unwrap();
     Box::new(result)
   } 
   pub fn grammar_name(&self, token_stream: &mut TokenStream) -> Box<dyn GrammarNameContext> {
-    let result = self.analyzer.analyse(token_stream, Self::GRAMMAR_NAME);
+    let result = ll1_analyze(token_stream, Self::PARSER_RULE, 
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners).unwrap();
     Box::new(result)
   } 
   pub fn attributes(&self, token_stream: &mut TokenStream) -> Box<dyn AttributesContext> {
-    let result = self.analyzer.analyse(token_stream, Self::ATTRIBUTES);
+    let result = ll1_analyze(token_stream, Self::PARSER_RULE, 
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners).unwrap();
     Box::new(result)
   } 
   pub fn epsilon(&self, token_stream: &mut TokenStream) -> Box<dyn EpsilonContext> {
-    let result = self.analyzer.analyse(token_stream, Self::EPSILON);
+    let result = ll1_analyze(token_stream, Self::PARSER_RULE, 
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners).unwrap();
     Box::new(result)
   } 
   pub fn alternative(&self, token_stream: &mut TokenStream) -> Box<dyn AlternativeContext> {
-    let result = self.analyzer.analyse(token_stream, Self::ALTERNATIVE);
+    let result = ll1_analyze(token_stream, Self::PARSER_RULE, 
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners).unwrap();
     Box::new(result)
   } 
   pub fn regular(&self, token_stream: &mut TokenStream) -> Box<dyn RegularContext> {
-    let result = self.analyzer.analyse(token_stream, Self::REGULAR);
+    let result = ll1_analyze(token_stream, Self::PARSER_RULE, 
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners).unwrap();
     Box::new(result)
   } 
   pub fn compilation_unit(&self, token_stream: &mut TokenStream) -> Box<dyn CompilationUnitContext> {
-    let result = self.analyzer.analyse(token_stream, Self::COMPILATION_UNIT);
+    let result = ll1_analyze(token_stream, Self::COMPILATION_UNIT, 
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners).unwrap();
     Box::new(result)
   } 
   pub fn rules(&self, token_stream: &mut TokenStream) -> Box<dyn RulesContext> {
-    let result = self.analyzer.analyse(token_stream, Self::RULES);
+    let result = ll1_analyze(token_stream, Self::PARSER_RULE, 
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners).unwrap();
     Box::new(result)
   } 
 
