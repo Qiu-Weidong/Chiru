@@ -9,7 +9,7 @@ use maplit::hashmap;
 use maplit::hashset;
 
 use chiru::runtime::{
-  parser::LL1Analyzer, token_stream::TokenStream, 
+  token_stream::TokenStream, 
   error_strategy::error_listener::ConsoleErrorListener,
   production::Production,
   production::ProductionItem
@@ -65,7 +65,7 @@ pub static SYNC: Lazy<HashSet<(usize, usize)>> = Lazy::new(|| {
 
 
 #[allow(unused)]
-impl {{grammar_name.2}}Parser<'_> {
+impl {{grammar_name.2}}Parser {
 
   // 使用模板生成 每个非终结符的编号
   {% for nonterminal in nonterminals %}

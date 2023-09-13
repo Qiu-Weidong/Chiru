@@ -120,7 +120,7 @@ impl Cli {
     let lexer = ChiruLexer::new(&content);
     let mut tokens = TokenStream::new(&lexer, 0);
     let parser = ChiruParser::new();
-    let ast = parser.compilation_unit(&mut tokens);
+    let ast = parser.compilation_unit(&mut tokens)?;
 
 
     let grammar = Grammar::from_ast(ast.as_ref())?;
@@ -275,7 +275,7 @@ impl Cli {
       let lexer = ChiruLexer::new(&content);
       let mut tokens = TokenStream::new(&lexer, 0);
       let parser = ChiruParser::new();
-      ast = parser.compilation_unit(&mut tokens);
+      ast = parser.compilation_unit(&mut tokens)?;
       grammar = Grammar::from_ast(ast.as_ref())?;
     }
     Ok(grammar)

@@ -143,7 +143,7 @@ static LEXER_RULE_LIST: Lazy<Vec<LexerRule>> = Lazy::new(|| {
       skip: false,
     }, 
     LexerRule { 
-      rule: Regex::new(r####"(?s)r###".*?"###"####).unwrap(),  
+      rule: Regex::new(r#####"(?s)r###".*?"###"#####).unwrap(),  
       token_type: 20, 
       channel: 0, 
       token_name: String::from("REGULAR_LITERAL"), 
