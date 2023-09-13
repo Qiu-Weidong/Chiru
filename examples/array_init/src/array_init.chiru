@@ -1,0 +1,22 @@
+
+
+grammar ArrayInit;
+
+
+compilation_unit: LBRACKET numbers RBRACKET;
+numbers: NUM (COMMA NUM)* ;
+
+LBRACKET: r###"\{"###;
+RBRACKET: r###"\}"###;
+NUM: r###"[0-9]+"###;
+COMMA: r###","###;
+
+@ignore
+WHITE_SPACE: r###"[ \r\n\t\f]+"###;
+
+@channel(HIDDEN)
+LINE_COMMENT: r###"//.*?\n"###;
+@channel(HIDDEN)
+BLOCK_COMMENT: r###"(?s)/\*.*?\*\/"###;
+
+
