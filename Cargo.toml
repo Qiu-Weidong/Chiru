@@ -1,6 +1,6 @@
 [package]
 name = "chiru"
-version = "0.4.0"
+version = "0.5.0"
 edition = "2021"
 author = "邱维东 <qiu_weidong@buaa.edu.cn>"
 about = "A parser generator similar to antlr4."
