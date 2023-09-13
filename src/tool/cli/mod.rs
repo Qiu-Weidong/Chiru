@@ -1,12 +1,18 @@
 use std::error::Error;
+use std::fs::OpenOptions;
+use std::io::Write;
 use std::path::PathBuf;
 
+use chiru::runtime::lexer::Lexer;
 use clap::Parser;
 use clap::ValueEnum;
 
 use std::{fs::File, io::Read};
 use std::env;
 use chiru::runtime::token_stream::TokenStream;
+use super::analyzer::CommonLexer;
+use super::analyzer::CommonParser;
+use super::gui::ast_drawer::ASTDrawer;
 use super::{syntaxis::{chiru_lexer::ChiruLexer, chiru_parser::ChiruParser}, grammar::Grammar, code_generator::CodeGenerator};
 
 
@@ -101,9 +107,185 @@ pub enum Analyzer {
 
 
 impl Cli {
+
+  fn generate_code(&self) -> Result<(), Box<dyn Error>> {
+    
+    let mut input_file = File::open(&self.input)?;
+    let mut content = String::new();
+    input_file.read_to_string(&mut content)?;
+
+
+    let lexer = ChiruLexer::new(&content);
+    let mut tokens = TokenStream::new(&lexer, 0);
+    let parser = ChiruParser::new();
+    let ast = parser.compilation_unit(&mut tokens);
+
+
+
+    let grammar = Grammar::from_ast(ast.as_ref())?;
+    let code_generator = CodeGenerator::new(grammar, ast.as_ref());
+
+    let base_dir: PathBuf;
+    if let Some(p) = &self.output {
+      base_dir = p.clone();
+    } else {
+      base_dir = env::current_dir()?;
+    }
+
+
+    code_generator.generate(&base_dir);
+    Ok(())
+  }
+
+  fn dump_tokens(&self) -> Result<(), Box<dyn Error>> {
+    let mut input_file = File::open(&self.input)?;
+    let mut content = String::new();
+    input_file.read_to_string(&mut content)?;
+
+
+    let ast;
+    let grammar;
+
+    {
+      let lexer = ChiruLexer::new(&content);
+      let mut tokens = TokenStream::new(&lexer, 0);
+      let parser = ChiruParser::new();
+      ast = parser.compilation_unit(&mut tokens);
+      grammar = Grammar::from_ast(ast.as_ref())?;
+    }
+
+
+    content.clear();
+    // 然后从 test_file 中或 stdin 中读取测试文件
+    if let Some(test_file) = &self.test_file {
+      let mut file = File::open(test_file)?;
+      file.read_to_string(&mut content)?;
+    }
+    else {
+      std::io::stdin().read_to_string(&mut content)?;
+    }
+
+
+    let lexer = CommonLexer::from_grammar(&grammar, &content);
+
+    if let Some(output) = &self.output {
+      let mut file;
+      if output.is_dir() {
+        let output = output.join("tokens.txt");
+        file = OpenOptions::new().write(true).create(true).open(output)?;
+      } else {
+        file = OpenOptions::new().write(true).create(true).open(output)?
+      }
+      for token in lexer.iter() {
+        file.write_all(token.to_string().as_bytes())?
+      }
+      
+
+    } else {
+      for token in lexer.iter() {
+        println!("{}", token)
+      }
+    }
+
+
+    Ok(())
+  }
+
+  fn draw_gui(&self) -> Result<(), Box<dyn Error>> {
+    let mut input_file = File::open(&self.input)?;
+    let mut content = String::new();
+    input_file.read_to_string(&mut content)?;
+
+
+    let ast;
+    let grammar;
+
+    {
+      let lexer = ChiruLexer::new(&content);
+      let mut tokens = TokenStream::new(&lexer, 0);
+      let parser = ChiruParser::new();
+      ast = parser.compilation_unit(&mut tokens);
+      grammar = Grammar::from_ast(ast.as_ref())?;
+    }
+
+
+    content.clear();
+    // 然后从 test_file 中或 stdin 中读取测试文件
+    if let Some(test_file) = &self.test_file {
+      let mut file = File::open(test_file)?;
+      file.read_to_string(&mut content)?;
+    }
+    else {
+      std::io::stdin().read_to_string(&mut content)?;
+    }
+
+    // 获取开始符号
+    let start_rule_id;
+    if let Some(start_rule) = &self.start_rule {
+      start_rule_id = grammar.vocabulary.get_nonterminal_id_by_name(start_rule).unwrap_or(0);
+    } else { start_rule_id = 0; }
+
+    let lexer = CommonLexer::from_grammar(&grammar, &content);
+    let mut tokens = TokenStream::new(&lexer, 0);
+    tokens.consume()?;
+    let parser = CommonParser::from_grammar(&grammar);
+    let ast = parser.parse(&mut tokens, start_rule_id);
+
+
+    // 输出 ast 到文件
+    let mut file;
+    if let Some(output) = &self.output {
+      
+      if output.is_dir() {
+        let output = output.join("ast.html");
+        file = OpenOptions::new().write(true).create(true).open(output)?;
+      } else {
+        file = OpenOptions::new().write(true).create(true).open(output)?
+      }
+
+    } else {
+      // 创建一个默认文件
+      let path = env::current_dir()?.join("ast.html");
+      file = OpenOptions::new().write(true).create(true).open(path)?;
+    }
+
+
+    println!("{}", ast.to_string());
+
+    ASTDrawer::new().draw(&ast, &grammar.name, &mut file);
+
+
+
+    Ok(())
+  }
+
+  fn dump_ast(&self) -> Result<(), Box<dyn Error>> {
+    Ok(())
+  }
+
   pub fn execute_command(&self) -> Result<(), Box<dyn Error>> {
     
-    todo!()
+    if ! self.gui && ! self.tokens && ! self.string_ast {
+      return self.generate_code();
+    }
+
+    if self.gui {
+      // 绘制 ast
+      self.draw_gui()?;
+    }
+
+    if self.tokens {
+      // 输出 tokens
+      self.dump_tokens()?;
+    }
+
+    if self.string_ast {
+      // 输出 string-ast
+      self.dump_ast()?;
+    }
+    
+
+    Ok(())
   }
 }
 

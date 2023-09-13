@@ -1,5 +1,5 @@
 
-use std::io::Write;
+use std::{io::Write, fs::File};
 use tera::{Context, Tera};
 
 use chiru::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext};
@@ -43,7 +43,7 @@ impl ASTDrawer {
     format!("{{ name:`{}`,id: `{}`, children:{},}}", ASTDrawer::escape(&ast.rule_name), ast.rule_index, children)
   }
 
-  pub fn draw(&self, ast: &RuleContext, name: &str, filename: &str) {
+  pub fn draw(&self, ast: &RuleContext, name: &str, file: &mut File) {
     let mut context = Context::new();
     context.insert("ast", &format!("const ast = {};", ASTDrawer::dump(ast)));
     context.insert("name", name);
@@ -52,7 +52,7 @@ impl ASTDrawer {
     let result = self.tera.render("ast", &context).unwrap();
     
 
-    let mut file = std::fs::File::create(filename).unwrap();
+    // let mut file = std::fs::File::create(filename).unwrap();
     file.write(result.as_bytes()).unwrap();
   }
 

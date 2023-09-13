@@ -14,45 +14,57 @@ use super::chiru_listener::ChiruListener;
 
 
 
-pub trait RegularContext: ToRule {
+pub trait ParserRuleContext: ToRule {
   
 
   
 
   
+  fn block(&self) -> Option<&dyn BlockContext>;
 
   
-  fn regular_literal(&self) -> Option<&TerminalContext>;
+  fn colon(&self) -> Option<&TerminalContext>;
+  fn semi(&self) -> Option<&TerminalContext>;
+  fn rule_ref(&self) -> Option<&TerminalContext>;
 
   fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
   fn enter(&self, listener: &mut dyn ChiruListener);
   fn exit(&self, listener: &mut dyn ChiruListener);
 }
 
-impl RegularContext for RuleContext {
+impl ParserRuleContext for RuleContext {
 
   
 
   
 
   
+  fn block(&self) -> Option<&dyn BlockContext> {
+    self.get_rule_context(ChiruParser::BLOCK, 0).map(|ctx| ctx as &dyn BlockContext)
+  } 
 
   
-  fn regular_literal(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::REGULAR_LITERAL, 0)
+  fn colon(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::COLON, 0)
+  } 
+  fn semi(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::SEMI, 0)
+  } 
+  fn rule_ref(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::RULE_REF, 0)
   } 
 
 
   fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    visitor.visit_regular(self)
+    visitor.visit_parser_rule(self)
   }
 
   fn enter(&self, listener: &mut dyn ChiruListener) {
-    listener.enter_regular(self)
+    listener.enter_parser_rule(self)
   }
 
   fn exit(&self, listener: &mut dyn ChiruListener) {
-    listener.exit_regular(self)
+    listener.exit_parser_rule(self)
   }
 }
 
@@ -63,13 +75,13 @@ pub trait AnnotationContext: ToRule {
   
 
   
-  fn attribute(&self) -> Option<&dyn AttributeContext>;
   fn attributes(&self) -> Option<&dyn AttributesContext>;
+  fn attribute(&self) -> Option<&dyn AttributeContext>;
 
   
   fn rbracket(&self) -> Option<&TerminalContext>;
-  fn sharp(&self) -> Option<&TerminalContext>;
   fn at(&self) -> Option<&TerminalContext>;
+  fn sharp(&self) -> Option<&TerminalContext>;
   fn lbracket(&self) -> Option<&TerminalContext>;
 
   fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
@@ -84,22 +96,22 @@ impl AnnotationContext for RuleContext {
   
 
   
-  fn attribute(&self) -> Option<&dyn AttributeContext> {
-    self.get_rule_context(ChiruParser::ATTRIBUTE, 0).map(|ctx| ctx as &dyn AttributeContext)
-  } 
   fn attributes(&self) -> Option<&dyn AttributesContext> {
     self.get_rule_context(ChiruParser::ATTRIBUTES, 0).map(|ctx| ctx as &dyn AttributesContext)
+  } 
+  fn attribute(&self) -> Option<&dyn AttributeContext> {
+    self.get_rule_context(ChiruParser::ATTRIBUTE, 0).map(|ctx| ctx as &dyn AttributeContext)
   } 
 
   
   fn rbracket(&self) -> Option<&TerminalContext> {
     self.get_terminal(ChiruLexer::RBRACKET, 0)
   } 
-  fn sharp(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::SHARP, 0)
-  } 
   fn at(&self) -> Option<&TerminalContext> {
     self.get_terminal(ChiruLexer::AT, 0)
+  } 
+  fn sharp(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::SHARP, 0)
   } 
   fn lbracket(&self) -> Option<&TerminalContext> {
     self.get_terminal(ChiruLexer::LBRACKET, 0)
@@ -120,57 +132,49 @@ impl AnnotationContext for RuleContext {
 }
 
 
-pub trait ParserRuleContext: ToRule {
+pub trait CompilationUnitContext: ToRule {
   
 
   
 
   
-  fn block(&self) -> Option<&dyn BlockContext>;
+  fn rules(&self) -> Option<&dyn RulesContext>;
+  fn grammar_name(&self) -> Option<&dyn GrammarNameContext>;
 
   
-  fn rule_ref(&self) -> Option<&TerminalContext>;
-  fn semi(&self) -> Option<&TerminalContext>;
-  fn colon(&self) -> Option<&TerminalContext>;
 
   fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
   fn enter(&self, listener: &mut dyn ChiruListener);
   fn exit(&self, listener: &mut dyn ChiruListener);
 }
 
-impl ParserRuleContext for RuleContext {
+impl CompilationUnitContext for RuleContext {
 
   
 
   
 
   
-  fn block(&self) -> Option<&dyn BlockContext> {
-    self.get_rule_context(ChiruParser::BLOCK, 0).map(|ctx| ctx as &dyn BlockContext)
+  fn rules(&self) -> Option<&dyn RulesContext> {
+    self.get_rule_context(ChiruParser::RULES, 0).map(|ctx| ctx as &dyn RulesContext)
+  } 
+  fn grammar_name(&self) -> Option<&dyn GrammarNameContext> {
+    self.get_rule_context(ChiruParser::GRAMMAR_NAME, 0).map(|ctx| ctx as &dyn GrammarNameContext)
   } 
 
   
-  fn rule_ref(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::RULE_REF, 0)
-  } 
-  fn semi(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::SEMI, 0)
-  } 
-  fn colon(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::COLON, 0)
-  } 
 
 
   fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    visitor.visit_parser_rule(self)
+    visitor.visit_compilation_unit(self)
   }
 
   fn enter(&self, listener: &mut dyn ChiruListener) {
-    listener.enter_parser_rule(self)
+    listener.enter_compilation_unit(self)
   }
 
   fn exit(&self, listener: &mut dyn ChiruListener) {
-    listener.exit_parser_rule(self)
+    listener.exit_compilation_unit(self)
   }
 }
 
@@ -218,73 +222,18 @@ impl EpsilonContext for RuleContext {
 }
 
 
-pub trait AttributeContext: ToRule {
-  
-
-  
-
-  
-
-  
-  fn token_ref(&self) -> Option<&TerminalContext>;
-  fn rparen(&self) -> Option<&TerminalContext>;
-  fn lparen(&self) -> Option<&TerminalContext>;
-  fn rule_ref(&self) -> Option<&TerminalContext>;
-
-  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
-  fn enter(&self, listener: &mut dyn ChiruListener);
-  fn exit(&self, listener: &mut dyn ChiruListener);
-}
-
-impl AttributeContext for RuleContext {
-
-  
-
-  
-
-  
-
-  
-  fn token_ref(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::TOKEN_REF, 0)
-  } 
-  fn rparen(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::RPAREN, 0)
-  } 
-  fn lparen(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::LPAREN, 0)
-  } 
-  fn rule_ref(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::RULE_REF, 0)
-  } 
-
-
-  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    visitor.visit_attribute(self)
-  }
-
-  fn enter(&self, listener: &mut dyn ChiruListener) {
-    listener.enter_attribute(self)
-  }
-
-  fn exit(&self, listener: &mut dyn ChiruListener) {
-    listener.exit_attribute(self)
-  }
-}
-
-
 pub trait LexerRuleContext: ToRule {
   
 
   
 
   
-  fn annotation(&self) -> Option<&dyn AnnotationContext>;
   fn regular(&self) -> Option<&dyn RegularContext>;
+  fn annotation(&self) -> Option<&dyn AnnotationContext>;
 
   
-  fn semi(&self) -> Option<&TerminalContext>;
   fn colon(&self) -> Option<&TerminalContext>;
+  fn semi(&self) -> Option<&TerminalContext>;
   fn token_ref(&self) -> Option<&TerminalContext>;
 
   fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
@@ -299,19 +248,19 @@ impl LexerRuleContext for RuleContext {
   
 
   
-  fn annotation(&self) -> Option<&dyn AnnotationContext> {
-    self.get_rule_context(ChiruParser::ANNOTATION, 0).map(|ctx| ctx as &dyn AnnotationContext)
-  } 
   fn regular(&self) -> Option<&dyn RegularContext> {
     self.get_rule_context(ChiruParser::REGULAR, 0).map(|ctx| ctx as &dyn RegularContext)
   } 
+  fn annotation(&self) -> Option<&dyn AnnotationContext> {
+    self.get_rule_context(ChiruParser::ANNOTATION, 0).map(|ctx| ctx as &dyn AnnotationContext)
+  } 
 
   
-  fn semi(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::SEMI, 0)
-  } 
   fn colon(&self) -> Option<&TerminalContext> {
     self.get_terminal(ChiruLexer::COLON, 0)
+  } 
+  fn semi(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::SEMI, 0)
   } 
   fn token_ref(&self) -> Option<&TerminalContext> {
     self.get_terminal(ChiruLexer::TOKEN_REF, 0)
@@ -379,6 +328,320 @@ impl BlockContext for RuleContext {
 }
 
 
+pub trait AttributesContext: ToRule {
+  
+  fn attribute_list(&self) -> Vec<&dyn AttributeContext>;
+
+  
+  fn comma_list(&self) -> Vec<&TerminalContext>;
+
+  
+
+  
+
+  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
+  fn enter(&self, listener: &mut dyn ChiruListener);
+  fn exit(&self, listener: &mut dyn ChiruListener);
+}
+
+impl AttributesContext for RuleContext {
+
+  
+  fn attribute_list(&self) -> Vec<&dyn AttributeContext> {
+    self.get_rule_contexts(ChiruParser::ATTRIBUTE).iter().map(|ctx| *ctx as &dyn AttributeContext).collect::<Vec<_>>()
+  } 
+
+  
+  fn comma_list(&self) -> Vec<&TerminalContext> {
+    self.get_terminals(ChiruLexer::COMMA)
+  } 
+
+  
+
+  
+
+
+  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    visitor.visit_attributes(self)
+  }
+
+  fn enter(&self, listener: &mut dyn ChiruListener) {
+    listener.enter_attributes(self)
+  }
+
+  fn exit(&self, listener: &mut dyn ChiruListener) {
+    listener.exit_attributes(self)
+  }
+}
+
+
+pub trait RulesContext: ToRule {
+  
+  fn parser_rule_list(&self) -> Vec<&dyn ParserRuleContext>;
+  fn lexer_rule_list(&self) -> Vec<&dyn LexerRuleContext>;
+
+  
+
+  
+
+  
+
+  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
+  fn enter(&self, listener: &mut dyn ChiruListener);
+  fn exit(&self, listener: &mut dyn ChiruListener);
+}
+
+impl RulesContext for RuleContext {
+
+  
+  fn parser_rule_list(&self) -> Vec<&dyn ParserRuleContext> {
+    self.get_rule_contexts(ChiruParser::PARSER_RULE).iter().map(|ctx| *ctx as &dyn ParserRuleContext).collect::<Vec<_>>()
+  } 
+  fn lexer_rule_list(&self) -> Vec<&dyn LexerRuleContext> {
+    self.get_rule_contexts(ChiruParser::LEXER_RULE).iter().map(|ctx| *ctx as &dyn LexerRuleContext).collect::<Vec<_>>()
+  } 
+
+  
+
+  
+
+  
+
+
+  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    visitor.visit_rules(self)
+  }
+
+  fn enter(&self, listener: &mut dyn ChiruListener) {
+    listener.enter_rules(self)
+  }
+
+  fn exit(&self, listener: &mut dyn ChiruListener) {
+    listener.exit_rules(self)
+  }
+}
+
+
+pub trait GrammarNameContext: ToRule {
+  
+
+  
+
+  
+
+  
+  fn rule_ref(&self) -> Option<&TerminalContext>;
+  fn grammar(&self) -> Option<&TerminalContext>;
+  fn token_ref(&self) -> Option<&TerminalContext>;
+  fn semi(&self) -> Option<&TerminalContext>;
+
+  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
+  fn enter(&self, listener: &mut dyn ChiruListener);
+  fn exit(&self, listener: &mut dyn ChiruListener);
+}
+
+impl GrammarNameContext for RuleContext {
+
+  
+
+  
+
+  
+
+  
+  fn rule_ref(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::RULE_REF, 0)
+  } 
+  fn grammar(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::GRAMMAR, 0)
+  } 
+  fn token_ref(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::TOKEN_REF, 0)
+  } 
+  fn semi(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::SEMI, 0)
+  } 
+
+
+  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    visitor.visit_grammar_name(self)
+  }
+
+  fn enter(&self, listener: &mut dyn ChiruListener) {
+    listener.enter_grammar_name(self)
+  }
+
+  fn exit(&self, listener: &mut dyn ChiruListener) {
+    listener.exit_grammar_name(self)
+  }
+}
+
+
+pub trait AttributeContext: ToRule {
+  
+
+  
+
+  
+
+  
+  fn lparen(&self) -> Option<&TerminalContext>;
+  fn token_ref(&self) -> Option<&TerminalContext>;
+  fn rparen(&self) -> Option<&TerminalContext>;
+  fn rule_ref(&self) -> Option<&TerminalContext>;
+
+  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
+  fn enter(&self, listener: &mut dyn ChiruListener);
+  fn exit(&self, listener: &mut dyn ChiruListener);
+}
+
+impl AttributeContext for RuleContext {
+
+  
+
+  
+
+  
+
+  
+  fn lparen(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::LPAREN, 0)
+  } 
+  fn token_ref(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::TOKEN_REF, 0)
+  } 
+  fn rparen(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::RPAREN, 0)
+  } 
+  fn rule_ref(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::RULE_REF, 0)
+  } 
+
+
+  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    visitor.visit_attribute(self)
+  }
+
+  fn enter(&self, listener: &mut dyn ChiruListener) {
+    listener.enter_attribute(self)
+  }
+
+  fn exit(&self, listener: &mut dyn ChiruListener) {
+    listener.exit_attribute(self)
+  }
+}
+
+
+pub trait RegularContext: ToRule {
+  
+
+  
+
+  
+
+  
+  fn regular_literal(&self) -> Option<&TerminalContext>;
+
+  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
+  fn enter(&self, listener: &mut dyn ChiruListener);
+  fn exit(&self, listener: &mut dyn ChiruListener);
+}
+
+impl RegularContext for RuleContext {
+
+  
+
+  
+
+  
+
+  
+  fn regular_literal(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::REGULAR_LITERAL, 0)
+  } 
+
+
+  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    visitor.visit_regular(self)
+  }
+
+  fn enter(&self, listener: &mut dyn ChiruListener) {
+    listener.enter_regular(self)
+  }
+
+  fn exit(&self, listener: &mut dyn ChiruListener) {
+    listener.exit_regular(self)
+  }
+}
+
+
+pub trait ElementContext: ToRule {
+  
+
+  
+
+  
+  fn ebnf_suffix(&self) -> Option<&dyn EbnfSuffixContext>;
+  fn block(&self) -> Option<&dyn BlockContext>;
+
+  
+  fn string_literal(&self) -> Option<&TerminalContext>;
+  fn token_ref(&self) -> Option<&TerminalContext>;
+  fn lparen(&self) -> Option<&TerminalContext>;
+  fn rparen(&self) -> Option<&TerminalContext>;
+  fn rule_ref(&self) -> Option<&TerminalContext>;
+
+  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
+  fn enter(&self, listener: &mut dyn ChiruListener);
+  fn exit(&self, listener: &mut dyn ChiruListener);
+}
+
+impl ElementContext for RuleContext {
+
+  
+
+  
+
+  
+  fn ebnf_suffix(&self) -> Option<&dyn EbnfSuffixContext> {
+    self.get_rule_context(ChiruParser::EBNF_SUFFIX, 0).map(|ctx| ctx as &dyn EbnfSuffixContext)
+  } 
+  fn block(&self) -> Option<&dyn BlockContext> {
+    self.get_rule_context(ChiruParser::BLOCK, 0).map(|ctx| ctx as &dyn BlockContext)
+  } 
+
+  
+  fn string_literal(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::STRING_LITERAL, 0)
+  } 
+  fn token_ref(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::TOKEN_REF, 0)
+  } 
+  fn lparen(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::LPAREN, 0)
+  } 
+  fn rparen(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::RPAREN, 0)
+  } 
+  fn rule_ref(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::RULE_REF, 0)
+  } 
+
+
+  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    visitor.visit_element(self)
+  }
+
+  fn enter(&self, listener: &mut dyn ChiruListener) {
+    listener.enter_element(self)
+  }
+
+  fn exit(&self, listener: &mut dyn ChiruListener) {
+    listener.exit_element(self)
+  }
+}
+
+
 pub trait EbnfSuffixContext: ToRule {
   
 
@@ -388,8 +651,8 @@ pub trait EbnfSuffixContext: ToRule {
   
 
   
-  fn star(&self) -> Option<&TerminalContext>;
   fn plus(&self) -> Option<&TerminalContext>;
+  fn star(&self) -> Option<&TerminalContext>;
 
   fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
   fn enter(&self, listener: &mut dyn ChiruListener);
@@ -408,11 +671,11 @@ impl EbnfSuffixContext for RuleContext {
   
 
   
-  fn star(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::STAR, 0)
-  } 
   fn plus(&self) -> Option<&TerminalContext> {
     self.get_terminal(ChiruLexer::PLUS, 0)
+  } 
+  fn star(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ChiruLexer::STAR, 0)
   } 
 
 
@@ -473,269 +736,6 @@ impl AlternativeContext for RuleContext {
 
   fn exit(&self, listener: &mut dyn ChiruListener) {
     listener.exit_alternative(self)
-  }
-}
-
-
-pub trait GrammarNameContext: ToRule {
-  
-
-  
-
-  
-
-  
-  fn semi(&self) -> Option<&TerminalContext>;
-  fn grammar(&self) -> Option<&TerminalContext>;
-  fn token_ref(&self) -> Option<&TerminalContext>;
-  fn rule_ref(&self) -> Option<&TerminalContext>;
-
-  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
-  fn enter(&self, listener: &mut dyn ChiruListener);
-  fn exit(&self, listener: &mut dyn ChiruListener);
-}
-
-impl GrammarNameContext for RuleContext {
-
-  
-
-  
-
-  
-
-  
-  fn semi(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::SEMI, 0)
-  } 
-  fn grammar(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::GRAMMAR, 0)
-  } 
-  fn token_ref(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::TOKEN_REF, 0)
-  } 
-  fn rule_ref(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::RULE_REF, 0)
-  } 
-
-
-  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    visitor.visit_grammar_name(self)
-  }
-
-  fn enter(&self, listener: &mut dyn ChiruListener) {
-    listener.enter_grammar_name(self)
-  }
-
-  fn exit(&self, listener: &mut dyn ChiruListener) {
-    listener.exit_grammar_name(self)
-  }
-}
-
-
-pub trait CompilationUnitContext: ToRule {
-  
-
-  
-
-  
-  fn rules(&self) -> Option<&dyn RulesContext>;
-  fn grammar_name(&self) -> Option<&dyn GrammarNameContext>;
-
-  
-
-  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
-  fn enter(&self, listener: &mut dyn ChiruListener);
-  fn exit(&self, listener: &mut dyn ChiruListener);
-}
-
-impl CompilationUnitContext for RuleContext {
-
-  
-
-  
-
-  
-  fn rules(&self) -> Option<&dyn RulesContext> {
-    self.get_rule_context(ChiruParser::RULES, 0).map(|ctx| ctx as &dyn RulesContext)
-  } 
-  fn grammar_name(&self) -> Option<&dyn GrammarNameContext> {
-    self.get_rule_context(ChiruParser::GRAMMAR_NAME, 0).map(|ctx| ctx as &dyn GrammarNameContext)
-  } 
-
-  
-
-
-  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    visitor.visit_compilation_unit(self)
-  }
-
-  fn enter(&self, listener: &mut dyn ChiruListener) {
-    listener.enter_compilation_unit(self)
-  }
-
-  fn exit(&self, listener: &mut dyn ChiruListener) {
-    listener.exit_compilation_unit(self)
-  }
-}
-
-
-pub trait RulesContext: ToRule {
-  
-  fn lexer_rule_list(&self) -> Vec<&dyn LexerRuleContext>;
-  fn parser_rule_list(&self) -> Vec<&dyn ParserRuleContext>;
-
-  
-
-  
-
-  
-
-  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
-  fn enter(&self, listener: &mut dyn ChiruListener);
-  fn exit(&self, listener: &mut dyn ChiruListener);
-}
-
-impl RulesContext for RuleContext {
-
-  
-  fn lexer_rule_list(&self) -> Vec<&dyn LexerRuleContext> {
-    self.get_rule_contexts(ChiruParser::LEXER_RULE).iter().map(|ctx| *ctx as &dyn LexerRuleContext).collect::<Vec<_>>()
-  } 
-  fn parser_rule_list(&self) -> Vec<&dyn ParserRuleContext> {
-    self.get_rule_contexts(ChiruParser::PARSER_RULE).iter().map(|ctx| *ctx as &dyn ParserRuleContext).collect::<Vec<_>>()
-  } 
-
-  
-
-  
-
-  
-
-
-  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    visitor.visit_rules(self)
-  }
-
-  fn enter(&self, listener: &mut dyn ChiruListener) {
-    listener.enter_rules(self)
-  }
-
-  fn exit(&self, listener: &mut dyn ChiruListener) {
-    listener.exit_rules(self)
-  }
-}
-
-
-pub trait ElementContext: ToRule {
-  
-
-  
-
-  
-  fn block(&self) -> Option<&dyn BlockContext>;
-  fn ebnf_suffix(&self) -> Option<&dyn EbnfSuffixContext>;
-
-  
-  fn rule_ref(&self) -> Option<&TerminalContext>;
-  fn token_ref(&self) -> Option<&TerminalContext>;
-  fn rparen(&self) -> Option<&TerminalContext>;
-  fn lparen(&self) -> Option<&TerminalContext>;
-  fn string_literal(&self) -> Option<&TerminalContext>;
-
-  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
-  fn enter(&self, listener: &mut dyn ChiruListener);
-  fn exit(&self, listener: &mut dyn ChiruListener);
-}
-
-impl ElementContext for RuleContext {
-
-  
-
-  
-
-  
-  fn block(&self) -> Option<&dyn BlockContext> {
-    self.get_rule_context(ChiruParser::BLOCK, 0).map(|ctx| ctx as &dyn BlockContext)
-  } 
-  fn ebnf_suffix(&self) -> Option<&dyn EbnfSuffixContext> {
-    self.get_rule_context(ChiruParser::EBNF_SUFFIX, 0).map(|ctx| ctx as &dyn EbnfSuffixContext)
-  } 
-
-  
-  fn rule_ref(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::RULE_REF, 0)
-  } 
-  fn token_ref(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::TOKEN_REF, 0)
-  } 
-  fn rparen(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::RPAREN, 0)
-  } 
-  fn lparen(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::LPAREN, 0)
-  } 
-  fn string_literal(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ChiruLexer::STRING_LITERAL, 0)
-  } 
-
-
-  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    visitor.visit_element(self)
-  }
-
-  fn enter(&self, listener: &mut dyn ChiruListener) {
-    listener.enter_element(self)
-  }
-
-  fn exit(&self, listener: &mut dyn ChiruListener) {
-    listener.exit_element(self)
-  }
-}
-
-
-pub trait AttributesContext: ToRule {
-  
-  fn attribute_list(&self) -> Vec<&dyn AttributeContext>;
-
-  
-  fn comma_list(&self) -> Vec<&TerminalContext>;
-
-  
-
-  
-
-  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
-  fn enter(&self, listener: &mut dyn ChiruListener);
-  fn exit(&self, listener: &mut dyn ChiruListener);
-}
-
-impl AttributesContext for RuleContext {
-
-  
-  fn attribute_list(&self) -> Vec<&dyn AttributeContext> {
-    self.get_rule_contexts(ChiruParser::ATTRIBUTE).iter().map(|ctx| *ctx as &dyn AttributeContext).collect::<Vec<_>>()
-  } 
-
-  
-  fn comma_list(&self) -> Vec<&TerminalContext> {
-    self.get_terminals(ChiruLexer::COMMA)
-  } 
-
-  
-
-  
-
-
-  fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    visitor.visit_attributes(self)
-  }
-
-  fn enter(&self, listener: &mut dyn ChiruListener) {
-    listener.enter_attributes(self)
-  }
-
-  fn exit(&self, listener: &mut dyn ChiruListener) {
-    listener.exit_attributes(self)
   }
 }
 

@@ -11,7 +11,7 @@ pub mod lexer_rule;
 
 // 定义一个数据结构来表示文法
 
-use std::{collections::{HashMap, HashSet}, fmt::Display};
+use std::{collections::{HashMap, HashSet}, fmt::Display, error::Error};
 
 use chiru::runtime::production::{Production, ProductionItem};
 
@@ -58,19 +58,19 @@ impl Grammar {
 
 
 
-  pub fn from_ast(ast: &dyn CompilationUnitContext) -> Self {
+  pub fn from_ast(ast: &dyn CompilationUnitContext) -> Result<Self, Box<dyn Error>> {
     let mut visitor = StringLiteralToTokenVisitor::new(2);
-    ast.accept(&mut visitor).unwrap();
+    ast.accept(&mut visitor)?;
     
     let mut lexer_visitor = LexerRuleVisitor::new(visitor.next_token_id, visitor.lexer_rule_map);
-    ast.accept(&mut lexer_visitor).unwrap();
+    ast.accept(&mut lexer_visitor)?;
 
     let mut parser_visitor = ParserRuleVisitor::new();
-    ast.accept(&mut parser_visitor).unwrap();
+    ast.accept(&mut parser_visitor)?;
 
     let mut grammar_visitor = GrammarVisitor::new("<no name>", &parser_visitor.parser_rule_map, &lexer_visitor.lexer_rule_map);
-    ast.accept(&mut grammar_visitor).unwrap();
-    grammar_visitor.grammar
+    ast.accept(&mut grammar_visitor)?;
+    Ok(grammar_visitor.grammar)
   }
   
   // 根据非终结符的first集合求一个串的first集合
