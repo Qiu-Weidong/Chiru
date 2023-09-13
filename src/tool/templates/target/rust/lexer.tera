@@ -1,5 +1,5 @@
-use once_cell::sync::Lazy;
-use regex::Regex;
+use chiru::once_cell::sync::Lazy;
+use chiru::regex::Regex;
 
 use chiru::runtime::error_strategy::error_listener::{ErrorListener, ConsoleErrorListener};
 use chiru::runtime::lexer::TokenIter;

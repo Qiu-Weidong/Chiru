@@ -1,12 +1,12 @@
 
 use std::error::Error;
-use once_cell::sync::Lazy;
+use chiru::once_cell::sync::Lazy;
 use chiru::runtime::error_strategy::error_listener::ErrorListener;
 use chiru::runtime::ll1_analyzer::ll1_analyze;
 
 use std::collections::{HashMap, HashSet};
-use maplit::hashmap;
-use maplit::hashset;
+use chiru::maplit::hashmap;
+use chiru::maplit::hashset;
 
 use chiru::runtime::{
   token_stream::TokenStream, 
