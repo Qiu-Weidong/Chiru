@@ -1,11 +1,12 @@
 [package]
 name = "chiru"
-version = "0.5.0"
+version = "0.6.0"
 edition = "2021"
 author = "邱维东 <qiu_weidong@buaa.edu.cn>"
 about = "A parser generator similar to antlr4."
 license = "MIT"
 description = "A parser generator similar to antlr4."
+repository = "https://github.com/Qiu-Weidong/Chiru.git"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
