@@ -23,8 +23,8 @@ pub trait CompilationUnitContext: ToRule {
   fn numbers(&self) -> Option<&dyn NumbersContext>;
 
   
-  fn rbracket(&self) -> Option<&TerminalContext>;
   fn lbracket(&self) -> Option<&TerminalContext>;
+  fn rbracket(&self) -> Option<&TerminalContext>;
 
   fn accept(&self, visitor: &mut dyn ArrayInitVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
   fn enter(&self, listener: &mut dyn ArrayInitListener);
@@ -43,11 +43,11 @@ impl CompilationUnitContext for RuleContext {
   } 
 
   
-  fn rbracket(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ArrayInitLexer::RBRACKET, 0)
-  } 
   fn lbracket(&self) -> Option<&TerminalContext> {
     self.get_terminal(ArrayInitLexer::LBRACKET, 0)
+  } 
+  fn rbracket(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ArrayInitLexer::RBRACKET, 0)
   } 
 
 
@@ -69,8 +69,8 @@ pub trait NumbersContext: ToRule {
   
 
   
-  fn num_list(&self) -> Vec<&TerminalContext>;
   fn comma_list(&self) -> Vec<&TerminalContext>;
+  fn num_list(&self) -> Vec<&TerminalContext>;
 
   
 
@@ -86,11 +86,11 @@ impl NumbersContext for RuleContext {
   
 
   
-  fn num_list(&self) -> Vec<&TerminalContext> {
-    self.get_terminals(ArrayInitLexer::NUM)
-  } 
   fn comma_list(&self) -> Vec<&TerminalContext> {
     self.get_terminals(ArrayInitLexer::COMMA)
+  } 
+  fn num_list(&self) -> Vec<&TerminalContext> {
+    self.get_terminals(ArrayInitLexer::NUM)
   } 
 
   

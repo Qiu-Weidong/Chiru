@@ -28,10 +28,10 @@ pub struct ArrayInitParser {
 static LL1_TABLE: Lazy<HashMap<(usize, usize), usize>> = Lazy::new(|| { 
   hashmap!{
     
-    (3, 5) => 3,
-    (2, 5) => 1,
     (0, 2) => 0,
+    (3, 5) => 3,
     (3, 3) => 2,
+    (2, 5) => 1,
     (1, 4) => 4,
   }
 });
@@ -40,11 +40,11 @@ static LL1_TABLE: Lazy<HashMap<(usize, usize), usize>> = Lazy::new(|| {
 static PRODUCTIONS: Lazy<HashMap<usize, Production>>  = Lazy::new(|| {
   hashmap!{
     
+    1 => Production::new(1, 2, &vec![ProductionItem::Terminal(5),ProductionItem::Terminal(4),]),
+    0 => Production::new(0, 0, &vec![ProductionItem::Terminal(2),ProductionItem::NonTerminal(1),ProductionItem::Terminal(3),]),
     3 => Production::new(3, 3, &vec![ProductionItem::NonTerminal(2),ProductionItem::NonTerminal(3),]),
     4 => Production::new(4, 1, &vec![ProductionItem::Terminal(4),ProductionItem::NonTerminal(3),]),
-    0 => Production::new(0, 0, &vec![ProductionItem::Terminal(2),ProductionItem::NonTerminal(1),ProductionItem::Terminal(3),]),
     2 => Production::new(2, 3, &vec![]),
-    1 => Production::new(1, 2, &vec![ProductionItem::Terminal(5),ProductionItem::Terminal(4),]),
   }
 }); 
 
@@ -61,14 +61,14 @@ pub static NONTERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
 pub static TERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
   hashmap! {
     
-    8 => String::from("BLOCK_COMMENT"),
-    5 => String::from("COMMA"),
-    3 => String::from("RBRACKET"),
-    4 => String::from("NUM"),
     1 => String::from("_STOP"),
-    6 => String::from("WHITE_SPACE"),
+    5 => String::from("COMMA"),
     7 => String::from("LINE_COMMENT"),
     2 => String::from("LBRACKET"),
+    3 => String::from("RBRACKET"),
+    4 => String::from("NUM"),
+    8 => String::from("BLOCK_COMMENT"),
+    6 => String::from("WHITE_SPACE"),
     0 => String::from("_START"),
   }
 });
@@ -76,11 +76,11 @@ pub static TERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
 pub static SYNC: Lazy<HashSet<(usize, usize)>> = Lazy::new(|| {
   hashset! {
     
-    (1, 3),
-    (2, 3),
     (2, 5),
-    (0, 1),
+    (2, 3),
     (3, 3),
+    (1, 3),
+    (0, 1),
   }
 });
 
