@@ -3,6 +3,7 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::PathBuf;
 
+use chiru::runtime::ast::rule_context::RuleContext;
 use chiru::runtime::lexer::Lexer;
 use clap::Parser;
 use clap::ValueEnum;
@@ -108,6 +109,7 @@ pub enum Analyzer {
 
 impl Cli {
 
+  // 代码生成
   fn generate_code(&self) -> Result<(), Box<dyn Error>> {
     
     let mut input_file = File::open(&self.input)?;
@@ -119,7 +121,6 @@ impl Cli {
     let mut tokens = TokenStream::new(&lexer, 0);
     let parser = ChiruParser::new();
     let ast = parser.compilation_unit(&mut tokens);
-
 
 
     let grammar = Grammar::from_ast(ast.as_ref())?;
@@ -137,25 +138,18 @@ impl Cli {
     Ok(())
   }
 
+
+
+
+
+
+  // 打印 tokens
   fn dump_tokens(&self) -> Result<(), Box<dyn Error>> {
-    let mut input_file = File::open(&self.input)?;
+    let grammar = self.get_grammar()?;
+
+
+    // content.clear();
     let mut content = String::new();
-    input_file.read_to_string(&mut content)?;
-
-
-    let ast;
-    let grammar;
-
-    {
-      let lexer = ChiruLexer::new(&content);
-      let mut tokens = TokenStream::new(&lexer, 0);
-      let parser = ChiruParser::new();
-      ast = parser.compilation_unit(&mut tokens);
-      grammar = Grammar::from_ast(ast.as_ref())?;
-    }
-
-
-    content.clear();
     // 然后从 test_file 中或 stdin 中读取测试文件
     if let Some(test_file) = &self.test_file {
       let mut file = File::open(test_file)?;
@@ -192,24 +186,37 @@ impl Cli {
   }
 
   fn draw_gui(&self) -> Result<(), Box<dyn Error>> {
-    let mut input_file = File::open(&self.input)?;
-    let mut content = String::new();
-    input_file.read_to_string(&mut content)?;
+    let grammar = self.get_grammar()?;
 
+    let ast = self.parse_ast(&grammar)?;
 
-    let ast;
-    let grammar;
+    // 输出 ast 到文件
+    let mut file;
+    if let Some(output) = &self.output {
+      
+      if output.is_dir() {
+        let output = output.join("ast.html");
+        file = OpenOptions::new().write(true).create(true).open(output)?;
+      } else {
+        file = OpenOptions::new().write(true).create(true).open(output)?
+      }
 
-    {
-      let lexer = ChiruLexer::new(&content);
-      let mut tokens = TokenStream::new(&lexer, 0);
-      let parser = ChiruParser::new();
-      ast = parser.compilation_unit(&mut tokens);
-      grammar = Grammar::from_ast(ast.as_ref())?;
+    } else {
+      // 创建一个默认文件
+      let path = env::current_dir()?.join("ast.html");
+      file = OpenOptions::new().write(true).create(true).open(path)?;
     }
 
 
-    content.clear();
+
+    ASTDrawer::new().draw(&ast, &grammar.name, &mut file);
+    Ok(())
+  }
+
+  fn parse_ast(&self, grammar: &Grammar) -> Result<RuleContext, Box<dyn Error>> {
+    let mut content = String::new();
+
+    
     // 然后从 test_file 中或 stdin 中读取测试文件
     if let Some(test_file) = &self.test_file {
       let mut file = File::open(test_file)?;
@@ -230,38 +237,53 @@ impl Cli {
     tokens.consume()?;
     let parser = CommonParser::from_grammar(&grammar);
     let ast = parser.parse(&mut tokens, start_rule_id);
-
-
-    // 输出 ast 到文件
-    let mut file;
-    if let Some(output) = &self.output {
-      
-      if output.is_dir() {
-        let output = output.join("ast.html");
-        file = OpenOptions::new().write(true).create(true).open(output)?;
-      } else {
-        file = OpenOptions::new().write(true).create(true).open(output)?
-      }
-
-    } else {
-      // 创建一个默认文件
-      let path = env::current_dir()?.join("ast.html");
-      file = OpenOptions::new().write(true).create(true).open(path)?;
-    }
-
-
-    println!("{}", ast.to_string());
-
-    ASTDrawer::new().draw(&ast, &grammar.name, &mut file);
-
-
-
-    Ok(())
+    Ok(ast)
   }
 
   fn dump_ast(&self) -> Result<(), Box<dyn Error>> {
+    let grammar = self.get_grammar()?;
+
+    let ast = self.parse_ast(&grammar)?;
+
+    if let Some(output) = &self.output {
+      let mut file;
+      if output.is_dir() {
+        let output = output.join("string-ast.txt");
+        file = OpenOptions::new().write(true).create(true).open(output)?;
+      } else {
+        file = OpenOptions::new().write(true).create(true).open(output)?;
+      }
+      file.write_all(ast.to_string().as_bytes())?;
+    } else {
+      println!("{}", ast.to_string());
+    }
     Ok(())
   }
+
+
+
+  fn get_grammar(&self) -> Result<Grammar, Box<dyn Error>> {
+    let mut input_file = File::open(&self.input)?;
+    let mut content = String::new();
+    input_file.read_to_string(&mut content)?;
+
+
+    let ast;
+    let grammar;
+
+    {
+      let lexer = ChiruLexer::new(&content);
+      let mut tokens = TokenStream::new(&lexer, 0);
+      let parser = ChiruParser::new();
+      ast = parser.compilation_unit(&mut tokens);
+      grammar = Grammar::from_ast(ast.as_ref())?;
+    }
+    Ok(grammar)
+  }
+
+
+
+
 
   pub fn execute_command(&self) -> Result<(), Box<dyn Error>> {
     

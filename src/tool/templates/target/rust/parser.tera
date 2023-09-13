@@ -1,5 +1,8 @@
 
+use std::error::Error;
 use once_cell::sync::Lazy;
+use chiru::runtime::error_strategy::error_listener::ErrorListener;
+use chiru::runtime::ll1_analyzer::ll1_analyze;
 
 use std::collections::{HashMap, HashSet};
 use maplit::hashmap;
@@ -17,8 +20,8 @@ use super::{{ grammar_name.0 }}_context::{
 };
 
 
-pub struct {{grammar_name.2}}Parser<'a> {
-  pub analyzer: LL1Analyzer<'a>,
+pub struct {{grammar_name.2}}Parser {
+  pub error_listeners: Vec<Box<dyn ErrorListener>>,
 }
 
 
@@ -72,22 +75,18 @@ impl {{grammar_name.2}}Parser<'_> {
 
   pub fn new() -> Self {
     Self {
-      analyzer: LL1Analyzer { 
-        error_listeners: vec![Box::new(ConsoleErrorListener::new()),], 
-        table: &LL1_TABLE, 
-        productions: &PRODUCTIONS, 
-        rule_names: &NONTERMINALS, 
-        sync: &SYNC, 
-      }
+      error_listeners: vec![Box::new(ConsoleErrorListener::new()),], 
     }
   }
 
 
   // 使用模板生成
   {% for nonterminal in nonterminals %}
-  pub fn {{nonterminal.1}}(&self, token_stream: &mut TokenStream) -> Box<dyn {{nonterminal.3}}Context> {
-    let result = self.analyzer.analyse(token_stream, Self::{{nonterminal.2}});
-    Box::new(result)
+  pub fn {{nonterminal.1}}(&self, token_stream: &mut TokenStream) -> Result<Box<dyn {{nonterminal.3}}Context>, Box<dyn Error>> {
+
+    let result = ll1_analyze(token_stream, Self::{{nonterminal.2}},
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
+    Ok(Box::new(result))
   } {% endfor %}
 
 }
