@@ -1,9 +1,9 @@
 
 use std::fmt::Display;
-
+use serde::Serialize;
 use crate::runtime::token::Token;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct ErrorContext {
   pub symbol: Token,
 

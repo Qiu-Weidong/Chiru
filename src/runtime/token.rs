@@ -1,9 +1,9 @@
 
 use super::position::Position;
 use std::fmt::Display;
+use serde::Serialize;
 
-
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Token {
   pub token_type: usize, 
   pub token_name: String,

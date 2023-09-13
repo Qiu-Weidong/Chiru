@@ -2,10 +2,10 @@ use std::fmt::Display;
 
 
 use crate::runtime::token::Token;
-
+use serde::Serialize;
 use super::{terminal_context::TerminalContext, error_context::ErrorContext, ast_context::ASTContext, to_rule::ToRule};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct RuleContext {
   pub rule_name: String,
   pub children: Vec<ASTContext>,

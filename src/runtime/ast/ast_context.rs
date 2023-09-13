@@ -1,9 +1,11 @@
 use std::fmt::Display;
+use serde::Serialize;
+// use serde_json::Serializer;
 
 use super::{terminal_context::TerminalContext, rule_context::RuleContext, error_context::ErrorContext};
 
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub enum ASTContext {
   Terminal(TerminalContext),
   Rule(RuleContext),

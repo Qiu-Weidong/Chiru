@@ -34,7 +34,7 @@ pub struct Cli {
   #[arg(short, long, value_name = "LANGUAGE", value_enum, default_value_t = Language::Rust)]
   pub language: Language,
 
-  #[arg(short, long, value_name = "ANALYZER", value_enum, default_value_t = Analyzer::LALR)]
+  #[arg(long, value_name = "ANALYZER", value_enum, default_value_t = Analyzer::LALR)]
   pub analyzer: Analyzer,
 
   #[arg(short, long, value_name = "PACKAGE")]
