@@ -1,8 +1,6 @@
 
-pub mod rust_generator;
-pub mod typescript_generator;
-pub mod python_generator;
 
+pub mod target;
 
 // 代码生成器
 
@@ -28,8 +26,10 @@ pub struct CodeGenerator<'a> {
   visitor: bool,
   walker: bool,
 
-  // 代码模板
+  // 代码模板 可以放入 target 中去
   template: Tera,
+
+  // 以及 target
 }
 
 impl<'a> CodeGenerator<'a> {

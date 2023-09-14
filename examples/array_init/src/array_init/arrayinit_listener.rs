@@ -6,18 +6,18 @@ use chiru::runtime::ast::{terminal_context::TerminalContext, error_context::Erro
 use super::{
   arrayinit_parser::ArrayInitParser, 
   arrayinit_context::{
-    CompilationUnitContext,NumbersContext,
+    NumbersContext,CompilationUnitContext,
   }
 };
 
 
 pub trait ArrayInitListener {
   
-  fn enter_compilation_unit(&mut self, _ctx: &dyn CompilationUnitContext) {}
-  fn exit_compilation_unit(&mut self, _ctx: &dyn CompilationUnitContext) {}
-  
   fn enter_numbers(&mut self, _ctx: &dyn NumbersContext) {}
   fn exit_numbers(&mut self, _ctx: &dyn NumbersContext) {}
+  
+  fn enter_compilation_unit(&mut self, _ctx: &dyn CompilationUnitContext) {}
+  fn exit_compilation_unit(&mut self, _ctx: &dyn CompilationUnitContext) {}
   
 
 
@@ -30,8 +30,8 @@ pub trait ArrayInitListener {
     // 在这里进行派发即可
     match ctx.get_rule_index() {
       
-      ArrayInitParser::COMPILATION_UNIT => self.enter_compilation_unit(ctx), 
       ArrayInitParser::NUMBERS => self.enter_numbers(ctx), 
+      ArrayInitParser::COMPILATION_UNIT => self.enter_compilation_unit(ctx), 
 
       _ => {}
     }
@@ -40,8 +40,8 @@ pub trait ArrayInitListener {
   fn exit(&mut self, ctx: &RuleContext) {
     match ctx.get_rule_index() {
       
-      ArrayInitParser::COMPILATION_UNIT => self.exit_compilation_unit(ctx), 
       ArrayInitParser::NUMBERS => self.exit_numbers(ctx), 
+      ArrayInitParser::COMPILATION_UNIT => self.exit_compilation_unit(ctx), 
 
       _ => {}
     }

@@ -1,12 +1,13 @@
 
 use std::error::Error;
-use chiru::once_cell::sync::Lazy;
+use std::collections::{HashMap, HashSet};
+
 use chiru::runtime::error_strategy::error_listener::ErrorListener;
 use chiru::runtime::ll1_analyzer::ll1_analyze;
 
-use std::collections::{HashMap, HashSet};
 use chiru::maplit::hashmap;
 use chiru::maplit::hashset;
+use chiru::once_cell::sync::Lazy;
 
 use chiru::runtime::{
   token_stream::TokenStream, 
@@ -16,7 +17,7 @@ use chiru::runtime::{
 };
 
 use super::arrayinit_context::{
-   CompilationUnitContext, NumbersContext,
+   NumbersContext, CompilationUnitContext,
 };
 
 
@@ -28,11 +29,11 @@ pub struct ArrayInitParser {
 static LL1_TABLE: Lazy<HashMap<(usize, usize), usize>> = Lazy::new(|| { 
   hashmap!{
     
-    (0, 2) => 0,
-    (3, 5) => 3,
-    (3, 3) => 2,
-    (2, 5) => 1,
     (1, 4) => 4,
+    (2, 5) => 1,
+    (3, 5) => 3,
+    (0, 2) => 0,
+    (3, 3) => 2,
   }
 });
 
@@ -41,8 +42,8 @@ static PRODUCTIONS: Lazy<HashMap<usize, Production>>  = Lazy::new(|| {
   hashmap!{
     
     1 => Production::new(1, 2, &vec![ProductionItem::Terminal(5),ProductionItem::Terminal(4),]),
-    0 => Production::new(0, 0, &vec![ProductionItem::Terminal(2),ProductionItem::NonTerminal(1),ProductionItem::Terminal(3),]),
     3 => Production::new(3, 3, &vec![ProductionItem::NonTerminal(2),ProductionItem::NonTerminal(3),]),
+    0 => Production::new(0, 0, &vec![ProductionItem::Terminal(2),ProductionItem::NonTerminal(1),ProductionItem::Terminal(3),]),
     4 => Production::new(4, 1, &vec![ProductionItem::Terminal(4),ProductionItem::NonTerminal(3),]),
     2 => Production::new(2, 3, &vec![]),
   }
@@ -52,8 +53,8 @@ static PRODUCTIONS: Lazy<HashMap<usize, Production>>  = Lazy::new(|| {
 pub static NONTERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
   hashmap! {
     
-    0 => String::from("compilation_unit"),
     1 => String::from("numbers"),
+    0 => String::from("compilation_unit"),
   }
 });
 
@@ -61,26 +62,26 @@ pub static NONTERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
 pub static TERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
   hashmap! {
     
-    1 => String::from("_STOP"),
     5 => String::from("COMMA"),
-    7 => String::from("LINE_COMMENT"),
     2 => String::from("LBRACKET"),
-    3 => String::from("RBRACKET"),
-    4 => String::from("NUM"),
+    1 => String::from("_STOP"),
     8 => String::from("BLOCK_COMMENT"),
     6 => String::from("WHITE_SPACE"),
+    3 => String::from("RBRACKET"),
     0 => String::from("_START"),
+    4 => String::from("NUM"),
+    7 => String::from("LINE_COMMENT"),
   }
 });
 
 pub static SYNC: Lazy<HashSet<(usize, usize)>> = Lazy::new(|| {
   hashset! {
     
-    (2, 5),
-    (2, 3),
-    (3, 3),
-    (1, 3),
     (0, 1),
+    (2, 3),
+    (2, 5),
+    (1, 3),
+    (3, 3),
   }
 });
 
@@ -90,8 +91,8 @@ impl ArrayInitParser {
 
   // 使用模板生成 每个非终结符的编号
   
-  pub const COMPILATION_UNIT: usize = 0; 
   pub const NUMBERS: usize = 1; 
+  pub const COMPILATION_UNIT: usize = 0; 
 
 
 
@@ -104,15 +105,15 @@ impl ArrayInitParser {
 
   // 使用模板生成
   
-  pub fn compilation_unit(&self, token_stream: &mut TokenStream) -> Result<Box<dyn CompilationUnitContext>, Box<dyn Error>> {
-
-    let result = ll1_analyze(token_stream, Self::COMPILATION_UNIT,
-      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
-    Ok(Box::new(result))
-  } 
   pub fn numbers(&self, token_stream: &mut TokenStream) -> Result<Box<dyn NumbersContext>, Box<dyn Error>> {
 
     let result = ll1_analyze(token_stream, Self::NUMBERS,
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
+    Ok(Box::new(result))
+  } 
+  pub fn compilation_unit(&self, token_stream: &mut TokenStream) -> Result<Box<dyn CompilationUnitContext>, Box<dyn Error>> {
+
+    let result = ll1_analyze(token_stream, Self::COMPILATION_UNIT,
       &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
     Ok(Box::new(result))
   } 

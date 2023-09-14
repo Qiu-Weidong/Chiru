@@ -4,4 +4,4 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-chiru = "0.6.0"
+chiru = "0.7.0"

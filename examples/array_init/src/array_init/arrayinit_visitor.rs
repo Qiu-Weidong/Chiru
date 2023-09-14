@@ -4,7 +4,7 @@ use chiru::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext, er
 
 use super::{
   arrayinit_context::{
-    CompilationUnitContext,NumbersContext,
+    NumbersContext,CompilationUnitContext,
   },
   arrayinit_parser::ArrayInitParser, 
 };
@@ -12,11 +12,11 @@ use super::{
 
 pub trait ArrayInitVisitor {
   
-  fn visit_compilation_unit(&mut self, ctx: &dyn CompilationUnitContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+  fn visit_numbers(&mut self, ctx: &dyn NumbersContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     self.visit_children(ctx.as_rule())
   }
   
-  fn visit_numbers(&mut self, ctx: &dyn NumbersContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+  fn visit_compilation_unit(&mut self, ctx: &dyn CompilationUnitContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     self.visit_children(ctx.as_rule())
   }
   
@@ -25,8 +25,8 @@ pub trait ArrayInitVisitor {
   fn visit(&mut self, ast: &RuleContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     match ast.get_rule_index() {
       
-      ArrayInitParser::COMPILATION_UNIT => self.visit_compilation_unit(ast),
       ArrayInitParser::NUMBERS => self.visit_numbers(ast),
+      ArrayInitParser::COMPILATION_UNIT => self.visit_compilation_unit(ast),
 
       _ => self.visit_children(ast)
     }

@@ -14,57 +14,6 @@ use super::arrayinit_listener::ArrayInitListener;
 
 
 
-pub trait CompilationUnitContext: ToRule {
-  
-
-  
-
-  
-  fn numbers(&self) -> Option<&dyn NumbersContext>;
-
-  
-  fn lbracket(&self) -> Option<&TerminalContext>;
-  fn rbracket(&self) -> Option<&TerminalContext>;
-
-  fn accept(&self, visitor: &mut dyn ArrayInitVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
-  fn enter(&self, listener: &mut dyn ArrayInitListener);
-  fn exit(&self, listener: &mut dyn ArrayInitListener);
-}
-
-impl CompilationUnitContext for RuleContext {
-
-  
-
-  
-
-  
-  fn numbers(&self) -> Option<&dyn NumbersContext> {
-    self.get_rule_context(ArrayInitParser::NUMBERS, 0).map(|ctx| ctx as &dyn NumbersContext)
-  } 
-
-  
-  fn lbracket(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ArrayInitLexer::LBRACKET, 0)
-  } 
-  fn rbracket(&self) -> Option<&TerminalContext> {
-    self.get_terminal(ArrayInitLexer::RBRACKET, 0)
-  } 
-
-
-  fn accept(&self, visitor: &mut dyn ArrayInitVisitor) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    visitor.visit_compilation_unit(self)
-  }
-
-  fn enter(&self, listener: &mut dyn ArrayInitListener) {
-    listener.enter_compilation_unit(self)
-  }
-
-  fn exit(&self, listener: &mut dyn ArrayInitListener) {
-    listener.exit_compilation_unit(self)
-  }
-}
-
-
 pub trait NumbersContext: ToRule {
   
 
@@ -108,6 +57,57 @@ impl NumbersContext for RuleContext {
 
   fn exit(&self, listener: &mut dyn ArrayInitListener) {
     listener.exit_numbers(self)
+  }
+}
+
+
+pub trait CompilationUnitContext: ToRule {
+  
+
+  
+
+  
+  fn numbers(&self) -> Option<&dyn NumbersContext>;
+
+  
+  fn rbracket(&self) -> Option<&TerminalContext>;
+  fn lbracket(&self) -> Option<&TerminalContext>;
+
+  fn accept(&self, visitor: &mut dyn ArrayInitVisitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
+  fn enter(&self, listener: &mut dyn ArrayInitListener);
+  fn exit(&self, listener: &mut dyn ArrayInitListener);
+}
+
+impl CompilationUnitContext for RuleContext {
+
+  
+
+  
+
+  
+  fn numbers(&self) -> Option<&dyn NumbersContext> {
+    self.get_rule_context(ArrayInitParser::NUMBERS, 0).map(|ctx| ctx as &dyn NumbersContext)
+  } 
+
+  
+  fn rbracket(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ArrayInitLexer::RBRACKET, 0)
+  } 
+  fn lbracket(&self) -> Option<&TerminalContext> {
+    self.get_terminal(ArrayInitLexer::LBRACKET, 0)
+  } 
+
+
+  fn accept(&self, visitor: &mut dyn ArrayInitVisitor) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    visitor.visit_compilation_unit(self)
+  }
+
+  fn enter(&self, listener: &mut dyn ArrayInitListener) {
+    listener.enter_compilation_unit(self)
+  }
+
+  fn exit(&self, listener: &mut dyn ArrayInitListener) {
+    listener.exit_compilation_unit(self)
   }
 }
 
