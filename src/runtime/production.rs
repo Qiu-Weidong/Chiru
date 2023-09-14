@@ -17,8 +17,8 @@ pub struct Production {
 }
 
 impl Production {
-  pub fn new(id: usize, left: usize, right: &Vec<ProductionItem>) -> Self {
-    Self { id, left, right: right.clone() }
+  pub fn new(id: usize, left: usize, right: &[ProductionItem]) -> Self {
+    Self { id, left, right: right.to_vec() }
   }
 }
 
