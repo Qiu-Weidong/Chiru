@@ -1,0 +1,99 @@
+
+use std::error::Error;
+use std::collections::{HashMap, HashSet};
+
+use chiru::runtime::error_strategy::error_listener::ErrorListener;
+use chiru::runtime::ll1_analyzer::ll1_analyze;
+
+use chiru::maplit::hashmap;
+use chiru::maplit::hashset;
+use chiru::once_cell::sync::Lazy;
+
+use chiru::runtime::{
+  token_stream::TokenStream, 
+  error_strategy::error_listener::ConsoleErrorListener,
+  production::Production,
+  production::ProductionItem
+};
+
+use super::{{ grammar_name.0 }}_context::{
+  {% for nonterminal in nonterminals %} {{nonterminal.3}}Context,{% endfor %}
+};
+
+
+pub struct {{grammar_name.2}}Parser {
+  pub error_listeners: Vec<Box<dyn ErrorListener>>,
+}
+
+
+static LL1_TABLE: Lazy<HashMap<(usize, usize), usize>> = Lazy::new(|| { 
+  hashmap!{
+    {% for item in table %}
+    ({{item.0}}, {{item.1}}) => {{item.2}},{% endfor %}
+  }
+});
+
+
+static PRODUCTIONS: Lazy<HashMap<usize, Production>>  = Lazy::new(|| {
+  hashmap!{
+    {% for production in productions %}
+    {{production.0}} => Production::new({{production.0}}, {{production.1}}, &{{production.2}}),{% endfor %}
+  }
+}); 
+
+// 非终结符
+pub static NONTERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
+  hashmap! {
+    {% for nonterminal in nonterminals %}
+    {{nonterminal.0}} => String::from("{{nonterminal.1}}"),{% endfor %}
+  }
+});
+
+// 终结符
+pub static TERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
+  hashmap! {
+    {% for terminal in terminals %}
+    {{terminal.0}} => String::from("{{terminal.1}}"),{% endfor %}
+  }
+});
+
+pub static SYNC: Lazy<HashSet<(usize, usize)>> = Lazy::new(|| {
+  hashset! {
+    {% for sync in sync_list %}
+    ({{sync.0}}, {{sync.1}}),{% endfor %}
+  }
+});
+
+
+#[allow(unused)]
+impl {{grammar_name.2}}Parser {
+
+  // 使用模板生成 每个非终结符的编号
+  {% for nonterminal in nonterminals %}
+  pub const {{nonterminal.2}}: usize = {{nonterminal.0}}; {% endfor %}
+
+
+
+  pub fn new() -> Self {
+    Self {
+      error_listeners: vec![Box::new(ConsoleErrorListener::new()),], 
+    }
+  }
+
+
+  // 使用模板生成
+  {% for nonterminal in nonterminals %}
+  pub fn {{nonterminal.1}}(&self, token_stream: &mut TokenStream) -> Result<Box<dyn {{nonterminal.3}}Context>, Box<dyn Error>> {
+
+    let result = ll1_analyze(token_stream, Self::{{nonterminal.2}},
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
+    Ok(Box::new(result))
+  } {% endfor %}
+
+}
+
+
+
+
+
+

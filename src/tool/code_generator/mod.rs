@@ -18,6 +18,9 @@ pub struct CodeGenerator<'a> {
   // 还需要 ast ，持有引用
   ast: &'a dyn CompilationUnitContext,
 
+
+
+
   // 记录一下需要生成哪些文件, 默认全部
   lexer: bool,
   parser: bool,
@@ -26,6 +29,9 @@ pub struct CodeGenerator<'a> {
   visitor: bool,
   walker: bool,
 
+  
+  
+  
   // 代码模板 可以放入 target 中去
   template: Tera,
 
@@ -429,7 +435,11 @@ impl<'a> CodeGenerator<'a> {
   
   pub fn walker_generate(&self) -> String {
     let mut context = Context::new();
-    context.insert("grammar_name", &(self.grammar.name.to_lowercase(), self.grammar.name.to_uppercase(), self.pascal(&self.grammar.name)));
+    context.insert("grammar_name", &(
+      self.grammar.name.to_lowercase(), 
+      self.grammar.name.to_uppercase(), 
+      self.pascal(&self.grammar.name))
+    );
     self.template.render("walker", &context).unwrap()
   }
 }

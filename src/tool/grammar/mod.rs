@@ -2,8 +2,7 @@
 
 
 
-pub mod non_terminal;
-pub mod terminal;
+
 pub mod vocabulary;
 pub mod lexer_rule;
 
@@ -44,6 +43,8 @@ pub struct Collection {
   pub allow_epsilon: bool,
   pub set: HashSet<usize>,
 }
+
+
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ActionTableElement {

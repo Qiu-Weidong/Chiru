@@ -1,0 +1,68 @@
+use chiru::once_cell::sync::Lazy;
+use chiru::regex::Regex;
+
+use chiru::runtime::error_strategy::error_listener::{ErrorListener, ConsoleErrorListener};
+use chiru::runtime::lexer::TokenIter;
+use chiru::runtime::lexer::Lexer;
+use chiru::runtime::lexer_rule::LexerRule;
+
+pub struct {{ grammar_name.2 }}Lexer<'a> {
+  pub input: &'a str, 
+
+  pub error_listeners: Vec<Box<dyn ErrorListener>>,
+}
+
+
+static LEXER_RULE_LIST: Lazy<Vec<LexerRule>> = Lazy::new(|| {
+  vec![
+    {% for lexer_rule in lexer_rule_list %}
+    LexerRule { 
+      rule: Regex::new({{ lexer_rule.4 }}).unwrap(),  
+      token_type: {{lexer_rule.3}}, 
+      channel: {{lexer_rule.5}}, 
+      token_name: String::from("{{ lexer_rule.1 }}"), 
+      skip: {{lexer_rule.6}},
+    }, {% endfor %}
+  ]
+});
+
+
+
+#[allow(unused)]
+impl<'a> {{ grammar_name.2 }}Lexer<'a> {
+  pub const _START: usize = 0;
+  pub const _STOP: usize = 1;
+
+  // 从这里开始使用模板
+  {% for lexer_rule in lexer_rule_list %}
+  pub const {{ lexer_rule.1 }}: usize = {{ lexer_rule.3 }};{% endfor %}
+
+
+  pub fn new(input: &'a str) -> Self {
+    Self { 
+      input, 
+      error_listeners: vec![Box::new(ConsoleErrorListener::new())],
+    }
+  }
+
+  // 考虑是否放入 trait 中
+  pub fn remove_all_error_listeners(&mut self) {
+    self.error_listeners.clear()
+  }
+
+  pub fn add_error_listener(&mut self, listener: Box<dyn ErrorListener>) {
+    self.error_listeners.push(listener)
+  }
+
+
+
+}
+
+
+impl Lexer for {{grammar_name.2}}Lexer<'_> {
+  fn iter(&self) -> TokenIter {
+    TokenIter::new(self.input, &LEXER_RULE_LIST, &self.error_listeners)
+  }
+}
+
+

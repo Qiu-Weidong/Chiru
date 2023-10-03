@@ -1,5 +1,5 @@
-use once_cell::sync::Lazy;
-use regex::Regex;
+use chiru::once_cell::sync::Lazy;
+use chiru::regex::Regex;
 
 use chiru::runtime::error_strategy::error_listener::{ErrorListener, ConsoleErrorListener};
 use chiru::runtime::lexer::TokenIter;
@@ -164,7 +164,7 @@ static LEXER_RULE_LIST: Lazy<Vec<LexerRule>> = Lazy::new(|| {
       skip: false,
     }, 
     LexerRule { 
-      rule: Regex::new(r###"(?s)/\*.*?\*\/"###).unwrap(),  
+      rule: Regex::new(r###"(?s)/\*.*?\*/"###).unwrap(),  
       token_type: 23, 
       channel: 1, 
       token_name: String::from("BLOCK_COMMENT"), 
