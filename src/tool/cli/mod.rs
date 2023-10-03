@@ -136,14 +136,7 @@ impl Cli {
       base_dir = env::current_dir()?;
     }
     
-    let mut code_generator = CodeGenerator::new(grammar, ast.as_ref(), base_dir, Language::Rust);
-    // code_generator.toggle_context_generation(false);
-    code_generator.toggle_lexer_generation(false);
-    code_generator.toggle_parser_generation(false);
-    code_generator.toggle_listener_generation(false);
-    code_generator.toggle_visitor_generation(false);
-    code_generator.toggle_walker_generation(false);
-
+    let code_generator = CodeGenerator::new(grammar, ast.as_ref(), base_dir, Language::Rust);
     code_generator.generate();
     Ok(())
   }

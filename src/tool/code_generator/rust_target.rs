@@ -71,51 +71,6 @@ impl RustTarget {
     
     format!("Production::new({}, {}, &{})", production.id, production.left, result)
   }
-
-  // fn ctx_gen(&self, rule_id: usize, ctx: (HashSet<usize>, HashSet<usize>, HashSet<usize>, HashSet<usize>), grammar: &Grammar) -> String {
-  //   let rule_name = grammar.vocabulary.get_nonterminal_name_by_id(rule_id).unwrap();
-  
-  
-  //   // 首先将 HashSet 转换为 vec
-  //   let terminal_list = ctx.0.iter().map(|id| {
-  //     let name = grammar.vocabulary.get_terminal_name_by_id(*id).unwrap();
-  //     NameCaseWithId::new(&name, *id)
-  //   }).collect::<Vec<_>>();
-  
-  //   let terminal = ctx.1.iter().map(|id| {
-  //     let name = grammar.vocabulary.get_terminal_name_by_id(*id).unwrap();
-  //     NameCaseWithId::new(&name, *id)
-  //   }).collect::<Vec<_>>();
-  
-  //   let nonterminal_list = ctx.2.iter().map(|id| {
-  //     let name = grammar.vocabulary.get_nonterminal_name_by_id(*id).unwrap();
-  //     NameCaseWithId::new(&name, *id)
-  //   }).collect::<Vec<_>>();
-  
-  //   let nonterminal = ctx.3.iter().map(|id| {
-  //     let name = grammar.vocabulary.get_nonterminal_name_by_id(*id).unwrap();
-  //     NameCaseWithId::new(&name, *id)
-  //   }).collect::<Vec<_>>();
-  
-  
-  
-  
-  
-  
-  
-  //   let mut context = Context::new();
-  //   context.insert("grammar_name", &NameCase::new(&grammar.name));
-  //   context.insert("ctx_name", &&NameCase::new(&rule_name));
-  //   context.insert("nonterminal_list", &nonterminal_list);
-  //   context.insert("terminal_list", &terminal_list);
-  //   context.insert("nonterminal", &nonterminal);
-  //   context.insert("terminal", &terminal);
-  
-  
-  
-  
-  //   self.template.render("ctx", &context).unwrap()
-  // }
   
 }
 
