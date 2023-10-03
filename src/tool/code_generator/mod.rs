@@ -4,7 +4,7 @@ pub mod target;
 
 // 代码生成器
 
-use std::{collections::{HashMap, HashSet}, fs::File, path::Path, io::Write};
+use std::{collections::HashSet, fs::File, path::Path, io::Write};
 
 use chiru::runtime::production::{Production, ProductionItem};
 use tera::{Tera, Context};
@@ -272,9 +272,7 @@ impl<'a> CodeGenerator<'a> {
   pub fn context_generate(&self) -> String {
   
     // 获取所有的终结符和非终结符
-    let terminals = self.grammar.vocabulary.terminals.iter().map(|(id, terminal)| {
-      (terminal.name.to_owned(), *id)
-    }).collect::<HashMap<_, _>>();
+    let terminals = self.grammar.vocabulary.get_all_terminals_map();
   
     let nonterminals = self.grammar.vocabulary.get_all_named_nonterminals_map();
   
@@ -339,10 +337,10 @@ impl<'a> CodeGenerator<'a> {
   pub fn listener_generate(&self) -> String {
 
     let mut nonterminals: Vec<(usize, String, String, String)> = Vec::new();
-    for (id, t) in self.grammar.vocabulary.nonterminals.iter() {
-      if let Some(name) = &t.name {
-        nonterminals.push((*id, name.clone(), name.to_uppercase(), self.pascal(&name)));
-      }
+    for (id, name) in self.grammar.vocabulary.named_nonterminals.iter() {
+      // if let Some(name) = &t.name {
+      nonterminals.push((*id, name.clone(), name.to_uppercase(), self.pascal(&name)));
+      // }
     }
   
     let mut context = Context::new();
@@ -382,15 +380,15 @@ impl<'a> CodeGenerator<'a> {
   
     // 非终结符 0: 编号 1 小写 2 大写 3 pascal
     let mut nonterminals: Vec<(usize, String, String, String)> = Vec::new();
-    for (id, t) in self.grammar.vocabulary.nonterminals.iter() {
-      if let Some(name) = &t.name {
-        nonterminals.push((*id, name.clone(), name.to_uppercase(), self.pascal(&name)));
-      }
+    for (id, name) in self.grammar.vocabulary.named_nonterminals.iter() {
+      // if let Some(name) = &t.name {
+      nonterminals.push((*id, name.clone(), name.to_uppercase(), self.pascal(&name)));
+      // }
     }
   
   
     let terminals = self.grammar.vocabulary.terminals.iter().map(|(id, t)| {
-      (*id, t.name.clone())
+      (*id, t.clone())
     }).collect::<Vec<_>>();
   
   
@@ -415,10 +413,10 @@ impl<'a> CodeGenerator<'a> {
 
 
     let mut nonterminals: Vec<(usize, String, String, String)> = Vec::new();
-    for (id, t) in self.grammar.vocabulary.nonterminals.iter() {
-      if let Some(name) = &t.name {
-        nonterminals.push((*id, name.clone(), name.to_uppercase(), self.pascal(&name)));
-      }
+    for (id, name) in self.grammar.vocabulary.named_nonterminals.iter() {
+      // if let Some(name) = &t.name {
+      nonterminals.push((*id, name.clone(), name.to_uppercase(), self.pascal(&name)));
+      // }
     }
   
     let mut context = Context::new();

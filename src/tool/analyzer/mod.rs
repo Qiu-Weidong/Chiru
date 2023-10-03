@@ -80,12 +80,7 @@ impl CommonParser {
       }
     }
 
-    let mut nonterminals = HashMap::new();
-    for (k, v) in grammar.vocabulary.nonterminals.iter() {
-      if let Some(name) = &v.name {
-        nonterminals.insert(*k, name.to_owned());
-      }
-    }
+    let nonterminals = grammar.vocabulary.named_nonterminals.clone();
 
 
     Self {

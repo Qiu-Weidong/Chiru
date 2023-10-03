@@ -45,6 +45,13 @@ pub struct Collection {
   pub set: HashSet<usize>,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ActionTableElement {
+  Shift(usize),
+  Reduce(usize)
+}
+
+
 impl Grammar {
   pub fn new(name: &str) -> Self {    
     Self {
@@ -73,6 +80,16 @@ impl Grammar {
     Ok(grammar_visitor.grammar)
   }
   
+
+
+
+
+
+
+
+
+
+
   // 根据非终结符的first集合求一个串的first集合
   fn get_first_for_string(slice: &[ProductionItem], first_set: &HashMap<usize, Collection>) -> Collection {
     let mut result = Collection { allow_epsilon: true, set: HashSet::new(), };
@@ -147,7 +164,6 @@ impl Grammar {
     modified
   }
 
-
   // 返回值 (非终结符的first集合, 产生式的 first 集合)
   pub fn first_set(&self) -> (HashMap<usize, Collection>, HashMap<usize, Collection>) {
     // 求 first 集合
@@ -156,7 +172,7 @@ impl Grammar {
     
     // 首先将所有非终结符的 first 集合初始化为空，不包含 epsilon。
     for nonterminal in self.vocabulary.get_all_nonterminals().iter() {
-      result.insert(nonterminal.id, Collection { allow_epsilon: false, set: HashSet::new() });
+      result.insert(*nonterminal, Collection { allow_epsilon: false, set: HashSet::new() });
     }
 
     let mut modified = true;
@@ -199,7 +215,7 @@ impl Grammar {
     // 求 follow 集合
     let mut result = HashMap::new();
     for nonterminal in self.vocabulary.get_all_nonterminals().iter() {
-      result.insert(nonterminal.id, HashSet::new());
+      result.insert(*nonterminal, HashSet::new());
     }
     
     // 将 stop 放入开始符号的follow集合
@@ -269,6 +285,19 @@ impl Grammar {
     result
 
   }
+
+
+
+
+  pub fn action_table(&self) -> HashMap<(usize, usize), ActionTableElement> {
+    todo!()
+  }
+
+  // 获取 goto 表 (状态id, 非终结符id) -> 状态id
+  pub fn goto_table(&self) -> HashMap<(usize, usize), usize> {
+    todo!()
+  }
+
 }
 
 
