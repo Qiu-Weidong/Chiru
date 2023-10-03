@@ -124,7 +124,10 @@ impl Cli {
 
 
     let grammar = Grammar::from_ast(ast.as_ref())?;
-    let code_generator = CodeGenerator::new(grammar, ast.as_ref());
+
+
+
+    
 
     let base_dir: PathBuf;
     if let Some(p) = &self.output {
@@ -132,9 +135,16 @@ impl Cli {
     } else {
       base_dir = env::current_dir()?;
     }
+    
+    let mut code_generator = CodeGenerator::new(grammar, ast.as_ref(), base_dir, Language::Rust);
+    // code_generator.toggle_context_generation(false);
+    code_generator.toggle_lexer_generation(false);
+    code_generator.toggle_parser_generation(false);
+    code_generator.toggle_listener_generation(false);
+    code_generator.toggle_visitor_generation(false);
+    code_generator.toggle_walker_generation(false);
 
-
-    code_generator.generate(&base_dir);
+    code_generator.generate();
     Ok(())
   }
 

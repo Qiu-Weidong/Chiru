@@ -7,14 +7,73 @@ use chiru::runtime::ast::terminal_context::TerminalContext;
 use chiru::runtime::ast::to_rule::ToRule;
 
 
-use super::{{grammar_name.0}}_lexer::{{grammar_name.2}}Lexer;
-use super::{{grammar_name.0}}_parser::{{grammar_name.2}}Parser;
-use super::{{grammar_name.0}}_visitor::{{grammar_name.2}}Visitor;
-use super::{{grammar_name.0}}_listener::{{grammar_name.2}}Listener;
+use super::{{grammar_name.snake_case}}_lexer::{{grammar_name.pascal_case}}Lexer;
+use super::{{grammar_name.snake_case}}_parser::{{grammar_name.pascal_case}}Parser;
+use super::{{grammar_name.snake_case}}_visitor::{{grammar_name.pascal_case}}Visitor;
+use super::{{grammar_name.snake_case}}_listener::{{grammar_name.pascal_case}}Listener;
 
 
 {% for ctx in ctx_list %}
-{{ctx}}
+
+
+pub trait {{ ctx.pascal_case }}Context: ToRule {
+  {% for item in ctx.nonterminal_list %}
+  fn {{item.snake_case}}_list(&self) -> Vec<&dyn {{item.pascal_case}}Context>;{% endfor %}
+
+  {% for item in ctx.terminal_list %}
+  fn {{item.snake_case}}_list(&self) -> Vec<&TerminalContext>;{% endfor %}
+
+  {% for item in ctx.nonterminal %}
+  fn {{item.snake_case}}(&self) -> Option<&dyn {{item.pascal_case}}Context>;{% endfor %}
+
+  {% for item in ctx.terminal %}
+  fn {{item.snake_case}}(&self) -> Option<&TerminalContext>;{% endfor %}
+
+  fn accept(&self, visitor: &mut dyn {{grammar_name.pascal_case}}Visitor) -> Result<Box<dyn Any>, Box<dyn Error>>;
+  fn enter(&self, listener: &mut dyn {{grammar_name.pascal_case}}Listener);
+  fn exit(&self, listener: &mut dyn {{grammar_name.pascal_case}}Listener);
+}
+
+impl {{ ctx.pascal_case }}Context for RuleContext {
+
+  {% for item in ctx.nonterminal_list %}
+  fn {{item.snake_case}}_list(&self) -> Vec<&dyn {{item.pascal_case}}Context> {
+    self.get_rule_contexts({{grammar_name.pascal_case}}Parser::{{item.screaming_snake_case}}).iter().map(|ctx| *ctx as &dyn {{item.pascal_case}}Context).collect::<Vec<_>>()
+  } {% endfor %}
+
+  {% for item in ctx.terminal_list %}
+  fn {{item.snake_case}}_list(&self) -> Vec<&TerminalContext> {
+    self.get_terminals({{grammar_name.pascal_case}}Lexer::{{item.screaming_snake_case}})
+  } {% endfor %}
+
+  {% for item in ctx.nonterminal %}
+  fn {{item.snake_case}}(&self) -> Option<&dyn {{item.pascal_case}}Context> {
+    self.get_rule_context({{grammar_name.pascal_case}}Parser::{{item.screaming_snake_case}}, 0).map(|ctx| ctx as &dyn {{item.pascal_case}}Context)
+  } {% endfor %}
+
+  {% for item in ctx.terminal %}
+  fn {{item.snake_case}}(&self) -> Option<&TerminalContext> {
+    self.get_terminal({{grammar_name.pascal_case}}Lexer::{{item.screaming_snake_case}}, 0)
+  } {% endfor %}
+
+
+  fn accept(&self, visitor: &mut dyn {{grammar_name.pascal_case}}Visitor) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    visitor.visit_{{ ctx.snake_case }}(self)
+  }
+
+  fn enter(&self, listener: &mut dyn {{grammar_name.pascal_case}}Listener) {
+    listener.enter_{{ ctx.snake_case }}(self)
+  }
+
+  fn exit(&self, listener: &mut dyn {{grammar_name.pascal_case}}Listener) {
+    listener.exit_{{ ctx.snake_case }}(self)
+  }
+}
+
+
+
+
+
 {% endfor %}
 
 
