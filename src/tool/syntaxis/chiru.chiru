@@ -53,6 +53,6 @@ WHITE_SPACE: r###"[ \r\n\t\f]+"###;
 @channel(HIDDEN)
 LINE_COMMENT: r###"//.*?\n"###;
 @channel(HIDDEN)
-BLOCK_COMMENT: r###"(?s)/\*.*?\*\/"###;
+BLOCK_COMMENT: r###"(?s)/\*.*?\*/"###;
 
 
