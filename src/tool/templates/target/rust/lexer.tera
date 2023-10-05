@@ -1,3 +1,14 @@
+{#
+  传入的参数和类型
+  grammar_file_name: String       语法文件名,如 Chiru.chiru
+  chiru_version: String           生成该文件所使用的 chiru 版本,如 0.7.0
+  package_name: Option<NameCase>  包名, 可能为空
+  grammar_name: NameCase          语法名称
+#}
+
+{# 先 include 一个 header #}
+{% include "header" ignore missing %}
+
 use chiru::once_cell::sync::Lazy;
 use chiru::regex::Regex;
 
@@ -6,7 +17,7 @@ use chiru::runtime::lexer::TokenIter;
 use chiru::runtime::lexer::Lexer;
 use chiru::runtime::lexer_rule::LexerRule;
 
-pub struct {{ grammar_name.2 }}Lexer<'a> {
+pub struct {{ grammar_name.pascal_case }}Lexer<'a> {
   pub input: &'a str, 
 
   pub error_listeners: Vec<Box<dyn ErrorListener>>,
@@ -17,11 +28,11 @@ static LEXER_RULE_LIST: Lazy<Vec<LexerRule>> = Lazy::new(|| {
   vec![
     {% for lexer_rule in lexer_rule_list %}
     LexerRule { 
-      rule: Regex::new({{ lexer_rule.4 }}).unwrap(),  
-      token_type: {{lexer_rule.3}}, 
-      channel: {{lexer_rule.5}}, 
-      token_name: String::from("{{ lexer_rule.1 }}"), 
-      skip: {{lexer_rule.6}},
+      rule: Regex::new({{ lexer_rule.regex }}).unwrap(),  
+      token_type: {{lexer_rule.token_type}}, 
+      channel: {{lexer_rule.channel}}, 
+      token_name: String::from("{{ lexer_rule.token_name }}"), 
+      skip: {{lexer_rule.skip}},
     }, {% endfor %}
   ]
 });
@@ -29,13 +40,13 @@ static LEXER_RULE_LIST: Lazy<Vec<LexerRule>> = Lazy::new(|| {
 
 
 #[allow(unused)]
-impl<'a> {{ grammar_name.2 }}Lexer<'a> {
+impl<'a> {{ grammar_name.pascal_case }}Lexer<'a> {
   pub const _START: usize = 0;
   pub const _STOP: usize = 1;
 
   // 从这里开始使用模板
   {% for lexer_rule in lexer_rule_list %}
-  pub const {{ lexer_rule.1 }}: usize = {{ lexer_rule.3 }};{% endfor %}
+  pub const {{ lexer_rule.screaming_snake_case }}: usize = {{ lexer_rule.token_type }};{% endfor %}
 
 
   pub fn new(input: &'a str) -> Self {
@@ -59,7 +70,7 @@ impl<'a> {{ grammar_name.2 }}Lexer<'a> {
 }
 
 
-impl Lexer for {{grammar_name.2}}Lexer<'_> {
+impl Lexer for {{grammar_name.pascal_case}}Lexer<'_> {
   fn iter(&self) -> TokenIter {
     TokenIter::new(self.input, &LEXER_RULE_LIST, &self.error_listeners)
   }

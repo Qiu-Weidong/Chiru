@@ -1,4 +1,0 @@
-  static ref PRODUCTIONS: HashMap<usize, Production>  = hashmap!{
-    {% for production in productions %}
-    {{production.0}} => Production::new({{production.0}}, {{production.1}}, &{{production.2}}),{% endfor %}
-  };

@@ -1,7 +1,0 @@
-
-
-  static ref LL1_TABLE: HashMap<(usize, usize), usize> = hashmap!{
-    {% for item in table %}
-    ({{item.0}}, {{item.1}}) => {{item.2}},{% endfor %}
-  };
-

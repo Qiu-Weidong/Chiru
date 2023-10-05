@@ -1,3 +1,13 @@
+{#
+  传入的参数和类型
+  grammar_file_name: String       语法文件名,如 Chiru.chiru
+  chiru_version: String           生成该文件所使用的 chiru 版本,如 0.7.0
+  package_name: Option<NameCase>  包名, 可能为空
+  grammar_name: NameCase          语法名称
+#}
+
+{# 先 include 一个 header #}
+{% include "header" ignore missing %}
 
 use std::error::Error;
 use std::collections::{HashMap, HashSet};
@@ -16,12 +26,12 @@ use chiru::runtime::{
   production::ProductionItem
 };
 
-use super::{{ grammar_name.0 }}_context::{
-  {% for nonterminal in nonterminals %} {{nonterminal.3}}Context,{% endfor %}
+use super::{{ grammar_name.snake_case }}_context::{
+  {% for nonterminal in nonterminals %} {{nonterminal.pascal_case}}Context,{% endfor %}
 };
 
 
-pub struct {{grammar_name.2}}Parser {
+pub struct {{grammar_name.pascal_case}}Parser {
   pub error_listeners: Vec<Box<dyn ErrorListener>>,
 }
 
@@ -37,7 +47,7 @@ static LL1_TABLE: Lazy<HashMap<(usize, usize), usize>> = Lazy::new(|| {
 static PRODUCTIONS: Lazy<HashMap<usize, Production>>  = Lazy::new(|| {
   hashmap!{
     {% for production in productions %}
-    {{production.0}} => Production::new({{production.0}}, {{production.1}}, &{{production.2}}),{% endfor %}
+    {{production.0}} => {{production.1}},{% endfor %}
   }
 }); 
 
@@ -45,7 +55,7 @@ static PRODUCTIONS: Lazy<HashMap<usize, Production>>  = Lazy::new(|| {
 pub static NONTERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
   hashmap! {
     {% for nonterminal in nonterminals %}
-    {{nonterminal.0}} => String::from("{{nonterminal.1}}"),{% endfor %}
+    {{nonterminal.id}} => String::from("{{nonterminal.origin_case}}"),{% endfor %}
   }
 });
 
@@ -53,7 +63,7 @@ pub static NONTERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
 pub static TERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
   hashmap! {
     {% for terminal in terminals %}
-    {{terminal.0}} => String::from("{{terminal.1}}"),{% endfor %}
+    {{terminal.id}} => String::from("{{terminal.origin_case}}"),{% endfor %}
   }
 });
 
@@ -66,11 +76,11 @@ pub static SYNC: Lazy<HashSet<(usize, usize)>> = Lazy::new(|| {
 
 
 #[allow(unused)]
-impl {{grammar_name.2}}Parser {
+impl {{grammar_name.pascal_case}}Parser {
 
   // 使用模板生成 每个非终结符的编号
   {% for nonterminal in nonterminals %}
-  pub const {{nonterminal.2}}: usize = {{nonterminal.0}}; {% endfor %}
+  pub const {{nonterminal.screaming_snake_case}}: usize = {{nonterminal.id}}; {% endfor %}
 
 
 
@@ -83,9 +93,9 @@ impl {{grammar_name.2}}Parser {
 
   // 使用模板生成
   {% for nonterminal in nonterminals %}
-  pub fn {{nonterminal.1}}(&self, token_stream: &mut TokenStream) -> Result<Box<dyn {{nonterminal.3}}Context>, Box<dyn Error>> {
+  pub fn {{nonterminal.snake_case}}(&self, token_stream: &mut TokenStream) -> Result<Box<dyn {{nonterminal.pascal_case}}Context>, Box<dyn Error>> {
 
-    let result = ll1_analyze(token_stream, Self::{{nonterminal.2}},
+    let result = ll1_analyze(token_stream, Self::{{nonterminal.screaming_snake_case}},
       &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
     Ok(Box::new(result))
   } {% endfor %}

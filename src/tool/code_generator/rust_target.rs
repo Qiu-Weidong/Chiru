@@ -19,12 +19,13 @@ impl RustTarget {
   pub fn new() -> Self {
     let mut template = Tera::default();
     // 添加
-    template.add_raw_template("lexer", include_str!("../templates/target/rust2/lexer.tera")).unwrap();
-    template.add_raw_template("parser", include_str!("../templates/target/rust2/parser.tera")).unwrap();
-    template.add_raw_template("context", include_str!("../templates/target/rust2/context.tera")).unwrap();
-    template.add_raw_template("listener", include_str!("../templates/target/rust2/listener.tera")).unwrap();
-    template.add_raw_template("visitor", include_str!("../templates/target/rust2/visitor.tera")).unwrap();
-    template.add_raw_template("walker", include_str!("../templates/target/rust2/walker.tera")).unwrap();
+    template.add_raw_template("lexer", include_str!("../templates/target/rust/lexer.tera")).unwrap();
+    template.add_raw_template("parser", include_str!("../templates/target/rust/parser.tera")).unwrap();
+    template.add_raw_template("context", include_str!("../templates/target/rust/context.tera")).unwrap();
+    template.add_raw_template("listener", include_str!("../templates/target/rust/listener.tera")).unwrap();
+    template.add_raw_template("visitor", include_str!("../templates/target/rust/visitor.tera")).unwrap();
+    template.add_raw_template("walker", include_str!("../templates/target/rust/walker.tera")).unwrap();
+    template.add_raw_template("header", include_str!("../templates/target/rust/header.tera")).unwrap();
     template.autoescape_on(vec![]);
 
     let template = template;

@@ -136,7 +136,7 @@ impl Cli {
       base_dir = env::current_dir()?;
     }
     
-    let code_generator = CodeGenerator::new(grammar, ast.as_ref(), base_dir, Language::Rust);
+    let code_generator = CodeGenerator::new(&grammar, ast.as_ref(), base_dir, Language::Rust);
     code_generator.generate();
     Ok(())
   }

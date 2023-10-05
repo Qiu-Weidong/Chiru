@@ -1,15 +1,23 @@
+{#
+  传入的参数和类型
+  grammar_file_name: String       语法文件名,如 Chiru.chiru
+  chiru_version: String           生成该文件所使用的 chiru 版本,如 0.7.0
+  package_name: Option<NameCase>  包名, 可能为空
+  grammar_name: NameCase          语法名称
+#}
 
-
+{# 先 include 一个 header #}
+{% include "header" ignore missing %}
 
 
 use chiru::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext};
 
-use super::{{ grammar_name.0 }}_listener::{{grammar_name.2}}Listener;
+use super::{{ grammar_name.snake_case }}_listener::{{grammar_name.pascal_case }}Listener;
 
 
 
-pub trait {{grammar_name.2}}Walker {
-  fn walk(&self, listener: &mut dyn {{grammar_name.2}}Listener, ast: &RuleContext) {
+pub trait {{grammar_name.pascal_case }}Walker {
+  fn walk(&self, listener: &mut dyn {{grammar_name.pascal_case }}Listener, ast: &RuleContext) {
     listener.enter_every_rule(ast);
     listener.enter(ast);
 

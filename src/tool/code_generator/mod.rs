@@ -22,8 +22,7 @@ use super::cli::Language;
 
 pub struct CodeGenerator<'a> {
   // 解析出来的语法
-  grammar: Grammar,
-
+  grammar: &'a Grammar,
   // 还需要 ast ，持有引用
   ast: &'a dyn CompilationUnitContext,
 
@@ -51,7 +50,7 @@ pub struct CodeGenerator<'a> {
 
 impl<'a> CodeGenerator<'a> {
   pub fn new(
-    grammar: Grammar, ast: &'a dyn CompilationUnitContext,
+    grammar: &'a Grammar, ast: &'a dyn CompilationUnitContext,
     output_dir: PathBuf, _language: Language
   ) -> Self {
 
@@ -78,6 +77,7 @@ impl<'a> CodeGenerator<'a> {
 
   // 直接写文件即可
   pub fn generate(&self) {
+    // 在这里使用 target 生成相关的文件, 最后使用 target 将结果按结构写入
     self.target.generate(&self.grammar, self.ast, &self.output_dir, None, self.lexer, self.parser, self.context, self.listener, self.visitor, self.walker);
   }
 

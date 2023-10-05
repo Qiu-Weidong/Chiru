@@ -1,20 +1,32 @@
+{#
+  传入的参数和类型
+  grammar_file_name: String       语法文件名,如 Chiru.chiru
+  chiru_version: String           生成该文件所使用的 chiru 版本,如 0.7.0
+  package_name: Option<NameCase>  包名, 可能为空
+  grammar_name: NameCase          语法名称
+  
+  rule_names: Vec<NameCaseWithId> 非终结符的名称和id
 
+  如果有标签,那么考虑添加 label_names
+#}
 
+{# 先 include 一个 header #}
+{% include "header" ignore missing %}
 
 use chiru::runtime::ast::{terminal_context::TerminalContext, error_context::ErrorContext, rule_context::RuleContext};
 
 use super::{
-  {{grammar_name.0}}_parser::{{grammar_name.2}}Parser, 
-  {{grammar_name.0}}_context::{
-    {% for nonterminal in nonterminals %}{{nonterminal.3}}Context,{% endfor %}
+  {{grammar_name.snake_case }}_parser::{{grammar_name.pascal_case }}Parser, 
+  {{grammar_name.snake_case }}_context::{
+    {% for nonterminal in nonterminals %}{{nonterminal.pascal_case }}Context,{% endfor %}
   }
 };
 
 
-pub trait {{grammar_name.2}}Listener {
+pub trait {{grammar_name.pascal_case }}Listener {
   {% for item in nonterminals %}
-  fn enter_{{item.1}}(&mut self, _ctx: &dyn {{item.3}}Context) {}
-  fn exit_{{item.1}}(&mut self, _ctx: &dyn {{item.3}}Context) {}
+  fn enter_{{item.snake_case}}(&mut self, _ctx: &dyn {{item.pascal_case}}Context) {}
+  fn exit_{{item.snake_case}}(&mut self, _ctx: &dyn {{item.pascal_case}}Context) {}
   {% endfor %}
 
 
@@ -27,7 +39,7 @@ pub trait {{grammar_name.2}}Listener {
     // 在这里进行派发即可
     match ctx.get_rule_index() {
       {% for item in nonterminals %}
-      {{grammar_name.2}}Parser::{{item.2}} => self.enter_{{item.1}}(ctx), {% endfor %}
+      {{grammar_name.pascal_case}}Parser::{{item.screaming_snake_case}} => self.enter_{{item.snake_case}}(ctx), {% endfor %}
 
       _ => {}
     }
@@ -36,7 +48,7 @@ pub trait {{grammar_name.2}}Listener {
   fn exit(&mut self, ctx: &RuleContext) {
     match ctx.get_rule_index() {
       {% for item in nonterminals %}
-      {{grammar_name.2}}Parser::{{item.2}} => self.exit_{{item.1}}(ctx), {% endfor %}
+      {{grammar_name.pascal_case }}Parser::{{item.screaming_snake_case}} => self.exit_{{item.snake_case}}(ctx), {% endfor %}
 
       _ => {}
     }
