@@ -3,9 +3,6 @@
 pub mod target;
 pub mod name_case;
 
-// 定义相关的 target 
-pub mod rust_target; 
-
 
 
 
@@ -16,7 +13,9 @@ use std::path::PathBuf;
 
 use crate::tool::{grammar::Grammar, syntaxis::chiru_context::CompilationUnitContext};
 
-use self::{target::Target, rust_target::RustTarget};
+// use self::target::{Target, rust_target::RustTarget};
+
+use self::target::{Target, rust_target::RustTarget};
 
 use super::cli::Language;
 
@@ -25,9 +24,6 @@ pub struct CodeGenerator<'a> {
   grammar: &'a Grammar,
   // 还需要 ast ，持有引用
   ast: &'a dyn CompilationUnitContext,
-
-
-
 
   // 记录一下需要生成哪些文件, 默认全部
   lexer: bool,
@@ -41,8 +37,11 @@ pub struct CodeGenerator<'a> {
   // 输出路径
   output_dir: PathBuf,
 
-  // package name todo
+  #[allow(unused)]
+  package_name: Option<String>,
 
+  #[allow(unused)]
+  version: String,
 
   // 以及 target
   target: Box<dyn Target>,
@@ -51,17 +50,13 @@ pub struct CodeGenerator<'a> {
 impl<'a> CodeGenerator<'a> {
   pub fn new(
     grammar: &'a Grammar, ast: &'a dyn CompilationUnitContext,
-    output_dir: PathBuf, _language: Language
+    output_dir: PathBuf, _language: Language, package_name: Option<String>,
+    version: &str
   ) -> Self {
 
-
-
-    // 根据 language 来生成 target
-
     Self {
-      grammar, ast, output_dir,
+      grammar, ast, output_dir,package_name, version: version.to_owned(),target: Box::new(RustTarget::new()),
       lexer: true, parser: true, context: true, listener: true, visitor: true, walker: true,
-      target: Box::new(RustTarget::new())
     }
   }
 

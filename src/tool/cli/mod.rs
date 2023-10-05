@@ -5,6 +5,7 @@ use std::path::PathBuf;
 
 use chiru::runtime::ast::rule_context::RuleContext;
 use chiru::runtime::lexer::Lexer;
+use clap::CommandFactory;
 use clap::Parser;
 use clap::ValueEnum;
 
@@ -136,7 +137,12 @@ impl Cli {
       base_dir = env::current_dir()?;
     }
     
-    let code_generator = CodeGenerator::new(&grammar, ast.as_ref(), base_dir, Language::Rust);
+
+    let version = Cli::command().render_version();
+    let code_generator = CodeGenerator::new(
+      &grammar, ast.as_ref(), base_dir, self.language,
+      self.package_name.clone(), &version
+    );
     code_generator.generate();
     Ok(())
   }

@@ -9,7 +9,6 @@ fn main() {
   let cli = Cli::parse();
   
   cli.execute_command().unwrap();
-
 }
 
 

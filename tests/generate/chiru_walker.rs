@@ -2,9 +2,7 @@
 
 
 
-/* 试一下是否可以使用 grammar_name
- * chiru
- */
+// generated from chiru.chiru by chiru 0.7.0
 
 
 
