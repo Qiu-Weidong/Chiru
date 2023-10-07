@@ -4,7 +4,7 @@ use std::{fs::File, path::Path, io::Write, collections::HashSet};
 use chiru::runtime::production::{Production, ProductionItem};
 use tera::{Tera, Context};
 
-use crate::tool::{visitor::context_visitor::ContextVisitor, syntaxis::chiru_context::CompilationUnitContext, code_generator::name_case::{NameCaseWithId, NameCase, ContextCase, LexerCase}};
+use crate::tool::{visitor::context_visitor::ContextVisitor, syntaxis::chiru_context::CompilationUnitContext, code_generator::name_case::{NameCaseWithId, NameCase, ContextCase, LexerCase, VisitorOrListenerGenData, WalkerGenData, ContextGenData, ParserGenData, LexerGenData}, grammar::Grammar};
 use super::Target;
 
 
@@ -86,7 +86,7 @@ impl Target for RustTarget {
 
 
 
-  fn generate_visitor(&self, grammar: &crate::tool::grammar::Grammar, _ast: &dyn CompilationUnitContext) -> String {
+  fn generate_visitor(&self, grammar: &Grammar, _ast: &dyn CompilationUnitContext, data: &VisitorOrListenerGenData) -> String {
     let mut nonterminals: Vec<NameCaseWithId> = Vec::new();
     for (id, name) in grammar.vocabulary.named_nonterminals.iter() {
       nonterminals.push( NameCaseWithId::new(name, *id));
@@ -99,7 +99,7 @@ impl Target for RustTarget {
     self.template.render("visitor", &context).unwrap()
   }
 
-  fn generate_listener(&self, grammar: &crate::tool::grammar::Grammar, _ast: &dyn CompilationUnitContext) -> String {
+  fn generate_listener(&self, grammar: &crate::tool::grammar::Grammar, _ast: &dyn CompilationUnitContext, data: &VisitorOrListenerGenData) -> String {
     let mut nonterminals: Vec<NameCaseWithId> = Vec::new();
     for (id, name) in grammar.vocabulary.named_nonterminals.iter() {
       nonterminals.push( NameCaseWithId::new(name, *id));
@@ -112,14 +112,14 @@ impl Target for RustTarget {
     self.template.render("listener", &context).unwrap()
   }
 
-  fn generate_walker(&self, grammar: &crate::tool::grammar::Grammar, _ast: &dyn CompilationUnitContext) -> String {
+  fn generate_walker(&self, grammar: &crate::tool::grammar::Grammar, _ast: &dyn CompilationUnitContext, data: &WalkerGenData) -> String {
     let mut context = Context::new();
     let grammar_name = NameCase::new(&grammar.name);
     context.insert("grammar_name", &grammar_name);
     self.template.render("walker", &context).unwrap()
   }
 
-  fn generate_context(&self, grammar: &crate::tool::grammar::Grammar, ast: &dyn CompilationUnitContext) -> String {
+  fn generate_context(&self, grammar: &crate::tool::grammar::Grammar, ast: &dyn CompilationUnitContext, data: &ContextGenData) -> String {
     // 获取所有的终结符和非终结符
     let terminals = grammar.vocabulary.get_all_terminals_map();
   
@@ -180,7 +180,8 @@ impl Target for RustTarget {
     self.template.render("context", &context).unwrap()
   }
 
-  fn generate_parser(&self, grammar: &crate::tool::grammar::Grammar, _ast: &dyn CompilationUnitContext) -> String {
+  fn generate_parser(&self, grammar: &crate::tool::grammar::Grammar, _ast: &dyn CompilationUnitContext, data: &ParserGenData) -> String {
+
     let (first, first_set) = grammar.first_set();
   
     let follow = grammar.follow_set(&first);
@@ -188,6 +189,7 @@ impl Target for RustTarget {
     let table = grammar.ll1_table(&first_set, &follow);
   
     let table = table.iter().map(|((k1, k2), k3)| (*k1, *k2, *k3)).collect::<Vec<_>>();
+    
     let productions = grammar.productions.iter().map(|(id, production)| {
       return (*id, self.production_generate(production));
     }).collect::<Vec<_>>();
@@ -201,12 +203,6 @@ impl Target for RustTarget {
       }
     }
   
-    let sync = sync.iter().cloned().collect::<Vec<_>>();
-  
-  
-  
-  
-    // 非终结符 0: 编号 1 小写 2 大写 3 pascal
     let mut nonterminals: Vec<NameCaseWithId> = Vec::new();
     for (id, name) in grammar.vocabulary.named_nonterminals.iter() {
       nonterminals.push( NameCaseWithId::new(name, *id));
@@ -235,7 +231,7 @@ impl Target for RustTarget {
     result
   }
 
-  fn generate_lexer(&self, grammar: &crate::tool::grammar::Grammar, _ast: &dyn CompilationUnitContext) -> String {
+  fn generate_lexer(&self, grammar: &crate::tool::grammar::Grammar, _ast: &dyn CompilationUnitContext, data: &LexerGenData) -> String {
     let mut context = Context::new();
   
     let mut lexer_rules = grammar.lexer_rule_map.values().map(|v| {
@@ -269,116 +265,117 @@ impl Target for RustTarget {
     walker: bool,
   )  {
 
-    let name = grammar.name.to_lowercase();
-    let mut mod_str = String::new();
+    // let name = grammar.name.to_lowercase();
+    // let mut mod_str = String::new();
 
 
 
-    if lexer {
-      mod_str += &format!("pub mod {}_lexer;\n", name);
-      let path = Path::new(output_dir).join(format!("{}_lexer.rs", name));
+    // if lexer {
+    //   mod_str += &format!("pub mod {}_lexer;\n", name);
+    //   let path = Path::new(output_dir).join(format!("{}_lexer.rs", name));
 
 
 
-      match  File::create(&path) {
-        Ok(mut file) => {
-          match file.write(self.generate_lexer(grammar, ast).as_bytes()) {
-            Ok(_) => { println!("'{}' generated", path.display()) },
-            Err(_) => { println!("fail to write file '{}'", path.display()) },
-          }
-        },
-        Err(_) => { println!("fail to create file '{}'", path.display()) },
-      }
-    }
+    //   match  File::create(&path) {
+    //     Ok(mut file) => {
+    //       match file.write(self.generate_lexer(grammar, ast).as_bytes()) {
+    //         Ok(_) => { println!("'{}' generated", path.display()) },
+    //         Err(_) => { println!("fail to write file '{}'", path.display()) },
+    //       }
+    //     },
+    //     Err(_) => { println!("fail to create file '{}'", path.display()) },
+    //   }
+    // }
 
-    if parser {
-      mod_str += &format!("pub mod {}_parser;\n", name);
+    // if parser {
+    //   mod_str += &format!("pub mod {}_parser;\n", name);
 
-      let path = Path::new(output_dir).join(format!("{}_parser.rs", name));
-      match  File::create(&path) {
-        Ok(mut file) => {
-          match file.write(self.generate_parser(grammar, ast).as_bytes()) {
-            Ok(_) => { println!("'{}' generated", path.display()) },
-            Err(_) => { println!("fail to write file '{}'", path.display()) },
-          }
-        },
-        Err(_) => { println!("fail to create file '{}'", path.display()) },
-      }
-    }
+    //   let path = Path::new(output_dir).join(format!("{}_parser.rs", name));
+    //   match  File::create(&path) {
+    //     Ok(mut file) => {
+    //       match file.write(self.generate_parser(grammar, ast).as_bytes()) {
+    //         Ok(_) => { println!("'{}' generated", path.display()) },
+    //         Err(_) => { println!("fail to write file '{}'", path.display()) },
+    //       }
+    //     },
+    //     Err(_) => { println!("fail to create file '{}'", path.display()) },
+    //   }
+    // }
 
-    if context {
-      mod_str += &format!("pub mod {}_context;\n", name);
+    // if context {
+    //   mod_str += &format!("pub mod {}_context;\n", name);
 
-      let path = Path::new(output_dir).join(format!("{}_context.rs", name));
-      match  File::create(&path) {
-        Ok(mut file) => {
-          match file.write(self.generate_context(grammar, ast).as_bytes()) {
-            Ok(_) => { println!("'{}' generated", path.display()) },
-            Err(_) => { println!("fail to write file '{}'", path.display()) },
-          }
-        },
-        Err(_) => { println!("fail to create file '{}'", path.display()) },
-      }
-    }
+    //   let path = Path::new(output_dir).join(format!("{}_context.rs", name));
+    //   match  File::create(&path) {
+    //     Ok(mut file) => {
+    //       match file.write(self.generate_context(grammar, ast).as_bytes()) {
+    //         Ok(_) => { println!("'{}' generated", path.display()) },
+    //         Err(_) => { println!("fail to write file '{}'", path.display()) },
+    //       }
+    //     },
+    //     Err(_) => { println!("fail to create file '{}'", path.display()) },
+    //   }
+    // }
 
-    if listener {
-      mod_str += &format!("pub mod {}_listener;\n", name);
+    // if listener {
+    //   mod_str += &format!("pub mod {}_listener;\n", name);
 
-      let path = Path::new(output_dir).join(format!("{}_listener.rs", name));
-      match  File::create(&path) {
-        Ok(mut file) => {
-          match file.write(self.generate_listener(grammar, ast).as_bytes()) {
-            Ok(_) => { println!("'{}' generated", path.display()) },
-            Err(_) => { println!("fail to write file '{}'", path.display()) },
-          }
-        },
-        Err(_) => { println!("fail to create file '{}'", path.display()) },
-      }
-    }
+    //   let path = Path::new(output_dir).join(format!("{}_listener.rs", name));
+    //   match  File::create(&path) {
+    //     Ok(mut file) => {
+    //       match file.write(self.generate_listener(grammar, ast).as_bytes()) {
+    //         Ok(_) => { println!("'{}' generated", path.display()) },
+    //         Err(_) => { println!("fail to write file '{}'", path.display()) },
+    //       }
+    //     },
+    //     Err(_) => { println!("fail to create file '{}'", path.display()) },
+    //   }
+    // }
 
-    if visitor {
-      mod_str += &format!("pub mod {}_visitor;\n", name);
+    // if visitor {
+    //   mod_str += &format!("pub mod {}_visitor;\n", name);
 
-      let path = Path::new(output_dir).join(format!("{}_visitor.rs", name));
-      match  File::create(&path) {
-        Ok(mut file) => {
-          match file.write(self.generate_visitor(grammar, ast).as_bytes()) {
-            Ok(_) => { println!("'{}' generated", path.display()) },
-            Err(_) => { println!("fail to write file '{}'", path.display()) },
-          }
-        },
-        Err(_) => { println!("fail to create file '{}'", path.display()) },
-      }
-    }
+    //   let path = Path::new(output_dir).join(format!("{}_visitor.rs", name));
+    //   match  File::create(&path) {
+    //     Ok(mut file) => {
+    //       match file.write(self.generate_visitor(grammar, ast).as_bytes()) {
+    //         Ok(_) => { println!("'{}' generated", path.display()) },
+    //         Err(_) => { println!("fail to write file '{}'", path.display()) },
+    //       }
+    //     },
+    //     Err(_) => { println!("fail to create file '{}'", path.display()) },
+    //   }
+    // }
 
-    if walker {
-      mod_str += &format!("pub mod {}_walker;\n", name);
+    // if walker {
+    //   mod_str += &format!("pub mod {}_walker;\n", name);
 
-      let path = Path::new(output_dir).join(format!("{}_walker.rs", name));
-      match  File::create(&path) {
-        Ok(mut file) => {
-          match file.write(self.generate_walker(grammar, ast).as_bytes()) {
-            Ok(_) => { println!("'{}' generated", path.display()) },
-            Err(_) => { println!("fail to write file '{}'", path.display()) },
-          }
-        },
-        Err(_) => { println!("fail to create file '{}'", path.display()) },
-      }
-    }
-
-
+    //   let path = Path::new(output_dir).join(format!("{}_walker.rs", name));
+    //   match  File::create(&path) {
+    //     Ok(mut file) => {
+    //       match file.write(self.generate_walker(grammar, ast).as_bytes()) {
+    //         Ok(_) => { println!("'{}' generated", path.display()) },
+    //         Err(_) => { println!("fail to write file '{}'", path.display()) },
+    //       }
+    //     },
+    //     Err(_) => { println!("fail to create file '{}'", path.display()) },
+    //   }
+    // }
 
 
-    let path = Path::new(output_dir).join("mod.rs");
-    match File::create(&path) {
-      Ok(mut file) => {
-        match file.write(mod_str.as_bytes()) {
-          Ok(_) => { println!("'{}' generated", path.display()) },
-          Err(_) => { println!("fail to write file '{}'", path.display()) },
-        }
-      },
-      Err(_) => { println!("fail to create file '{}'", path.display()) },
-    }
+
+
+    // let path = Path::new(output_dir).join("mod.rs");
+    // match File::create(&path) {
+    //   Ok(mut file) => {
+    //     match file.write(mod_str.as_bytes()) {
+    //       Ok(_) => { println!("'{}' generated", path.display()) },
+    //       Err(_) => { println!("fail to write file '{}'", path.display()) },
+    //     }
+    //   },
+    //   Err(_) => { println!("fail to create file '{}'", path.display()) },
+    // }
+    todo!()
   }
 }
 

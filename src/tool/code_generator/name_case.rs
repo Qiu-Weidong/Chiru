@@ -261,3 +261,51 @@ impl ContextCase {
 
 
 
+// 定义一些 meta 
+pub struct CodeGenMeta {
+  pub grammar_file_name: String, 
+  pub version: String, 
+  pub package_name: Option<NameCase>,
+  pub grammar_name: NameCase,
+}
+
+impl CodeGenMeta {
+  pub fn new(grammar_file_name: &str, version: &str, package_name: Option<&str>, grammar_name: &str) -> Self {
+    let package_name: Option<NameCase> = if let Some(name) = package_name {
+      Some(NameCase::new(name))
+    } else { None };
+    let grammar_name = NameCase::new(grammar_name);
+    
+    Self {
+      grammar_file_name: grammar_file_name.to_owned(),
+      version: version.to_owned(),
+      package_name, grammar_name,
+    }
+  }
+}
+
+
+pub struct VisitorOrListenerGenData {
+
+}
+
+pub struct ContextGenData {
+
+}
+
+pub struct WalkerGenData {
+
+}
+
+pub struct LexerGenData {
+
+}
+
+pub struct ParserGenData {
+  
+}
+
+
+
+
+

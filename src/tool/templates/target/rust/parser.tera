@@ -4,6 +4,10 @@
   chiru_version: String           生成该文件所使用的 chiru 版本,如 0.7.0
   package_name: Option<NameCase>  包名, 可能为空
   grammar_name: NameCase          语法名称
+
+
+  table: HashMap<(usize, usize), usize> ll1分析表
+  
 #}
 
 {# 先 include 一个 header #}
