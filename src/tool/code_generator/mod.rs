@@ -73,7 +73,10 @@ impl<'a> CodeGenerator<'a> {
   // 直接写文件即可
   pub fn generate(&self) {
     // 在这里使用 target 生成相关的文件, 最后使用 target 将结果按结构写入
-    self.target.generate(&self.grammar, self.ast, &self.output_dir, None, self.lexer, self.parser, self.context, self.listener, self.visitor, self.walker);
+    // self.target.generate(&self.grammar, self.ast, &self.output_dir, None, self.lexer, self.parser, self.context, self.listener, self.visitor, self.walker);
+  
+  
+  
   }
 
 }

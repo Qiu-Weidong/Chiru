@@ -3,9 +3,9 @@ pub mod rust_target;
 
 
 
-use std::path::Path;
+use std::{path::Path, error::Error};
 
-use crate::tool::{cli::Language, grammar::Grammar, syntaxis::chiru_context::CompilationUnitContext};
+use crate::tool::cli::Language;
 
 use super::name_case::{VisitorOrListenerGenData, WalkerGenData, ContextGenData, ParserGenData, LexerGenData};
 
@@ -18,57 +18,25 @@ pub trait Target {
 
 
 
-  fn generate_visitor(
-    &self, 
-    grammar: &Grammar, 
-    ast: &dyn CompilationUnitContext,
-    data: &VisitorOrListenerGenData,
-  ) -> String;
+  fn generate_visitor(&self, data: &VisitorOrListenerGenData,) -> Result<String, Box<dyn Error>>;
 
-  fn generate_listener(
-    &self, 
-    grammar: &Grammar, 
-    ast: &dyn CompilationUnitContext,
-    data: &VisitorOrListenerGenData,
-  ) -> String;
+  fn generate_listener(&self, data: &VisitorOrListenerGenData,) -> Result<String, Box<dyn Error>>;
 
-  fn generate_walker(
-    &self, 
-    grammar: &Grammar, 
-    ast: &dyn CompilationUnitContext,
-    data: &WalkerGenData,
-  ) -> String;
+  fn generate_walker(&self, data: &WalkerGenData,) -> Result<String, Box<dyn Error>>;
 
-  fn generate_context(
-    &self, 
-    grammar: &Grammar, 
-    ast: &dyn CompilationUnitContext,
-    data: &ContextGenData,
-  ) -> String;
+  fn generate_context(&self, data: &ContextGenData,) -> Result<String, Box<dyn Error>>;
 
-  fn generate_parser(
-    &self, 
-    grammar: &Grammar, 
-    ast: &dyn CompilationUnitContext,
-    data: &ParserGenData,
-  ) -> String;
+  fn generate_parser(&self, data: &ParserGenData,) -> Result<String, Box<dyn Error>>;
 
-  fn generate_lexer(&self, grammar: &Grammar, ast: &dyn CompilationUnitContext, data: &LexerGenData) -> String;
+  fn generate_lexer(&self, data: &LexerGenData) -> Result<String, Box<dyn Error>>;
 
 
-  fn generate(
-    &self, 
-    grammar: &Grammar, 
-    ast: &dyn CompilationUnitContext,
-    output_dir: &Path,
-    package_name: Option<String>,
-    lexer: bool, 
-    parser: bool, 
-    context: bool,
-    listener: bool, 
-    visitor: bool, 
-    walker: bool,
-  ) ;
+
+
+  // fn write_file(
+  //   &self, grammar: &Grammar, ast: &dyn CompilationUnitContext, output_dir: &Path, package_name: Option<&str>
+    
+  // );
 
 
 }

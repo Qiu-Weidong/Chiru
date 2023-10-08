@@ -55,13 +55,6 @@ pub trait ChiruListener {
   fn enter_ebnf_suffix(&mut self, _ctx: &dyn EbnfSuffixContext) {}
   fn exit_ebnf_suffix(&mut self, _ctx: &dyn EbnfSuffixContext) {}
   
-
-
-
-  fn enter_every_rule(&mut self, _ctx: &RuleContext) {}
-
-  fn exit_every_rule(&mut self, _ctx: &RuleContext) {}
-
   fn enter(&mut self, ctx: &RuleContext) {
     // 在这里进行派发即可
     match ctx.get_rule_index() {
@@ -106,6 +99,14 @@ pub trait ChiruListener {
       _ => {}
     }
   }
+
+
+
+
+  fn enter_every_rule(&mut self, _ctx: &RuleContext) {}
+
+  fn exit_every_rule(&mut self, _ctx: &RuleContext) {}
+
 
   fn enter_terminal(&mut self, _ctx: &TerminalContext) {}
 

@@ -1,8 +1,12 @@
+use std::{collections::{HashMap, HashSet}, path::Path};
+
+use crate::tool::{grammar::Grammar, syntaxis::chiru_context::CompilationUnitContext};
 
 
 
 
-#[derive(serde::Serialize)]
+
+#[derive(serde::Serialize, Clone)]
 pub struct NameCase {
   
   // 全大写, 用下划线连接
@@ -132,7 +136,7 @@ impl NameCase {
 
 
 // 定义一些用于传值的结构体
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Clone)]
 pub struct NameCaseWithId {
   // 全大写, 用下划线连接
   pub screaming_snake_case: String,
@@ -172,7 +176,7 @@ impl NameCaseWithId {
 }
 
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Clone)]
 pub struct LexerCase {
   // 全大写, 用下划线连接
   pub screaming_snake_case: String,
@@ -218,7 +222,7 @@ impl LexerCase {
 
 
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Clone)]
 pub struct ContextCase {
   pub screaming_snake_case: String,
 
@@ -261,16 +265,77 @@ impl ContextCase {
 
 
 
-// 定义一些 meta 
-pub struct CodeGenMeta {
+
+
+pub struct VisitorOrListenerGenData<'a> {
   pub grammar_file_name: String, 
   pub version: String, 
   pub package_name: Option<NameCase>,
   pub grammar_name: NameCase,
+
+  pub rule_names: Vec<NameCaseWithId>,
+
+  pub grammar: &'a Grammar,
+  pub ast: &'a dyn CompilationUnitContext,
 }
 
-impl CodeGenMeta {
-  pub fn new(grammar_file_name: &str, version: &str, package_name: Option<&str>, grammar_name: &str) -> Self {
+impl<'a> VisitorOrListenerGenData<'a> {
+  pub fn new(grammar: &'a Grammar, ast: &'a dyn CompilationUnitContext, grammar_file_name: &str, version: &str, package_name: Option<&str>, grammar_name: &str, rule_names: &[NameCaseWithId]) -> Self {
+    let package_name: Option<NameCase> = if let Some(name) = package_name {
+      Some(NameCase::new(name))
+    } else { None };
+    let grammar_name = NameCase::new(grammar_name);
+    let rule_names = rule_names.iter().cloned().collect::<Vec<_>>();
+    
+    Self {
+      grammar_file_name: grammar_file_name.to_owned(),
+      version: version.to_owned(),
+      package_name, grammar_name,
+      rule_names, grammar, ast,
+    }
+  }
+}
+
+pub struct ContextGenData<'a> {
+  pub grammar_file_name: String, 
+  pub version: String, 
+  pub package_name: Option<NameCase>,
+  pub grammar_name: NameCase,
+
+  pub context_list: Vec<ContextCase>,
+
+  pub grammar: &'a Grammar,
+  pub ast: &'a dyn CompilationUnitContext,
+}
+
+impl<'a> ContextGenData<'a>  {
+  pub fn new(grammar: &'a Grammar, ast: &'a dyn CompilationUnitContext,grammar_file_name: &str, version: &str, package_name: Option<&str>, grammar_name: &str, context_list: &[ContextCase]) -> Self {
+    let package_name: Option<NameCase> = if let Some(name) = package_name {
+      Some(NameCase::new(name))
+    } else { None };
+    let grammar_name = NameCase::new(grammar_name);
+    let context_list = context_list.iter().cloned().collect::<Vec<_>>();
+    Self {
+      grammar_file_name: grammar_file_name.to_owned(),
+      version: version.to_owned(),
+      package_name, grammar_name,
+      context_list, grammar, ast,
+    }
+  }
+}
+
+pub struct WalkerGenData<'a> {
+  pub grammar_file_name: String, 
+  pub version: String, 
+  pub package_name: Option<NameCase>,
+  pub grammar_name: NameCase,
+
+  pub grammar: &'a Grammar,
+  pub ast: &'a dyn CompilationUnitContext,
+}
+
+impl<'a> WalkerGenData<'a> {
+  pub fn new(grammar: &'a Grammar, ast: &'a dyn CompilationUnitContext,grammar_file_name: &str, version: &str, package_name: Option<&str>, grammar_name: &str) -> Self {
     let package_name: Option<NameCase> = if let Some(name) = package_name {
       Some(NameCase::new(name))
     } else { None };
@@ -280,32 +345,93 @@ impl CodeGenMeta {
       grammar_file_name: grammar_file_name.to_owned(),
       version: version.to_owned(),
       package_name, grammar_name,
+      grammar, ast,
     }
   }
 }
 
+pub struct LexerGenData<'a> {
+  pub grammar_file_name: String, 
+  pub version: String, 
+  pub package_name: Option<NameCase>,
+  pub grammar_name: NameCase,
 
-pub struct VisitorOrListenerGenData {
 
-}
-
-pub struct ContextGenData {
-
-}
-
-pub struct WalkerGenData {
-
-}
-
-pub struct LexerGenData {
-
-}
-
-pub struct ParserGenData {
+  pub lexer_rule_list: Vec<LexerCase>,
+  pub grammar: &'a Grammar,
+  pub ast: &'a dyn CompilationUnitContext,
   
 }
 
+impl<'a> LexerGenData<'a> {
+  pub fn new(grammar: &'a Grammar, ast: &'a dyn CompilationUnitContext, grammar_file_name: &str, version: &str, package_name: Option<&str>, grammar_name: &str, lexer_rule_list: &[LexerCase]) -> Self {
+    let package_name: Option<NameCase> = if let Some(name) = package_name {
+      Some(NameCase::new(name))
+    } else { None };
+    let grammar_name = NameCase::new(grammar_name);
+    let lexer_rule_list = lexer_rule_list.iter().cloned().collect::<Vec<_>>();
+
+    
+    Self {
+      grammar_file_name: grammar_file_name.to_owned(),
+      version: version.to_owned(),
+      package_name, grammar_name, lexer_rule_list,
+      grammar, ast,
+    }
+  }
+}
+
+pub struct ParserGenData<'a> {
+  pub grammar_file_name: String, 
+  pub version: String, 
+  pub package_name: Option<NameCase>,
+  pub grammar_name: NameCase,
 
 
+  pub table: HashMap<(usize, usize), usize>,
+  pub rule_names: Vec<NameCaseWithId>,
+  pub terminal_names: Vec<NameCaseWithId>,
+  pub sync_list: HashSet<(usize, usize)>,
+
+  pub grammar: &'a Grammar,
+  pub ast: &'a dyn CompilationUnitContext,
+}
+
+impl<'a> ParserGenData<'a> {
+  pub fn new(grammar: &'a Grammar, ast: &'a dyn CompilationUnitContext, grammar_file_name: &str, version: &str, package_name: Option<&str>, grammar_name: &str, rule_names: &[NameCaseWithId],
+    table: &HashMap<(usize, usize), usize>, terminal_names: &[NameCaseWithId], sync_list: &HashSet<(usize, usize)>
+  ) -> Self {
+    let package_name: Option<NameCase> = if let Some(name) = package_name {
+      Some(NameCase::new(name))
+    } else { None };
+    let grammar_name = NameCase::new(grammar_name);
+    let rule_names = rule_names.iter().cloned().collect::<Vec<_>>();
+    let terminal_names = terminal_names.iter().cloned().collect::<Vec<_>>();
+
+    Self {
+      grammar_file_name: grammar_file_name.to_owned(),
+      version: version.to_owned(),
+      package_name, grammar_name,
+      rule_names, table: table.clone(), sync_list: sync_list.clone(),terminal_names,
+      grammar, ast,
+    }
+  }
+}
+
+pub struct WriteFileData<'a> {
+  pub grammar: &'a Grammar,
+  pub ast: &'a dyn CompilationUnitContext,
+
+  pub lexer: Option<String>,
+  pub parser: Option<String>,
+  pub context: Option<String>,
+  pub visitor: Option<String>,
+  pub listener: Option<String>,
+  pub walker: Option<String>,
+
+  pub output_dir: &'a Path,
+  pub package_name: Option<String>,
+
+}
 
 

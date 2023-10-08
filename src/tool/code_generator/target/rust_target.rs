@@ -1,10 +1,10 @@
 
-use std::{fs::File, path::Path, io::Write, collections::HashSet};
+use std::error::Error;
 
 use chiru::runtime::production::{Production, ProductionItem};
 use tera::{Tera, Context};
 
-use crate::tool::{visitor::context_visitor::ContextVisitor, syntaxis::chiru_context::CompilationUnitContext, code_generator::name_case::{NameCaseWithId, NameCase, ContextCase, LexerCase, VisitorOrListenerGenData, WalkerGenData, ContextGenData, ParserGenData, LexerGenData}, grammar::Grammar};
+use crate::tool::code_generator::name_case::{VisitorOrListenerGenData, WalkerGenData, ContextGenData, ParserGenData, LexerGenData};
 use super::Target;
 
 
@@ -86,184 +86,226 @@ impl Target for RustTarget {
 
 
 
-  fn generate_visitor(&self, grammar: &Grammar, _ast: &dyn CompilationUnitContext, data: &VisitorOrListenerGenData) -> String {
-    let mut nonterminals: Vec<NameCaseWithId> = Vec::new();
-    for (id, name) in grammar.vocabulary.named_nonterminals.iter() {
-      nonterminals.push( NameCaseWithId::new(name, *id));
-    }
+  fn generate_visitor(&self, data: &VisitorOrListenerGenData) -> Result<String, Box<dyn Error>> {
+    // let mut nonterminals: Vec<NameCaseWithId> = Vec::new();
+    // for (id, name) in grammar.vocabulary.named_nonterminals.iter() {
+    //   nonterminals.push( NameCaseWithId::new(name, *id));
+    // }
   
-    let mut context = Context::new();
-    context.insert("nonterminals", &nonterminals);
-    let grammar_name = NameCase::new(&grammar.name);
-    context.insert("grammar_name", &grammar_name);
-    self.template.render("visitor", &context).unwrap()
-  }
-
-  fn generate_listener(&self, grammar: &crate::tool::grammar::Grammar, _ast: &dyn CompilationUnitContext, data: &VisitorOrListenerGenData) -> String {
-    let mut nonterminals: Vec<NameCaseWithId> = Vec::new();
-    for (id, name) in grammar.vocabulary.named_nonterminals.iter() {
-      nonterminals.push( NameCaseWithId::new(name, *id));
-    }
-  
-    let mut context = Context::new();
-    context.insert("nonterminals", &nonterminals);
-    let grammar_name = NameCase::new(&grammar.name);
-    context.insert("grammar_name", &grammar_name);
-    self.template.render("listener", &context).unwrap()
-  }
-
-  fn generate_walker(&self, grammar: &crate::tool::grammar::Grammar, _ast: &dyn CompilationUnitContext, data: &WalkerGenData) -> String {
-    let mut context = Context::new();
-    let grammar_name = NameCase::new(&grammar.name);
-    context.insert("grammar_name", &grammar_name);
-    self.template.render("walker", &context).unwrap()
-  }
-
-  fn generate_context(&self, grammar: &crate::tool::grammar::Grammar, ast: &dyn CompilationUnitContext, data: &ContextGenData) -> String {
-    // 获取所有的终结符和非终结符
-    let terminals = grammar.vocabulary.get_all_terminals_map();
-  
-    let nonterminals = grammar.vocabulary.get_all_named_nonterminals_map();
-  
-  
-  
-  
-    // 首先解析 ast 获取 table
-    let mut visitor = ContextVisitor::new(nonterminals, terminals);
-    ast.accept(&mut visitor).unwrap();
-  
-    let table = visitor.table;
-    let nonterminals = grammar.vocabulary.get_all_named_nonterminals();
-  
-    nonterminals.iter().for_each(|x| {
-      if ! table.contains_key(x) {
-        println!("{} {}", x, grammar.vocabulary.get_nonterminal_name_by_id(*x).unwrap())
-      }
-    });
-  
-  
-  
-    let ctx_list = nonterminals.iter()
-      .map(|id| { 
-        let c = table.get(id).unwrap().clone();
-
-        let rule_name = grammar.vocabulary.get_nonterminal_name_by_id(*id).unwrap();
-        let terminal_list = c.0.iter().map(|id| {
-          let name = grammar.vocabulary.get_terminal_name_by_id(*id).unwrap();
-          NameCaseWithId::new(&name, *id)
-        }).collect::<Vec<_>>();
-      
-        let terminal = c.1.iter().map(|id| {
-          let name = grammar.vocabulary.get_terminal_name_by_id(*id).unwrap();
-          NameCaseWithId::new(&name, *id)
-        }).collect::<Vec<_>>();
-      
-        let nonterminal_list = c.2.iter().map(|id| {
-          let name = grammar.vocabulary.get_nonterminal_name_by_id(*id).unwrap();
-          NameCaseWithId::new(&name, *id)
-        }).collect::<Vec<_>>();
-      
-        let nonterminal = c.3.iter().map(|id| {
-          let name = grammar.vocabulary.get_nonterminal_name_by_id(*id).unwrap();
-          NameCaseWithId::new(&name, *id)
-        }).collect::<Vec<_>>();
-
-        ContextCase::new(&rule_name, terminal_list, terminal, nonterminal_list, nonterminal)
-        // self.ctx_gen( *id, c, grammar) 
-      }).collect::<Vec<ContextCase>>();
-
-    let mut context = Context::new();
-    context.insert("ctx_list", &ctx_list);
-    let grammar_name = NameCase::new(&grammar.name);
-    context.insert("grammar_name", &grammar_name);
-  
-    self.template.render("context", &context).unwrap()
-  }
-
-  fn generate_parser(&self, grammar: &crate::tool::grammar::Grammar, _ast: &dyn CompilationUnitContext, data: &ParserGenData) -> String {
-
-    let (first, first_set) = grammar.first_set();
-  
-    let follow = grammar.follow_set(&first);
-  
-    let table = grammar.ll1_table(&first_set, &follow);
-  
-    let table = table.iter().map(|((k1, k2), k3)| (*k1, *k2, *k3)).collect::<Vec<_>>();
     
-    let productions = grammar.productions.iter().map(|(id, production)| {
+
+
+    let mut context = Context::new();
+
+    context.insert("grammar_file_name", &data.grammar_file_name);
+    context.insert("version", &data.version);
+    context.insert("grammar_name", &data.grammar_name);
+    context.insert("package_name", &data.package_name);
+
+    context.insert("nonterminals", &data.rule_names);
+    let result = self.template.render("visitor", &context).unwrap();
+    Ok(result)
+  }
+
+  fn generate_listener(&self, data: &VisitorOrListenerGenData) -> Result<String, Box<dyn Error>> {
+    // let mut nonterminals: Vec<NameCaseWithId> = Vec::new();
+    // for (id, name) in grammar.vocabulary.named_nonterminals.iter() {
+    //   nonterminals.push( NameCaseWithId::new(name, *id));
+    // }
+  
+    let mut context = Context::new();
+    context.insert("grammar_file_name", &data.grammar_file_name);
+    context.insert("version", &data.version);
+    context.insert("grammar_name", &data.grammar_name);
+    context.insert("package_name", &data.package_name);
+
+
+    context.insert("rule_names", &data.rule_names);
+    let result = self.template.render("listener", &context).unwrap();
+    Ok(result)
+  }
+
+  fn generate_walker(&self, data: &WalkerGenData) -> Result<String, Box<dyn Error>> {
+    let mut context = Context::new();
+    context.insert("grammar_file_name", &data.grammar_file_name);
+    context.insert("version", &data.version);
+    context.insert("grammar_name", &data.grammar_name);
+    context.insert("package_name", &data.package_name);
+
+    let result =  self.template.render("walker", &context).unwrap();
+    Ok(result)
+  }
+
+  fn generate_context(&self, data: &ContextGenData) -> Result<String, Box<dyn Error>> {
+    // 获取所有的终结符和非终结符
+    // let terminals = grammar.vocabulary.get_all_terminals_map();
+  
+    // let nonterminals = grammar.vocabulary.get_all_named_nonterminals_map();
+  
+  
+  
+  
+    // // 首先解析 ast 获取 table
+    // let mut visitor = ContextVisitor::new(nonterminals, terminals);
+    // ast.accept(&mut visitor).unwrap();
+  
+    // let table = visitor.table;
+    // let nonterminals = grammar.vocabulary.get_all_named_nonterminals();
+  
+    // nonterminals.iter().for_each(|x| {
+    //   if ! table.contains_key(x) {
+    //     println!("{} {}", x, grammar.vocabulary.get_nonterminal_name_by_id(*x).unwrap())
+    //   }
+    // });
+  
+  
+  
+    // let ctx_list = nonterminals.iter()
+    //   .map(|id| { 
+    //     let c = table.get(id).unwrap().clone();
+
+    //     let rule_name = grammar.vocabulary.get_nonterminal_name_by_id(*id).unwrap();
+    //     let terminal_list = c.0.iter().map(|id| {
+    //       let name = grammar.vocabulary.get_terminal_name_by_id(*id).unwrap();
+    //       NameCaseWithId::new(&name, *id)
+    //     }).collect::<Vec<_>>();
+      
+    //     let terminal = c.1.iter().map(|id| {
+    //       let name = grammar.vocabulary.get_terminal_name_by_id(*id).unwrap();
+    //       NameCaseWithId::new(&name, *id)
+    //     }).collect::<Vec<_>>();
+      
+    //     let nonterminal_list = c.2.iter().map(|id| {
+    //       let name = grammar.vocabulary.get_nonterminal_name_by_id(*id).unwrap();
+    //       NameCaseWithId::new(&name, *id)
+    //     }).collect::<Vec<_>>();
+      
+    //     let nonterminal = c.3.iter().map(|id| {
+    //       let name = grammar.vocabulary.get_nonterminal_name_by_id(*id).unwrap();
+    //       NameCaseWithId::new(&name, *id)
+    //     }).collect::<Vec<_>>();
+
+    //     ContextCase::new(&rule_name, terminal_list, terminal, nonterminal_list, nonterminal)
+    //     // self.ctx_gen( *id, c, grammar) 
+    //   }).collect::<Vec<ContextCase>>();
+
+    let mut context = Context::new();
+    context.insert("grammar_file_name", &data.grammar_file_name);
+    context.insert("version", &data.version);
+    context.insert("grammar_name", &data.grammar_name);
+    context.insert("package_name", &data.package_name);
+
+
+
+    context.insert("context_list", &data.context_list);
+  
+    let result = self.template.render("context", &context).unwrap();
+    Ok(result)
+  }
+
+  fn generate_parser(&self, data: &ParserGenData) -> Result<String, Box<dyn Error>> {
+    let productions = data.grammar.productions.iter().map(|(id, production)| {
       return (*id, self.production_generate(production));
     }).collect::<Vec<_>>();
+
+
+
+
+    // let (first, first_set) = grammar.first_set();
+  
+    // let follow = grammar.follow_set(&first);
+  
+    // let table = grammar.ll1_table(&first_set, &follow);
+
+  
+    let table = data.table.iter().map(|((k1, k2), k3)| (*k1, *k2, *k3)).collect::<Vec<_>>();
+    
+    
   
   
-    let mut sync: HashSet<(usize, usize)> = HashSet::new();
-    // 根据 follow 集合来生成 sync
-    for (id, followers) in follow.iter() {
-      for x in followers.iter() {
-        sync.insert((*id, *x));
-      }
-    }
+    // let mut sync: HashSet<(usize, usize)> = HashSet::new();
+    // // 根据 follow 集合来生成 sync
+    // for (id, followers) in follow.iter() {
+    //   for x in followers.iter() {
+    //     sync.insert((*id, *x));
+    //   }
+    // }
   
-    let mut nonterminals: Vec<NameCaseWithId> = Vec::new();
-    for (id, name) in grammar.vocabulary.named_nonterminals.iter() {
-      nonterminals.push( NameCaseWithId::new(name, *id));
-    }
+    // let mut nonterminals: Vec<NameCaseWithId> = Vec::new();
+    // for (id, name) in grammar.vocabulary.named_nonterminals.iter() {
+    //   nonterminals.push( NameCaseWithId::new(name, *id));
+    // }
   
   
-    let terminals = grammar.vocabulary.terminals.iter().map(|(id, t)| {
-      NameCaseWithId::new(&t, *id)
-    }).collect::<Vec<_>>();
+    // let terminals = grammar.vocabulary.terminals.iter().map(|(id, t)| {
+    //   NameCaseWithId::new(&t, *id)
+    // }).collect::<Vec<_>>();
   
   
   
   
     let mut context = Context::new();
+
+
+    context.insert("grammar_file_name", &data.grammar_file_name);
+    context.insert("version", &data.version);
+    context.insert("grammar_name", &data.grammar_name);
+    context.insert("package_name", &data.package_name);
+
+
+
+
     context.insert("table", &table);
     context.insert("productions", &productions);
-    context.insert("nonterminals", &nonterminals);
-    context.insert("terminals", &terminals);
-    context.insert("sync_list", &sync);
-    let grammar_name = NameCase::new(&grammar.name);
-    context.insert("grammar_name", &grammar_name);
+    context.insert("rule_names", &data.rule_names);
+    context.insert("terminal_names", &data.terminal_names);
+    context.insert("sync_list", &data.sync_list);
   
     let result = self.template.render("parser", &context).unwrap();
   
     
-    result
+    Ok(result)
   }
 
-  fn generate_lexer(&self, grammar: &crate::tool::grammar::Grammar, _ast: &dyn CompilationUnitContext, data: &LexerGenData) -> String {
+  fn generate_lexer(&self, data: &LexerGenData) -> Result<String, Box<dyn Error>> {
     let mut context = Context::new();
   
-    let mut lexer_rules = grammar.lexer_rule_map.values().map(|v| {
-      LexerCase::new(&v.token_name, v.token_type, &v.regex, v.channel, v.skip)
-    }).collect::<Vec<_>>();
+    // let mut lexer_rules = grammar.lexer_rule_map.values().map(|v| {
+    //   LexerCase::new(&v.token_name, v.token_type, &v.regex, v.channel, v.skip)
+    // }).collect::<Vec<_>>();
   
-    // 这里一定要排序
-    lexer_rules.sort_by(|a, b| a.token_type.cmp(&b.token_type));
-  
-    context.insert("lexer_rule_list", &lexer_rules);
-    
-    let grammar_name = NameCase::new(&grammar.name);
-    context.insert("grammar_name", &grammar_name);
+    // // 这里一定要排序
+    // lexer_rules.sort_by(|a, b| a.token_type.cmp(&b.token_type));
+    // let grammar_name = NameCase::new(&grammar.name);
+
+
+
+
+    context.insert("grammar_file_name", &data.grammar_file_name);
+    context.insert("version", &data.version);
+    context.insert("grammar_name", &data.grammar_name);
+    context.insert("package_name", &data.package_name);
+    context.insert("lexer_rule_list", &data.lexer_rule_list);
+
     let result = self.template.render("lexer", &context).unwrap();
-    result
+    Ok(result)
   }
 
   // 代码生成并写入对应文件
-  fn generate(
-    &self, 
-    grammar: &crate::tool::grammar::Grammar, 
-    ast: &dyn CompilationUnitContext,
-    output_dir: &std::path::Path,
-    // todo
-    _package_name: Option<String>,
-    lexer: bool, 
-    parser: bool, 
-    context: bool,
-    listener: bool, 
-    visitor: bool, 
-    walker: bool,
-  )  {
+  // fn generate(
+  //   &self, 
+  //   grammar: &Grammar, 
+  //   ast: &dyn CompilationUnitContext,
+  //   output_dir: &std::path::Path,
+  //   // todo
+  //   _package_name: Option<String>,
+  //   lexer: bool, 
+  //   parser: bool, 
+  //   context: bool,
+  //   listener: bool, 
+  //   visitor: bool, 
+  //   walker: bool,
+  // )  {
 
     // let name = grammar.name.to_lowercase();
     // let mut mod_str = String::new();
@@ -375,8 +417,8 @@ impl Target for RustTarget {
     //   },
     //   Err(_) => { println!("fail to create file '{}'", path.display()) },
     // }
-    todo!()
-  }
+  //   todo!()
+  // }
 }
 
 
