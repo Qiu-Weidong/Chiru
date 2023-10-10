@@ -57,11 +57,11 @@ pub trait ChiruListener {
   
 
 
-  
+  // 添加一个 listener 的 trait, 将以下函数放入 listener trait 中去
   fn enter(&mut self, ctx: &RuleContext) {
     // 在这里进行派发即可
     match ctx.get_rule_index() {
-      
+      // 可以发送到 ctx.enter, 然后再 enter 相应的 rule
       ChiruParser::BLOCK => self.enter_block(ctx), 
       ChiruParser::ATTRIBUTE => self.enter_attribute(ctx), 
       ChiruParser::ATTRIBUTES => self.enter_attributes(ctx), 
@@ -119,6 +119,15 @@ pub trait ChiruListener {
 
   fn exit_errornode(&mut self, _ctx: &ErrorContext) {}  
 }
+
+
+// struct MyListener;
+
+// impl ChiruListener for MyListener {
+//   fn enter_alternative(&mut self, _ctx: &dyn AlternativeContext) {
+//     _ctx.epsilon().unwrap().enter(self);
+//   }
+// }
 
 
 

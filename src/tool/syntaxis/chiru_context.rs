@@ -240,6 +240,7 @@ impl EbnfSuffixContext for RuleContext {
 
 
   fn accept(&self, visitor: &mut dyn ChiruVisitor) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    // 本质上是省略掉了分发的过程
     visitor.visit_ebnf_suffix(self)
   }
 

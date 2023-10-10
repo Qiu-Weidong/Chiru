@@ -9,7 +9,8 @@ use super::chiru_listener::ChiruListener;
 
 
 pub trait ChiruWalker {
-  fn walk(&self, listener: &mut dyn ChiruListener, ast: &RuleContext) {
+  // 可以是用泛型, 但使用 dyn 指针更加灵活
+  fn walk(&mut self, listener: &mut dyn ChiruListener, ast: &RuleContext) {
     listener.enter_every_rule(ast);
     listener.enter(ast);
 

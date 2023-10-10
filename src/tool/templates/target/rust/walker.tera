@@ -17,7 +17,7 @@ use super::{{ grammar_name.snake_case }}_listener::{{grammar_name.pascal_case }}
 
 
 pub trait {{grammar_name.pascal_case }}Walker {
-  fn walk(&self, listener: &mut dyn {{grammar_name.pascal_case }}Listener, ast: &RuleContext) {
+  fn walk(&mut self, listener: &mut dyn {{grammar_name.pascal_case }}Listener, ast: &RuleContext) {
     listener.enter_every_rule(ast);
     listener.enter(ast);
 

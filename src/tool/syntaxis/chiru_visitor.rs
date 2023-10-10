@@ -69,7 +69,7 @@ pub trait ChiruVisitor {
   }
   
 
-  
+  // 提供一个 visitor trait, 将以下函数放入 visitor 这个 trait 中去
   fn visit(&mut self, ast: &RuleContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     match ast.get_rule_index() {
       
