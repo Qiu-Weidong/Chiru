@@ -140,7 +140,7 @@ impl Cli {
 
     let version = Cli::command().render_version();
     let code_generator = CodeGenerator::new(
-      &grammar, ast.as_ref(), base_dir, self.language,
+      &grammar, ast.as_ref(), base_dir, self.input.clone(), self.language,
       self.package_name.clone(), &version
     );
     code_generator.generate()?;

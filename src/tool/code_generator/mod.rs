@@ -37,6 +37,9 @@ pub struct CodeGenerator<'a> {
   // 输出路径
   output_dir: PathBuf,
 
+  // 输入文件
+  input_file: PathBuf,
+
   #[allow(unused)]
   package_name: Option<String>,
 
@@ -50,12 +53,13 @@ pub struct CodeGenerator<'a> {
 impl<'a> CodeGenerator<'a> {
   pub fn new(
     grammar: &'a Grammar, ast: &'a dyn CompilationUnitContext,
-    output_dir: PathBuf, _language: Language, package_name: Option<String>,
+    output_dir: PathBuf, input_file: PathBuf, _language: Language, package_name: Option<String>,
     version: &str
   ) -> Self {
 
     Self {
       grammar, ast, output_dir,package_name, version: version.to_owned(),target: Box::new(RustTarget::new()),
+      input_file,
       lexer: true, parser: true, context: true, listener: true, visitor: true, walker: true,
     }
   }
