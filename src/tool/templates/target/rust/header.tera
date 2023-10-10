@@ -1,7 +1,8 @@
 {#
   文件头的一些注释信息
 
-
+  grammar_file_name
+  version
 #}
-// generated from chiru.chiru by chiru 0.7.0
+// generated from {{ grammar_file_name }} by {{ version }}.
 

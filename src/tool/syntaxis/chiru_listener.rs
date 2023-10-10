@@ -55,6 +55,9 @@ pub trait ChiruListener {
   fn enter_ebnf_suffix(&mut self, _ctx: &dyn EbnfSuffixContext) {}
   fn exit_ebnf_suffix(&mut self, _ctx: &dyn EbnfSuffixContext) {}
   
+
+
+  
   fn enter(&mut self, ctx: &RuleContext) {
     // 在这里进行派发即可
     match ctx.get_rule_index() {

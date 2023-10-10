@@ -1,10 +1,10 @@
 
-use std::error::Error;
+use std::{error::Error, path::Path, fs::File, io::Write};
 
 use chiru::runtime::production::{Production, ProductionItem};
 use tera::{Tera, Context};
 
-use crate::tool::code_generator::name_case::{VisitorOrListenerGenData, WalkerGenData, ContextGenData, ParserGenData, LexerGenData};
+use crate::tool::code_generator::name_case::{VisitorOrListenerGenData, WalkerGenData, ContextGenData, ParserGenData, LexerGenData, WriteFileData};
 use super::Target;
 
 
@@ -291,134 +291,121 @@ impl Target for RustTarget {
     Ok(result)
   }
 
-  // 代码生成并写入对应文件
-  // fn generate(
-  //   &self, 
-  //   grammar: &Grammar, 
-  //   ast: &dyn CompilationUnitContext,
-  //   output_dir: &std::path::Path,
-  //   // todo
-  //   _package_name: Option<String>,
-  //   lexer: bool, 
-  //   parser: bool, 
-  //   context: bool,
-  //   listener: bool, 
-  //   visitor: bool, 
-  //   walker: bool,
-  // )  {
+  fn write_file(&self, data: &WriteFileData) {
+    // rust 需要一个 mod.rs 文件
 
-    // let name = grammar.name.to_lowercase();
-    // let mut mod_str = String::new();
+    // 首先生成文件头
+    let mut context = Context::new();
+    context.insert("grammar_file_name", &data.grammar_file_name);
+    context.insert("version", &data.version);
+    let mut mod_str = self.template.render("header", &context).unwrap();
 
+    if let Some(lexer) = &data.lexer {
+      let path = Path::new(data.output_dir).join(format!("{}_lexer.rs", data.grammar_name.snake_case));
+      mod_str += &format!("pub mod {}_lexer;\n", data.grammar_name.snake_case);
+      match  File::create(&path) {
+        Ok(mut file) => {
+          match file.write(lexer.as_bytes()) {
+            Ok(_) => { println!("'{}' generated", path.display()) },
+            Err(_) => { println!("fail to write file '{}'", path.display()) },
+          }
+        },
+        Err(_) => { println!("fail to create file '{}'", path.display()) },
+      }
+    }
+    
+    if let Some(parser) = &data.parser {
+      mod_str += &format!("pub mod {}_parser;\n", data.grammar_name.snake_case);
 
+      let path = Path::new(data.output_dir).join(format!("{}_parser.rs", data.grammar_name.snake_case));
+      match  File::create(&path) {
+        Ok(mut file) => {
+          match file.write(parser.as_bytes()) {
+            Ok(_) => { println!("'{}' generated", path.display()) },
+            Err(_) => { println!("fail to write file '{}'", path.display()) },
+          }
+        },
+        Err(_) => { println!("fail to create file '{}'", path.display()) },
+      }
+    }
 
-    // if lexer {
-    //   mod_str += &format!("pub mod {}_lexer;\n", name);
-    //   let path = Path::new(output_dir).join(format!("{}_lexer.rs", name));
+    if let Some(context) = &data.context {
+      mod_str += &format!("pub mod {}_context;\n", data.grammar_name.snake_case);
 
+      let path = Path::new(data.output_dir).join(format!("{}_context.rs", data.grammar_name.snake_case));
+      match  File::create(&path) {
+        Ok(mut file) => {
+          match file.write(context.as_bytes()) {
+            Ok(_) => { println!("'{}' generated", path.display()) },
+            Err(_) => { println!("fail to write file '{}'", path.display()) },
+          }
+        },
+        Err(_) => { println!("fail to create file '{}'", path.display()) },
+      }
+    }
 
+    if let Some(listener) = &data.listener {
+      mod_str += &format!("pub mod {}_listener;\n", data.grammar_name.snake_case);
 
-    //   match  File::create(&path) {
-    //     Ok(mut file) => {
-    //       match file.write(self.generate_lexer(grammar, ast).as_bytes()) {
-    //         Ok(_) => { println!("'{}' generated", path.display()) },
-    //         Err(_) => { println!("fail to write file '{}'", path.display()) },
-    //       }
-    //     },
-    //     Err(_) => { println!("fail to create file '{}'", path.display()) },
-    //   }
-    // }
+      let path = Path::new(data.output_dir).join(format!("{}_listener.rs", data.grammar_name.snake_case));
+      match  File::create(&path) {
+        Ok(mut file) => {
+          match file.write(listener.as_bytes()) {
+            Ok(_) => { println!("'{}' generated", path.display()) },
+            Err(_) => { println!("fail to write file '{}'", path.display()) },
+          }
+        },
+        Err(_) => { println!("fail to create file '{}'", path.display()) },
+      }
+    }
 
-    // if parser {
-    //   mod_str += &format!("pub mod {}_parser;\n", name);
+    if let Some(visitor) = &data.visitor {
+      mod_str += &format!("pub mod {}_visitor;\n", data.grammar_name.snake_case);
 
-    //   let path = Path::new(output_dir).join(format!("{}_parser.rs", name));
-    //   match  File::create(&path) {
-    //     Ok(mut file) => {
-    //       match file.write(self.generate_parser(grammar, ast).as_bytes()) {
-    //         Ok(_) => { println!("'{}' generated", path.display()) },
-    //         Err(_) => { println!("fail to write file '{}'", path.display()) },
-    //       }
-    //     },
-    //     Err(_) => { println!("fail to create file '{}'", path.display()) },
-    //   }
-    // }
+      let path = Path::new(data.output_dir).join(format!("{}_visitor.rs", data.grammar_name.snake_case));
+      match  File::create(&path) {
+        Ok(mut file) => {
+          match file.write(visitor.as_bytes()) {
+            Ok(_) => { println!("'{}' generated", path.display()) },
+            Err(_) => { println!("fail to write file '{}'", path.display()) },
+          }
+        },
+        Err(_) => { println!("fail to create file '{}'", path.display()) },
+      }
+    }
 
-    // if context {
-    //   mod_str += &format!("pub mod {}_context;\n", name);
+    if let Some(walker) = &data.walker {
+      mod_str += &format!("pub mod {}_walker;\n", data.grammar_name.snake_case);
 
-    //   let path = Path::new(output_dir).join(format!("{}_context.rs", name));
-    //   match  File::create(&path) {
-    //     Ok(mut file) => {
-    //       match file.write(self.generate_context(grammar, ast).as_bytes()) {
-    //         Ok(_) => { println!("'{}' generated", path.display()) },
-    //         Err(_) => { println!("fail to write file '{}'", path.display()) },
-    //       }
-    //     },
-    //     Err(_) => { println!("fail to create file '{}'", path.display()) },
-    //   }
-    // }
-
-    // if listener {
-    //   mod_str += &format!("pub mod {}_listener;\n", name);
-
-    //   let path = Path::new(output_dir).join(format!("{}_listener.rs", name));
-    //   match  File::create(&path) {
-    //     Ok(mut file) => {
-    //       match file.write(self.generate_listener(grammar, ast).as_bytes()) {
-    //         Ok(_) => { println!("'{}' generated", path.display()) },
-    //         Err(_) => { println!("fail to write file '{}'", path.display()) },
-    //       }
-    //     },
-    //     Err(_) => { println!("fail to create file '{}'", path.display()) },
-    //   }
-    // }
-
-    // if visitor {
-    //   mod_str += &format!("pub mod {}_visitor;\n", name);
-
-    //   let path = Path::new(output_dir).join(format!("{}_visitor.rs", name));
-    //   match  File::create(&path) {
-    //     Ok(mut file) => {
-    //       match file.write(self.generate_visitor(grammar, ast).as_bytes()) {
-    //         Ok(_) => { println!("'{}' generated", path.display()) },
-    //         Err(_) => { println!("fail to write file '{}'", path.display()) },
-    //       }
-    //     },
-    //     Err(_) => { println!("fail to create file '{}'", path.display()) },
-    //   }
-    // }
-
-    // if walker {
-    //   mod_str += &format!("pub mod {}_walker;\n", name);
-
-    //   let path = Path::new(output_dir).join(format!("{}_walker.rs", name));
-    //   match  File::create(&path) {
-    //     Ok(mut file) => {
-    //       match file.write(self.generate_walker(grammar, ast).as_bytes()) {
-    //         Ok(_) => { println!("'{}' generated", path.display()) },
-    //         Err(_) => { println!("fail to write file '{}'", path.display()) },
-    //       }
-    //     },
-    //     Err(_) => { println!("fail to create file '{}'", path.display()) },
-    //   }
-    // }
+      let path = Path::new(data.output_dir).join(format!("{}_walker.rs", data.grammar_name.snake_case));
+      match  File::create(&path) {
+        Ok(mut file) => {
+          match file.write(walker.as_bytes()) {
+            Ok(_) => { println!("'{}' generated", path.display()) },
+            Err(_) => { println!("fail to write file '{}'", path.display()) },
+          }
+        },
+        Err(_) => { println!("fail to create file '{}'", path.display()) },
+      }
+    }
 
 
 
 
-    // let path = Path::new(output_dir).join("mod.rs");
-    // match File::create(&path) {
-    //   Ok(mut file) => {
-    //     match file.write(mod_str.as_bytes()) {
-    //       Ok(_) => { println!("'{}' generated", path.display()) },
-    //       Err(_) => { println!("fail to write file '{}'", path.display()) },
-    //     }
-    //   },
-    //   Err(_) => { println!("fail to create file '{}'", path.display()) },
-    // }
-  //   todo!()
-  // }
+    let path = Path::new(data.output_dir).join("mod.rs");
+    match File::create(&path) {
+      Ok(mut file) => {
+        match file.write(mod_str.as_bytes()) {
+          Ok(_) => { println!("'{}' generated", path.display()) },
+          Err(_) => { println!("fail to write file '{}'", path.display()) },
+        }
+      },
+      Err(_) => { println!("fail to create file '{}'", path.display()) },
+    }
+
+
+
+  }
 }
 
 

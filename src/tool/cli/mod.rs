@@ -143,7 +143,7 @@ impl Cli {
       &grammar, ast.as_ref(), base_dir, self.language,
       self.package_name.clone(), &version
     );
-    code_generator.generate();
+    code_generator.generate()?;
     Ok(())
   }
 

@@ -422,6 +422,11 @@ pub struct WriteFileData<'a> {
   pub grammar: &'a Grammar,
   pub ast: &'a dyn CompilationUnitContext,
 
+  pub grammar_file_name: String, 
+  pub version: String, 
+  pub package_name: Option<NameCase>,
+  pub grammar_name: NameCase,
+
   pub lexer: Option<String>,
   pub parser: Option<String>,
   pub context: Option<String>,
@@ -430,8 +435,21 @@ pub struct WriteFileData<'a> {
   pub walker: Option<String>,
 
   pub output_dir: &'a Path,
-  pub package_name: Option<String>,
-
 }
 
+impl<'a> WriteFileData<'a> {
+  pub fn new(grammar: &'a Grammar, ast: &'a dyn CompilationUnitContext, grammar_file_name: &str, version: &str, package_name: Option<&str>, grammar_name: &str,
+    output_dir: &'a Path,
+    lexer: Option<String>, parser: Option<String>, context: Option<String>, visitor: Option<String>, listener: Option<String>, walker: Option<String>, 
+  ) -> Self {
+    let package_name: Option<NameCase> = if let Some(name) = package_name {
+      Some(NameCase::new(name))
+    } else { None };
+    let grammar_name = NameCase::new(grammar_name);
 
+    Self {
+      grammar, ast, grammar_file_name: grammar_file_name.to_owned(),version: version.to_owned(),package_name, grammar_name,
+      lexer, parser, context, visitor, listener, walker, output_dir,
+    }
+  }
+}

@@ -3,11 +3,11 @@ pub mod rust_target;
 
 
 
-use std::{path::Path, error::Error};
+use std::error::Error;
 
 use crate::tool::cli::Language;
 
-use super::name_case::{VisitorOrListenerGenData, WalkerGenData, ContextGenData, ParserGenData, LexerGenData};
+use super::name_case::{VisitorOrListenerGenData, WalkerGenData, ContextGenData, ParserGenData, LexerGenData, WriteFileData};
 
 
 
@@ -31,12 +31,7 @@ pub trait Target {
   fn generate_lexer(&self, data: &LexerGenData) -> Result<String, Box<dyn Error>>;
 
 
-
-
-  // fn write_file(
-  //   &self, grammar: &Grammar, ast: &dyn CompilationUnitContext, output_dir: &Path, package_name: Option<&str>
-    
-  // );
+  fn write_file(&self, data: &WriteFileData)  ;
 
 
 }

@@ -8,14 +8,14 @@ pub mod name_case;
 
 // 代码生成器
 
-use std::path::PathBuf;
+use std::{path::PathBuf, error::Error};
 
 
 use crate::tool::{grammar::Grammar, syntaxis::chiru_context::CompilationUnitContext};
 
 // use self::target::{Target, rust_target::RustTarget};
 
-use self::target::{Target, rust_target::RustTarget};
+use self::{target::{Target, rust_target::RustTarget}, name_case::WriteFileData};
 
 use super::cli::Language;
 
@@ -71,12 +71,44 @@ impl<'a> CodeGenerator<'a> {
 
 
   // 直接写文件即可
-  pub fn generate(&self) {
-    // 在这里使用 target 生成相关的文件, 最后使用 target 将结果按结构写入
-    // self.target.generate(&self.grammar, self.ast, &self.output_dir, None, self.lexer, self.parser, self.context, self.listener, self.visitor, self.walker);
-  
-  
-  
+  pub fn generate(&self) -> Result<(), Box<dyn Error>> {
+
+    // let grammar_name = NameCase::new(&self.grammar.name);
+    let package_name = if let Some(package_name) = &self.package_name { Some(package_name) } else { None };
+
+    let lexer: Option<String> = if self.lexer {
+      None
+    } else { None };
+
+    let parser: Option<String> = if self.parser {
+      None
+    } else { None };
+
+    let context: Option<String> = if self.context {
+      None
+    } else { None };
+
+    let listener: Option<String> = if self.listener {
+      None
+    } else { None };
+
+    let visitor: Option<String> = if self.visitor {
+      None
+    } else { None };
+
+    let walker: Option<String> = if self.walker {
+      None
+    } else { None };
+
+
+    // write file
+    let data = WriteFileData::new(
+      self.grammar, self.ast, "", "", package_name.map(|x| x.as_str()), 
+      &self.grammar.name, &self.output_dir, 
+      lexer, parser, context, visitor, listener, walker);
+
+    self.target.write_file(&data);
+    Ok(())
   }
 
 }
