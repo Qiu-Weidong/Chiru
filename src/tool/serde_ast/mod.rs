@@ -3,7 +3,7 @@
 
 use serde_json;
 use std::io::Read;
-use chiru::runtime::{ast::{rule_context::RuleContext, terminal_context::TerminalContext, ast_context::ASTContext}, token::{self}, position::Position};
+use chiru::runtime::{ast::{rule_context::RuleContext, terminal_context::TerminalContext, ast_context::AstContext}, token::{self}, position::Position};
 
 
 #[derive(Debug)]
@@ -32,15 +32,15 @@ fn parse_rule(value: &serde_json::Value) -> Result<RuleContext, Error> {
   if rule_name == None { return Err(Error {}); }
   let rule_name = rule_name.unwrap().to_owned();
 
-  let mut result: Vec<ASTContext> = Vec::new();
+  let mut result: Vec<AstContext> = Vec::new();
   for child in children.iter() {
     if child["children"].is_null() {
       let child = parse_terminal(child)?;
-      result.push(ASTContext::Terminal(child));
+      result.push(AstContext::Terminal(child));
     }
     else {
       let child = parse_rule(child)?;
-      result.push(ASTContext::Rule(child));
+      result.push(AstContext::Rule(child));
     }
   }
 

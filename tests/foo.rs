@@ -1,37 +1,18 @@
 mod generate;
 
 
-trait Listener {
-  fn enter(&self);
-}
-
-trait ChiruListener: Listener {
-  fn enter(&self) {
-    // 将
-  }
-}
-
-struct MyListener;
-
-impl ChiruListener for MyListener {
-}
-
-impl Listener for MyListener {
-  fn enter(&self) {
-    
-  }  
-}
-
 
 
 #[test]
 fn foo_test() {
+  // let s = "你好啊";
+  // for (i, c) in s.char_indices() {
+  //   println!("{}, {}", i, c);
+  // }
+
+  // let mut it = s.char_indices();
+  // let x =  it.next();
+
 }
 
-
-// #[test]
-// fn foo_test() {
-//   let listener = ListenerImpl {};
-//   walk(&listener)
-// }
 

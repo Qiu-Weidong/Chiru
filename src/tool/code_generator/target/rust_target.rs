@@ -5,7 +5,6 @@ use chiru::runtime::production::{Production, ProductionItem};
 use tera::{Tera, Context};
 
 use crate::tool::code_generator::{name_case::{VisitorOrListenerGenData, WalkerGenData, ContextGenData, ParserGenData, LexerGenData, WriteFileData}, language::Language};
-// use crate::tool::code_generator::language::Language;
 use super::Target;
 
 
@@ -29,8 +28,6 @@ impl RustTarget {
     template.autoescape_on(vec![]);
 
     let template = template;
-
-
 
     let reserved_words = vec! {
       // 严格关键字
@@ -88,14 +85,6 @@ impl Target for RustTarget {
 
 
   fn generate_visitor(&self, data: &VisitorOrListenerGenData) -> Result<String, Box<dyn Error>> {
-    // let mut nonterminals: Vec<NameCaseWithId> = Vec::new();
-    // for (id, name) in grammar.vocabulary.named_nonterminals.iter() {
-    //   nonterminals.push( NameCaseWithId::new(name, *id));
-    // }
-  
-    
-
-
     let mut context = Context::new();
 
     context.insert("grammar_file_name", &data.grammar_file_name);
@@ -104,16 +93,11 @@ impl Target for RustTarget {
     context.insert("package_name", &data.package_name);
 
     context.insert("nonterminals", &data.rule_names);
-    let result = self.template.render("visitor", &context).unwrap();
+    let result = self.template.render("visitor", &context)?;
     Ok(result)
   }
 
   fn generate_listener(&self, data: &VisitorOrListenerGenData) -> Result<String, Box<dyn Error>> {
-    // let mut nonterminals: Vec<NameCaseWithId> = Vec::new();
-    // for (id, name) in grammar.vocabulary.named_nonterminals.iter() {
-    //   nonterminals.push( NameCaseWithId::new(name, *id));
-    // }
-  
     let mut context = Context::new();
     context.insert("grammar_file_name", &data.grammar_file_name);
     context.insert("version", &data.version);
@@ -122,7 +106,7 @@ impl Target for RustTarget {
 
 
     context.insert("rule_names", &data.rule_names);
-    let result = self.template.render("listener", &context).unwrap();
+    let result = self.template.render("listener", &context)?;
     Ok(result)
   }
 
@@ -133,74 +117,20 @@ impl Target for RustTarget {
     context.insert("grammar_name", &data.grammar_name);
     context.insert("package_name", &data.package_name);
 
-    let result =  self.template.render("walker", &context).unwrap();
+    let result =  self.template.render("walker", &context)?;
     Ok(result)
   }
 
   fn generate_context(&self, data: &ContextGenData) -> Result<String, Box<dyn Error>> {
-    // 获取所有的终结符和非终结符
-    // let terminals = grammar.vocabulary.get_all_terminals_map();
-  
-    // let nonterminals = grammar.vocabulary.get_all_named_nonterminals_map();
-  
-  
-  
-  
-    // // 首先解析 ast 获取 table
-    // let mut visitor = ContextVisitor::new(nonterminals, terminals);
-    // ast.accept(&mut visitor).unwrap();
-  
-    // let table = visitor.table;
-    // let nonterminals = grammar.vocabulary.get_all_named_nonterminals();
-  
-    // nonterminals.iter().for_each(|x| {
-    //   if ! table.contains_key(x) {
-    //     println!("{} {}", x, grammar.vocabulary.get_nonterminal_name_by_id(*x).unwrap())
-    //   }
-    // });
-  
-  
-  
-    // let ctx_list = nonterminals.iter()
-    //   .map(|id| { 
-    //     let c = table.get(id).unwrap().clone();
-
-    //     let rule_name = grammar.vocabulary.get_nonterminal_name_by_id(*id).unwrap();
-    //     let terminal_list = c.0.iter().map(|id| {
-    //       let name = grammar.vocabulary.get_terminal_name_by_id(*id).unwrap();
-    //       NameCaseWithId::new(&name, *id)
-    //     }).collect::<Vec<_>>();
-      
-    //     let terminal = c.1.iter().map(|id| {
-    //       let name = grammar.vocabulary.get_terminal_name_by_id(*id).unwrap();
-    //       NameCaseWithId::new(&name, *id)
-    //     }).collect::<Vec<_>>();
-      
-    //     let nonterminal_list = c.2.iter().map(|id| {
-    //       let name = grammar.vocabulary.get_nonterminal_name_by_id(*id).unwrap();
-    //       NameCaseWithId::new(&name, *id)
-    //     }).collect::<Vec<_>>();
-      
-    //     let nonterminal = c.3.iter().map(|id| {
-    //       let name = grammar.vocabulary.get_nonterminal_name_by_id(*id).unwrap();
-    //       NameCaseWithId::new(&name, *id)
-    //     }).collect::<Vec<_>>();
-
-    //     ContextCase::new(&rule_name, terminal_list, terminal, nonterminal_list, nonterminal)
-    //     // self.ctx_gen( *id, c, grammar) 
-    //   }).collect::<Vec<ContextCase>>();
-
     let mut context = Context::new();
     context.insert("grammar_file_name", &data.grammar_file_name);
     context.insert("version", &data.version);
     context.insert("grammar_name", &data.grammar_name);
     context.insert("package_name", &data.package_name);
 
-
-
     context.insert("context_list", &data.context_list);
   
-    let result = self.template.render("context", &context).unwrap();
+    let result = self.template.render("context", &context)?;
     Ok(result)
   }
 
@@ -208,43 +138,7 @@ impl Target for RustTarget {
     let productions = data.grammar.productions.iter().map(|(id, production)| {
       return (*id, self.production_generate(production));
     }).collect::<Vec<_>>();
-
-
-
-
-    // let (first, first_set) = grammar.first_set();
-  
-    // let follow = grammar.follow_set(&first);
-  
-    // let table = grammar.ll1_table(&first_set, &follow);
-
-  
     let table = data.table.iter().map(|((k1, k2), k3)| (*k1, *k2, *k3)).collect::<Vec<_>>();
-    
-    
-  
-  
-    // let mut sync: HashSet<(usize, usize)> = HashSet::new();
-    // // 根据 follow 集合来生成 sync
-    // for (id, followers) in follow.iter() {
-    //   for x in followers.iter() {
-    //     sync.insert((*id, *x));
-    //   }
-    // }
-  
-    // let mut nonterminals: Vec<NameCaseWithId> = Vec::new();
-    // for (id, name) in grammar.vocabulary.named_nonterminals.iter() {
-    //   nonterminals.push( NameCaseWithId::new(name, *id));
-    // }
-  
-  
-    // let terminals = grammar.vocabulary.terminals.iter().map(|(id, t)| {
-    //   NameCaseWithId::new(&t, *id)
-    // }).collect::<Vec<_>>();
-  
-  
-  
-  
     let mut context = Context::new();
 
 
@@ -253,16 +147,13 @@ impl Target for RustTarget {
     context.insert("grammar_name", &data.grammar_name);
     context.insert("package_name", &data.package_name);
 
-
-
-
     context.insert("table", &table);
     context.insert("productions", &productions);
     context.insert("rule_names", &data.rule_names);
     context.insert("terminal_names", &data.terminal_names);
     context.insert("sync_list", &data.sync_list);
   
-    let result = self.template.render("parser", &context).unwrap();
+    let result = self.template.render("parser", &context)?;
   
     
     Ok(result)
@@ -277,7 +168,7 @@ impl Target for RustTarget {
     context.insert("package_name", &data.package_name);
     context.insert("lexer_rule_list", &data.lexer_rule_list);
 
-    let result = self.template.render("lexer", &context).unwrap();
+    let result = self.template.render("lexer", &context)?;
     Ok(result)
   }
 

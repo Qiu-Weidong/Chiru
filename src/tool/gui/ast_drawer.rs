@@ -2,7 +2,7 @@
 use std::{io::Write, fs::File};
 use tera::{Context, Tera};
 
-use chiru::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext};
+use chiru::runtime::ast::{rule_context::RuleContext, ast_context::AstContext};
 
 
 
@@ -30,10 +30,10 @@ impl ASTDrawer {
     let mut children = String::from("[");
     for child in ast.children.iter() {
       match child {
-        ASTContext::Terminal(ctx) => children += &format!("{{ name:`{}`, text: `{}`, id: `{}`}}", 
+        AstContext::Terminal(ctx) => children += &format!("{{ name:`{}`, text: `{}`, id: `{}`}}", 
           ASTDrawer::escape(&ctx.symbol.token_name), ASTDrawer::escape(&ctx.symbol.text), ctx.symbol.token_type),
-        ASTContext::Rule(ctx) => children += &ASTDrawer::dump(ctx),
-        ASTContext::Error(ctx) => children += &format!("{{ name:`{}`, text: `{}`}}", 
+        AstContext::Rule(ctx) => children += &ASTDrawer::dump(ctx),
+        AstContext::Error(ctx) => children += &format!("{{ name:`{}`, text: `{}`}}", 
           ASTDrawer::escape(&ctx.symbol.token_name), ASTDrawer::escape(&ctx.symbol.text)),
       }
 

@@ -1,5 +1,5 @@
 
-use super::position::Position;
+use super::{position::Position, location::Location};
 use std::fmt::Display;
 
 
@@ -8,9 +8,18 @@ pub struct Token {
   pub token_type: usize, 
   pub token_name: String,
 
+
+
+  // 改为 location 
+
   // 起始位置和结束位置，左闭右开，行号从0开始编号
   pub start: Position,
   pub stop: Position,
+  
+  // token 开始的字符序号和最后一个字符的序号，左闭右开
+  pub char_start_index: usize,
+  pub char_stop_index: usize,
+  
 
   // token 所在的频道
   pub channel: usize,
@@ -20,11 +29,17 @@ pub struct Token {
 
   // token 在token序列中的序号(所有频道一起排号)
   pub token_index: usize,
-
-  // token 开始的字符序号和最后一个字符的序号，左闭右开
-  pub char_start_index: usize,
-  pub char_stop_index: usize,
 }
+
+#[derive(Clone, Debug)]
+pub struct AbstractToken {
+  pub token_type: usize, 
+  pub token_name: String,
+
+  pub location: Location,
+  
+}
+
 
 
 impl Display for Token {

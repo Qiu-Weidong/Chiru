@@ -1,6 +1,6 @@
 use std::{any::Any, error::Error};
 
-use chiru::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext, error_context::ErrorContext, terminal_context::TerminalContext};
+use chiru::runtime::ast::{rule_context::RuleContext, ast_context::AstContext, error_context::ErrorContext, terminal_context::TerminalContext};
 
 use super::{
   arrayinit_context::{
@@ -42,9 +42,9 @@ pub trait ArrayInitVisitor {
       if ! self.should_visit_next_child(ctx, &result) { break; }
 
       let child_result = match child {
-        ASTContext::Terminal(ctx) => self.visit_terminal(ctx),
-        ASTContext::Rule(ctx) => self.visit(ctx),
-        ASTContext::Error(ctx) => self.visit_errornode(ctx),
+        AstContext::Terminal(ctx) => self.visit_terminal(ctx),
+        AstContext::Rule(ctx) => self.visit(ctx),
+        AstContext::Error(ctx) => self.visit_errornode(ctx),
       };
 
       result = self.aggregate_result(result, child_result);

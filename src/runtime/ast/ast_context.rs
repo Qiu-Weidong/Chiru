@@ -1,35 +1,51 @@
 use std::fmt::Display;
 use serde::Serialize;
-// use serde_json::Serializer;
 
 use super::{terminal_context::TerminalContext, rule_context::RuleContext, error_context::ErrorContext};
 
 
 #[derive(Clone, Debug)]
-pub enum ASTContext {
+pub enum AstContext {
   Terminal(TerminalContext),
   Rule(RuleContext),
   Error(ErrorContext),
 }
 
-impl Display for ASTContext {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl AstContext {
+  pub fn to_string(&self) -> String {
+    use AstContext::{Terminal, Rule, Error};
+
     match &self {
-      ASTContext::Terminal(ctx) => write!(f, "{}", ctx),
-      ASTContext::Rule(ctx) => write!(f, "{}", ctx),
-      ASTContext::Error(ctx) => write!(f, "{}", ctx),
+      Terminal(ctx) => ctx.to_string(),
+      Rule(ctx) => ctx.to_string(),
+      Error(ctx) => ctx.to_string(),
     }
   }
 }
 
-impl Serialize for ASTContext {
+impl Display for AstContext {
+  
+
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    use AstContext::{Terminal, Rule, Error};
+    match &self {
+      Terminal(ctx) => write!(f, "{}", ctx),
+      Rule(ctx) => write!(f, "{}", ctx),
+      Error(ctx) => write!(f, "{}", ctx),
+    }
+  }
+}
+
+impl Serialize for AstContext {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
   where
     S: serde::Serializer {
+    
+    use AstContext::{Terminal, Rule, Error};
     match &self {
-      ASTContext::Terminal(ctx) => ctx.serialize(serializer),
-      ASTContext::Rule(ctx) => ctx.serialize(serializer),
-      ASTContext::Error(ctx) => ctx.serialize(serializer),
+      Terminal(ctx) => ctx.serialize(serializer),
+      Rule(ctx) => ctx.serialize(serializer),
+      Error(ctx) => ctx.serialize(serializer),
     }
     
   }

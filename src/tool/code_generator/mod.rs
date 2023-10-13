@@ -5,10 +5,6 @@ pub mod language;
 pub mod name_case;
 
 
-
-
-// 代码生成器
-
 use std::{path::Path, error::Error, collections::HashSet};
 
 
@@ -198,13 +194,13 @@ impl<'a> CodeGenerator<'a> {
     } else { None };
 
     let listener: Option<String> = if self.listener {
-      let data = VisitorOrListenerGenData::new(self.grammar, self.ast, grammar_file_name, &self.version, self.package_name.as_deref(), &self.grammar.name, &terminals);
+      let data = VisitorOrListenerGenData::new(self.grammar, self.ast, grammar_file_name, &self.version, self.package_name.as_deref(), &self.grammar.name, &nonterminals);
 
       Some(self.target.generate_listener(&data)?)
     } else { None };
 
     let visitor: Option<String> = if self.visitor {
-      let data = VisitorOrListenerGenData::new(self.grammar, self.ast, grammar_file_name, &self.version, self.package_name.as_deref(), &self.grammar.name, &terminals);
+      let data = VisitorOrListenerGenData::new(self.grammar, self.ast, grammar_file_name, &self.version, self.package_name.as_deref(), &self.grammar.name, &nonterminals);
 
       Some(self.target.generate_visitor(&data)?)
     } else { None };

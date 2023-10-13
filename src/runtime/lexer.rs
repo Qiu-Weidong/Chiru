@@ -46,12 +46,15 @@ pub trait Lexer {
 pub struct TokenIter<'a> {
   // 这些是对应的 Lexer 中成员的引用
   pub input: &'a str, // 输入文本 持有文本的不可变引用
-  pub  rules: &'a [LexerRule],
   pub error_listeners: &'a [Box<dyn ErrorListener>],
-
-  // 存储一个每行的字符下标范围
+  
+  // 存储一个每行的字符下标范围, 用于判断字符所在的 position
   pub ranges: Vec<Range<usize>>,
 
+
+
+  pub rules: &'a [LexerRule],
+  
 
 
   // 可变内容放入 Iter

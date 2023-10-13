@@ -2,7 +2,7 @@
 
 
 
-use chiru::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext};
+use chiru::runtime::ast::{rule_context::RuleContext, ast_context::AstContext};
 
 use super::arrayinit_listener::ArrayInitListener;
 
@@ -15,12 +15,12 @@ pub trait ArrayInitWalker {
 
     for child in ast.children.iter() {
       match child {
-        ASTContext::Terminal(ctx) => {
+        AstContext::Terminal(ctx) => {
           listener.enter_terminal(ctx);
           listener.exit_terminal(ctx);
         },
-        ASTContext::Rule(ctx) => self.walk(listener, ctx),
-        ASTContext::Error(ctx) => {
+        AstContext::Rule(ctx) => self.walk(listener, ctx),
+        AstContext::Error(ctx) => {
           listener.enter_errornode(ctx);
           listener.exit_errornode(ctx);
         },

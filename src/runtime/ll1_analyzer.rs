@@ -1,6 +1,6 @@
 use std::{error::Error, collections::{HashMap, HashSet}};
 
-use super::{ast::{rule_context::RuleContext, ast_context::ASTContext, error_context::ErrorContext, terminal_context::TerminalContext}, token_stream::TokenStream, production::{Production, ProductionItem}, error_strategy::error_listener::ErrorListener};
+use super::{ast::{rule_context::RuleContext, ast_context::AstContext, error_context::ErrorContext, terminal_context::TerminalContext}, token_stream::TokenStream, production::{Production, ProductionItem}, error_strategy::error_listener::ErrorListener};
 
 
 
@@ -32,12 +32,12 @@ pub fn ll1_analyze(
     }
     else if sync.contains(&(rule_index, token.token_type)) {
       // 同步
-      result.children.push(ASTContext::Error(ErrorContext { symbol: token.clone() }));
+      result.children.push(AstContext::Error(ErrorContext { symbol: token.clone() }));
       return Ok(result);
     }
     else {
       // 丢弃，将其添加到 error node
-      result.children.push(ASTContext::Error(ErrorContext { symbol: token.clone() }));
+      result.children.push(AstContext::Error(ErrorContext { symbol: token.clone() }));
       // 消耗掉该 token
       token_stream.consume().unwrap();
     }
@@ -57,7 +57,7 @@ pub fn ll1_analyze(
       ProductionItem::NonTerminal(rule_id) => {
         let t = ll1_analyze(token_stream, *rule_id, table, productions, rule_names, sync, error_listeners)?;
         if let Some(_) = rule_names.get(rule_id) {
-          result.children.push(ASTContext::Rule(t));
+          result.children.push(AstContext::Rule(t));
         }
         else {
           result.children.extend(t.children);
@@ -65,11 +65,11 @@ pub fn ll1_analyze(
       },
       ProductionItem::Terminal(token_type) => {
         while *token_type != token.token_type {
-          result.children.push(ASTContext::Error(ErrorContext { symbol: token.clone() }));
+          result.children.push(AstContext::Error(ErrorContext { symbol: token.clone() }));
           token_stream.consume().unwrap();
         }
         // 匹配了
-        result.children.push(ASTContext::Terminal(TerminalContext { symbol: token.clone() }));
+        result.children.push(AstContext::Terminal(TerminalContext { symbol: token.clone() }));
         // 消耗掉
         token_stream.consume().unwrap();
       },
@@ -77,7 +77,7 @@ pub fn ll1_analyze(
   }
   
   
-  // ASTContext::Rule(result)
+  // AstContext::Rule(result)
   Ok(result)
 }
 

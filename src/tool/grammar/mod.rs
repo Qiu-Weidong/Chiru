@@ -38,7 +38,7 @@ pub struct Grammar {
   // 开始符号 ?
 }
 
-// 定义一个存放 first、follow 集合的数据结构
+// 定义一个存放 first、follow 集合的数据结构, follow 集一定不会包含 epsilon
 pub struct Collection {
   pub allow_epsilon: bool,
   pub set: HashSet<usize>,
@@ -57,6 +57,7 @@ impl Grammar {
   pub fn new(name: &str) -> Self {    
     Self {
       name: name.to_owned(),
+
       vocabulary: Vocabulary::new(),
       productions: HashMap::new(),
       lexer_rule_map: HashMap::new(),

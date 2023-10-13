@@ -1,20 +1,41 @@
 
 use std::fmt::Display;
 use serde::{Serialize, ser::SerializeStruct};
-use crate::runtime::token::Token;
+use crate::runtime::token::{Token, AbstractToken};
 
 #[derive(Clone, Debug)]
 pub struct ErrorContext {
+  // 错误和多余可以使用 symbol
   pub symbol: Token,
 
-  // error message
-  // 多余、缺少和错误，其中
+  // pub error_message: String,
 }
+
+
+#[derive(Clone, Debug)]
+pub enum ErrorNode {
+  // 多余了一个 token, 放置识别到的 token 即可
+  Redundant(Token),
+
+  // 错误匹配了一个 token given expect, 注意将 location 配置为相同
+  Mistake {
+    given: Token,
+    expect: AbstractToken,
+  },
+
+  // 缺少一个 token
+  Missing(AbstractToken),
+}
+
 
 
 impl ErrorContext {
   pub fn get_text(&self) -> &str {
     &self.symbol.text
+  }
+
+  pub fn to_string(&self) -> String {
+    todo!()
   }
 }
 

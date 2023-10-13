@@ -8,11 +8,11 @@
 
 use std::{any::Any, error::Error};
 
-use chiru::runtime::ast::{rule_context::RuleContext, ast_context::ASTContext, error_context::ErrorContext, terminal_context::TerminalContext};
+use chiru::runtime::ast::{rule_context::RuleContext, ast_context::AstContext, error_context::ErrorContext, terminal_context::TerminalContext};
 
 use super::{
   chiru_context::{
-    SharpContext,RbracketContext,StartContext,EpsilonContext,CommaContext,StringLiteralContext,OrContext,StarContext,WhiteSpaceContext,LparenContext,GrammarContext,AtContext,LineCommentContext,RuleRefContext,PlusContext,RparenContext,StopContext,TokenRefContext,BlockCommentContext,QuestionContext,RegularLiteralContext,ColonContext,LbracketContext,SemiContext,
+    AttributeContext,ElementContext,CompilationUnitContext,RegularContext,AttributesContext,BlockContext,LexerRuleContext,ParserRuleContext,EpsilonContext,RulesContext,AlternativeContext,AnnotationContext,EbnfSuffixContext,GrammarNameContext,
   },
   chiru_parser::ChiruParser, 
 };
@@ -20,15 +20,35 @@ use super::{
 
 pub trait ChiruVisitor {
   
-  fn visit_sharp(&mut self, ctx: &dyn SharpContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+  fn visit_attribute(&mut self, ctx: &dyn AttributeContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     self.visit_children(ctx.as_rule())
   }
   
-  fn visit_rbracket(&mut self, ctx: &dyn RbracketContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+  fn visit_element(&mut self, ctx: &dyn ElementContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     self.visit_children(ctx.as_rule())
   }
   
-  fn visit__start(&mut self, ctx: &dyn StartContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+  fn visit_compilation_unit(&mut self, ctx: &dyn CompilationUnitContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    self.visit_children(ctx.as_rule())
+  }
+  
+  fn visit_regular(&mut self, ctx: &dyn RegularContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    self.visit_children(ctx.as_rule())
+  }
+  
+  fn visit_attributes(&mut self, ctx: &dyn AttributesContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    self.visit_children(ctx.as_rule())
+  }
+  
+  fn visit_block(&mut self, ctx: &dyn BlockContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    self.visit_children(ctx.as_rule())
+  }
+  
+  fn visit_lexer_rule(&mut self, ctx: &dyn LexerRuleContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+    self.visit_children(ctx.as_rule())
+  }
+  
+  fn visit_parser_rule(&mut self, ctx: &dyn ParserRuleContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     self.visit_children(ctx.as_rule())
   }
   
@@ -36,83 +56,23 @@ pub trait ChiruVisitor {
     self.visit_children(ctx.as_rule())
   }
   
-  fn visit_comma(&mut self, ctx: &dyn CommaContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+  fn visit_rules(&mut self, ctx: &dyn RulesContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     self.visit_children(ctx.as_rule())
   }
   
-  fn visit_string_literal(&mut self, ctx: &dyn StringLiteralContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+  fn visit_alternative(&mut self, ctx: &dyn AlternativeContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     self.visit_children(ctx.as_rule())
   }
   
-  fn visit_or(&mut self, ctx: &dyn OrContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+  fn visit_annotation(&mut self, ctx: &dyn AnnotationContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     self.visit_children(ctx.as_rule())
   }
   
-  fn visit_star(&mut self, ctx: &dyn StarContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+  fn visit_ebnf_suffix(&mut self, ctx: &dyn EbnfSuffixContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     self.visit_children(ctx.as_rule())
   }
   
-  fn visit_white_space(&mut self, ctx: &dyn WhiteSpaceContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_lparen(&mut self, ctx: &dyn LparenContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_grammar(&mut self, ctx: &dyn GrammarContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_at(&mut self, ctx: &dyn AtContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_line_comment(&mut self, ctx: &dyn LineCommentContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_rule_ref(&mut self, ctx: &dyn RuleRefContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_plus(&mut self, ctx: &dyn PlusContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_rparen(&mut self, ctx: &dyn RparenContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit__stop(&mut self, ctx: &dyn StopContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_token_ref(&mut self, ctx: &dyn TokenRefContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_block_comment(&mut self, ctx: &dyn BlockCommentContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_question(&mut self, ctx: &dyn QuestionContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_regular_literal(&mut self, ctx: &dyn RegularLiteralContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_colon(&mut self, ctx: &dyn ColonContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_lbracket(&mut self, ctx: &dyn LbracketContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
-    self.visit_children(ctx.as_rule())
-  }
-  
-  fn visit_semi(&mut self, ctx: &dyn SemiContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
+  fn visit_grammar_name(&mut self, ctx: &dyn GrammarNameContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     self.visit_children(ctx.as_rule())
   }
   
@@ -121,30 +81,20 @@ pub trait ChiruVisitor {
   fn visit(&mut self, ast: &RuleContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
     match ast.get_rule_index() {
       
-      ChiruParser::SHARP => self.visit_sharp(ast),
-      ChiruParser::RBRACKET => self.visit_rbracket(ast),
-      ChiruParser::_START => self.visit__start(ast),
+      ChiruParser::ATTRIBUTE => self.visit_attribute(ast),
+      ChiruParser::ELEMENT => self.visit_element(ast),
+      ChiruParser::COMPILATION_UNIT => self.visit_compilation_unit(ast),
+      ChiruParser::REGULAR => self.visit_regular(ast),
+      ChiruParser::ATTRIBUTES => self.visit_attributes(ast),
+      ChiruParser::BLOCK => self.visit_block(ast),
+      ChiruParser::LEXER_RULE => self.visit_lexer_rule(ast),
+      ChiruParser::PARSER_RULE => self.visit_parser_rule(ast),
       ChiruParser::EPSILON => self.visit_epsilon(ast),
-      ChiruParser::COMMA => self.visit_comma(ast),
-      ChiruParser::STRING_LITERAL => self.visit_string_literal(ast),
-      ChiruParser::OR => self.visit_or(ast),
-      ChiruParser::STAR => self.visit_star(ast),
-      ChiruParser::WHITE_SPACE => self.visit_white_space(ast),
-      ChiruParser::LPAREN => self.visit_lparen(ast),
-      ChiruParser::GRAMMAR => self.visit_grammar(ast),
-      ChiruParser::AT => self.visit_at(ast),
-      ChiruParser::LINE_COMMENT => self.visit_line_comment(ast),
-      ChiruParser::RULE_REF => self.visit_rule_ref(ast),
-      ChiruParser::PLUS => self.visit_plus(ast),
-      ChiruParser::RPAREN => self.visit_rparen(ast),
-      ChiruParser::_STOP => self.visit__stop(ast),
-      ChiruParser::TOKEN_REF => self.visit_token_ref(ast),
-      ChiruParser::BLOCK_COMMENT => self.visit_block_comment(ast),
-      ChiruParser::QUESTION => self.visit_question(ast),
-      ChiruParser::REGULAR_LITERAL => self.visit_regular_literal(ast),
-      ChiruParser::COLON => self.visit_colon(ast),
-      ChiruParser::LBRACKET => self.visit_lbracket(ast),
-      ChiruParser::SEMI => self.visit_semi(ast),
+      ChiruParser::RULES => self.visit_rules(ast),
+      ChiruParser::ALTERNATIVE => self.visit_alternative(ast),
+      ChiruParser::ANNOTATION => self.visit_annotation(ast),
+      ChiruParser::EBNF_SUFFIX => self.visit_ebnf_suffix(ast),
+      ChiruParser::GRAMMAR_NAME => self.visit_grammar_name(ast),
 
       _ => self.visit_children(ast)
     }
@@ -160,9 +110,9 @@ pub trait ChiruVisitor {
       if ! self.should_visit_next_child(ctx, &result) { break; }
 
       let child_result = match child {
-        ASTContext::Terminal(ctx) => self.visit_terminal(ctx),
-        ASTContext::Rule(ctx) => self.visit(ctx),
-        ASTContext::Error(ctx) => self.visit_errornode(ctx),
+        AstContext::Terminal(ctx) => self.visit_terminal(ctx),
+        AstContext::Rule(ctx) => self.visit(ctx),
+        AstContext::Error(ctx) => self.visit_errornode(ctx),
       };
 
       result = self.aggregate_result(result, child_result);
