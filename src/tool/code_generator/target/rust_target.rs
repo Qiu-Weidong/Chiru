@@ -4,7 +4,8 @@ use std::{error::Error, path::Path, fs::File, io::Write};
 use chiru::runtime::production::{Production, ProductionItem};
 use tera::{Tera, Context};
 
-use crate::tool::code_generator::name_case::{VisitorOrListenerGenData, WalkerGenData, ContextGenData, ParserGenData, LexerGenData, WriteFileData};
+use crate::tool::code_generator::{name_case::{VisitorOrListenerGenData, WalkerGenData, ContextGenData, ParserGenData, LexerGenData, WriteFileData}, language::Language};
+// use crate::tool::code_generator::language::Language;
 use super::Target;
 
 
@@ -76,8 +77,8 @@ impl RustTarget {
 
 
 impl Target for RustTarget {
-  fn get_language(&self) -> crate::tool::cli::Language {
-    crate::tool::cli::Language::Rust
+  fn get_language(&self) -> Language {
+    Language::Rust
   }
 
   fn get_reserved_words(&self) -> &[&str] {
@@ -269,17 +270,6 @@ impl Target for RustTarget {
 
   fn generate_lexer(&self, data: &LexerGenData) -> Result<String, Box<dyn Error>> {
     let mut context = Context::new();
-  
-    // let mut lexer_rules = grammar.lexer_rule_map.values().map(|v| {
-    //   LexerCase::new(&v.token_name, v.token_type, &v.regex, v.channel, v.skip)
-    // }).collect::<Vec<_>>();
-  
-    // // 这里一定要排序
-    // lexer_rules.sort_by(|a, b| a.token_type.cmp(&b.token_type));
-    // let grammar_name = NameCase::new(&grammar.name);
-
-
-
 
     context.insert("grammar_file_name", &data.grammar_file_name);
     context.insert("version", &data.version);
@@ -298,7 +288,10 @@ impl Target for RustTarget {
     let mut context = Context::new();
     context.insert("grammar_file_name", &data.grammar_file_name);
     context.insert("version", &data.version);
-    let mut mod_str = self.template.render("header", &context).unwrap();
+    let mut mod_str = match self.template.render("header", &context) {
+      Ok(content) => content,
+      Err(_) => String::from("// error while generate header.\n")
+    };
 
     if let Some(lexer) = &data.lexer {
       let path = Path::new(data.output_dir).join(format!("{}_lexer.rs", data.grammar_name.snake_case));

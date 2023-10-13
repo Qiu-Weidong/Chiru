@@ -2,8 +2,8 @@
 
 
 
-// generated from chiru.chiru by chiru 0.7.0
-
+// generated from .\src\tool\syntaxis\chiru.chiru by chiru 0.7.0
+ 
 
 
 
@@ -14,7 +14,7 @@ use super::chiru_listener::ChiruListener;
 
 
 pub trait ChiruWalker {
-  fn walk(&self, listener: &mut dyn ChiruListener, ast: &RuleContext) {
+  fn walk(&mut self, listener: &mut dyn ChiruListener, ast: &RuleContext) {
     listener.enter_every_rule(ast);
     listener.enter(ast);
 

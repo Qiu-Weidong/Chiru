@@ -31,7 +31,7 @@ use chiru::runtime::{
 };
 
 use super::{{ grammar_name.snake_case }}_context::{
-  {% for nonterminal in nonterminals %} {{nonterminal.pascal_case}}Context,{% endfor %}
+  {% for nonterminal in rule_names %} {{nonterminal.pascal_case}}Context,{% endfor %}
 };
 
 
@@ -58,7 +58,7 @@ static PRODUCTIONS: Lazy<HashMap<usize, Production>>  = Lazy::new(|| {
 // 非终结符
 pub static NONTERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
   hashmap! {
-    {% for nonterminal in nonterminals %}
+    {% for nonterminal in rule_names %}
     {{nonterminal.id}} => String::from("{{nonterminal.origin_case}}"),{% endfor %}
   }
 });
@@ -66,7 +66,7 @@ pub static NONTERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
 // 终结符
 pub static TERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
   hashmap! {
-    {% for terminal in terminals %}
+    {% for terminal in terminal_names %}
     {{terminal.id}} => String::from("{{terminal.origin_case}}"),{% endfor %}
   }
 });
@@ -83,7 +83,7 @@ pub static SYNC: Lazy<HashSet<(usize, usize)>> = Lazy::new(|| {
 impl {{grammar_name.pascal_case}}Parser {
 
   // 使用模板生成 每个非终结符的编号
-  {% for nonterminal in nonterminals %}
+  {% for nonterminal in rule_names %}
   pub const {{nonterminal.screaming_snake_case}}: usize = {{nonterminal.id}}; {% endfor %}
 
 
@@ -96,7 +96,7 @@ impl {{grammar_name.pascal_case}}Parser {
 
 
   // 使用模板生成
-  {% for nonterminal in nonterminals %}
+  {% for nonterminal in rule_names %}
   pub fn {{nonterminal.snake_case}}(&self, token_stream: &mut TokenStream) -> Result<Box<dyn {{nonterminal.pascal_case}}Context>, Box<dyn Error>> {
 
     let result = ll1_analyze(token_stream, Self::{{nonterminal.screaming_snake_case}},

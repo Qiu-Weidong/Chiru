@@ -398,7 +398,10 @@ pub struct ParserGenData<'a> {
 }
 
 impl<'a> ParserGenData<'a> {
-  pub fn new(grammar: &'a Grammar, ast: &'a dyn CompilationUnitContext, grammar_file_name: &str, version: &str, package_name: Option<&str>, grammar_name: &str, rule_names: &[NameCaseWithId],
+  pub fn new(grammar: &'a Grammar, ast: &'a dyn CompilationUnitContext, 
+    grammar_file_name: &str, version: &str, 
+    package_name: Option<&str>, grammar_name: &str, 
+    rule_names: &[NameCaseWithId],
     table: &HashMap<(usize, usize), usize>, terminal_names: &[NameCaseWithId], sync_list: &HashSet<(usize, usize)>
   ) -> Self {
     let package_name: Option<NameCase> = if let Some(name) = package_name {
@@ -438,7 +441,10 @@ pub struct WriteFileData<'a> {
 }
 
 impl<'a> WriteFileData<'a> {
-  pub fn new(grammar: &'a Grammar, ast: &'a dyn CompilationUnitContext, grammar_file_name: &str, version: &str, package_name: Option<&str>, grammar_name: &str,
+  pub fn new(
+    grammar: &'a Grammar, ast: &'a dyn CompilationUnitContext, 
+    grammar_file_name: &str, version: &str, 
+    package_name: Option<&str>, grammar_name: &str,
     output_dir: &'a Path,
     lexer: Option<String>, parser: Option<String>, context: Option<String>, visitor: Option<String>, listener: Option<String>, walker: Option<String>, 
   ) -> Self {

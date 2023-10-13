@@ -4,5 +4,4 @@
   grammar_file_name
   version
 #}
-// generated from {{ grammar_file_name }} by {{ version }}.
-
+// generated from {{ grammar_file_name }} by {{ version }} 

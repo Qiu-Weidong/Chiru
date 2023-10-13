@@ -14,7 +14,7 @@ use std::env;
 use chiru::runtime::token_stream::TokenStream;
 use super::analyzer::CommonLexer;
 use super::analyzer::CommonParser;
-use super::gui::ast_drawer::ASTDrawer;
+use super::{code_generator::language::Language, gui::ast_drawer::ASTDrawer};
 use super::{syntaxis::{chiru_lexer::ChiruLexer, chiru_parser::ChiruParser}, grammar::Grammar, code_generator::CodeGenerator};
 
 
@@ -90,17 +90,6 @@ pub struct Cli {
 
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
-pub enum Language {
-  Rust, 
-
-  TypeScript,
-
-  Ruby, 
-
-  Python,
-}
-
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
 pub enum Analyzer {
   LL1,
 
@@ -140,8 +129,11 @@ impl Cli {
 
     let version = Cli::command().render_version();
     let code_generator = CodeGenerator::new(
-      &grammar, ast.as_ref(), base_dir, self.input.clone(), self.language,
-      self.package_name.clone(), &version
+      &grammar, ast.as_ref(), 
+      &base_dir, &self.input, 
+      self.language,
+      self.package_name.clone(), 
+      &version, self.analyzer,
     );
     code_generator.generate()?;
     Ok(())

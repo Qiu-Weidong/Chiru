@@ -5,9 +5,9 @@ pub mod rust_target;
 
 use std::error::Error;
 
-use crate::tool::cli::Language;
+// use crate::tool::cli::Language;
 
-use super::name_case::{VisitorOrListenerGenData, WalkerGenData, ContextGenData, ParserGenData, LexerGenData, WriteFileData};
+use super::{name_case::{VisitorOrListenerGenData, WalkerGenData, ContextGenData, ParserGenData, LexerGenData, WriteFileData}, language::Language};
 
 
 

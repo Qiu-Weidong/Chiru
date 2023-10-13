@@ -2,8 +2,8 @@
 
 
 
-// generated from chiru.chiru by chiru 0.7.0
-
+// generated from .\src\tool\syntaxis\chiru.chiru by chiru 0.7.0
+ 
 
 
 use chiru::once_cell::sync::Lazy;

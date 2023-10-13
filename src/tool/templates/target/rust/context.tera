@@ -5,7 +5,7 @@
   package_name: Option<NameCase>  包名, 可能为空
   grammar_name: NameCase          语法名称
   
-  ctx_list: Vec<ContextCase>      用于生成 context 的数据结构
+  context_list: Vec<ContextCase>      用于生成 context 的数据结构
 #}
 
 {# 先 include 一个 header #}
@@ -28,7 +28,7 @@ use super::{{grammar_name.snake_case}}_visitor::{{grammar_name.pascal_case}}Visi
 use super::{{grammar_name.snake_case}}_listener::{{grammar_name.pascal_case}}Listener;
 
 
-{% for ctx in ctx_list %}
+{% for ctx in context_list %}
 pub trait {{ ctx.pascal_case }}Context: ToRule {
   {% for item in ctx.nonterminal_list %}
   fn {{item.snake_case}}_list(&self) -> Vec<&dyn {{item.pascal_case}}Context>;{% endfor %}
