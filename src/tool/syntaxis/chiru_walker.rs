@@ -2,6 +2,11 @@
 
 
 
+// generated from .\src\tool\syntaxis\chiru.chiru by chiru 0.7.0
+ 
+
+
+
 use chiru::runtime::ast::{rule_context::RuleContext, ast_context::AstContext};
 
 use super::chiru_listener::ChiruListener;
@@ -9,7 +14,6 @@ use super::chiru_listener::ChiruListener;
 
 
 pub trait ChiruWalker {
-  // 可以是用泛型, 但使用 dyn 指针更加灵活
   fn walk(&mut self, listener: &mut dyn ChiruListener, ast: &RuleContext) {
     listener.enter_every_rule(ast);
     listener.enter(ast);

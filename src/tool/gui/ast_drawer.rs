@@ -12,8 +12,6 @@ pub struct ASTDrawer {
 
 impl ASTDrawer {
   pub fn new() -> Self {
-
-    // let mut tera = Tera::new("src/tool/templates/**/*.html").unwrap();
     let mut tera = Tera::default();
     tera.add_raw_template("ast", include_str!("../templates/gui/ast.html")).unwrap();
     tera.autoescape_on(vec![]);
@@ -30,7 +28,7 @@ impl ASTDrawer {
     let mut children = String::from("[");
     for child in ast.children.iter() {
       match child {
-        AstContext::Terminal(ctx) => children += &format!("{{ name:`{}`, text: `{}`, id: `{}`}}", 
+        AstContext::Terminal(ctx) => children += &format!("{{ token_name:`{}`, text: `{}`, token_type: `{}` }}", 
           ASTDrawer::escape(&ctx.symbol.token_name), ASTDrawer::escape(&ctx.symbol.text), ctx.symbol.token_type),
         AstContext::Rule(ctx) => children += &ASTDrawer::dump(ctx),
         AstContext::Error(ctx) => children += &ctx.to_string(),
@@ -39,7 +37,7 @@ impl ASTDrawer {
       children += ",";
     }
     children += "]";
-    format!("{{ name:`{}`,id: `{}`, children:{},}}", ASTDrawer::escape(&ast.rule_name), ast.rule_index, children)
+    format!("{{ rule_name:`{}`, rule_index: `{}`, children:{},}}", ASTDrawer::escape(&ast.rule_name), ast.rule_index, children)
   }
 
   pub fn draw(&self, ast: &RuleContext, name: &str, file: &mut File) {

@@ -28,7 +28,6 @@ pub fn ll1_analyze(
   let production_id = loop {
     // 先查看一下下一个token是什么
     let token = token_stream.peek_next_token()?;
-    println!("token = {}", token.token_type);
 
     if let Some(production_id) = table.get(&(rule_index, token.token_type)) {
       break *production_id;
@@ -40,7 +39,7 @@ pub fn ll1_analyze(
     }
     else {
       // 丢弃，将其添加到 error node, 这里认为该 token 是多余的
-      println!("43");
+      // println!("redundant");
       result.children.push(AstContext::Error( ErrorContext::redundant(&token)  ));
       // 消耗掉该 token
       token_stream.consume()?;

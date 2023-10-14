@@ -235,9 +235,8 @@ impl Cli {
 
     let lexer = CommonLexer::from_grammar(&grammar, &content);
     let mut tokens = TokenStream::new(&lexer, 0);
-    tokens.consume()?;
     let parser = CommonParser::from_grammar(&grammar);
-    let ast = parser.parse(&mut tokens, start_rule_id);
+    let ast = parser.parse(&mut tokens, start_rule_id)?;
     Ok(ast)
   }
 

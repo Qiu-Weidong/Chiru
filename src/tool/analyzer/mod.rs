@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::{collections::{HashMap, HashSet}, error::Error};
 
 use chiru::runtime::{error_strategy::error_listener::{ErrorListener, ConsoleErrorListener}, lexer_rule::LexerRule, lexer::{Lexer, TokenIter}, production::Production, token_stream::TokenStream, ast::rule_context::RuleContext, ll1_analyzer::ll1_analyze};
 
@@ -56,8 +56,12 @@ pub struct CommonParser {
 }
 
 impl CommonParser {
-  pub fn parse(&self, token_stream: &mut TokenStream, rule_index: usize) -> RuleContext {
-    ll1_analyze(token_stream, rule_index, &self.table, &self.productions, &self.nonterminals, &self.sync, &self.error_listeners).unwrap()
+  pub fn parse(&self, token_stream: &mut TokenStream, rule_index: usize) -> Result<RuleContext, Box<dyn Error>> {
+    if token_stream.peek_next_token()?.token_type == 0 {
+      token_stream.consume()?;
+    }
+
+    ll1_analyze(token_stream, rule_index, &self.table, &self.productions, &self.nonterminals, &self.sync, &self.error_listeners)
   }
 
 
