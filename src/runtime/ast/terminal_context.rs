@@ -14,7 +14,7 @@ impl TerminalContext {
   }
 
   pub fn to_string(&self) -> String {
-    self.symbol.to_string()
+    self.symbol.token_name.clone()
   }
 
   pub fn new(symbol: &Token) -> Self {

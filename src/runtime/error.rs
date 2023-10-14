@@ -34,25 +34,6 @@ impl Error {
 
 }
 
-
-
-
-// #[derive(Debug, Clone)]
-// pub enum ErrorKind {
-//   // 定义一些错误类型
-
-//   // 词法分析过程中产生的错误
-//   LexerScanOverflow, // 当词法分析器扫描到输入结束的时候，会产生该错误
-//   LexerNoMatch, // 所有 token 都匹配不上
-//   LexerRecoverFail, // 尝试修复但还是失败
-
-
-//   TokenStreamOutOfRange, // look_ahead 超出了范围
-//   ConsumedTokenExhausted, // look_back 查看的缓存耗尽
-
-//   Unknown, // 未知错误
-// }
-
 impl error::Error for Error {
   fn source(&self) -> Option<&(dyn error::Error + 'static)> {
     None

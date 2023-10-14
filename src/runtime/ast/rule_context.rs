@@ -3,7 +3,7 @@ use std::fmt::Display;
 
 use crate::runtime::token::Token;
 use serde::Serialize;
-use super::{terminal_context::TerminalContext, error_context::ErrorContext, ast_context::AstContext};
+use super::{terminal_context::TerminalContext, ast_context::AstContext, error_context::ErrorContext};
 
 
 pub trait ToRule {
@@ -91,21 +91,21 @@ impl RuleContext {
     result
   }
 
-  pub fn get_errornode(&self, token_type: usize, i: usize) -> Option<&ErrorContext> { 
-    let errors = self.get_errornodes(token_type);
+  pub fn get_errornode(&self, i: usize) -> Option<&ErrorContext> { 
+    let errors = self.get_errornodes();
     let error = errors.get(i)?;
     Some(error)
   }
 
-  pub fn get_errornodes(&self, token_type: usize) -> Vec<&ErrorContext> { 
-    // let mut result = Vec::new();
-    // for child in self.children.iter() {
-    //   if let AstContext::Error(child) = child {
-    //     if child.symbol.token_type == token_type { result.push(child) }
-    //   }
-    // }
-    // result
-    todo!()
+  pub fn get_errornodes(&self) -> Vec<&ErrorContext> { 
+    let mut result = Vec::new();
+    for child in self.children.iter() {
+      if let AstContext::Error(child) = child {
+        result.push(child) 
+      }
+    }
+    result
+
   }
 
   pub fn get_rule_context(&self, rule_type: usize, index: usize) -> Option<&RuleContext> {  
@@ -147,8 +147,7 @@ impl RuleContext {
       match child {
         AstContext::Terminal(ctx) => result += &ctx.symbol.token_name,
         AstContext::Rule(ctx) => result += &ctx.to_string(),
-        // AstContext::Error(ctx) => result += &ctx.symbol.token_name,
-        AstContext::Error(ctx) => todo!(),
+        AstContext::Error(ctx) => result += &ctx.to_string(),
       }
     });
 

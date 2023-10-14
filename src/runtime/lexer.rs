@@ -87,6 +87,10 @@ impl<'a> TokenIter<'a> {
     Position::new(line, char_index - range.start)
   }
 
+
+
+
+
   // 这个函数只管匹配，匹配不上就报一个 Error。且不会识别到 start 和 stop
   pub fn lexer_match(&mut self) -> Result<Token, Error> {
     if self.cursor >= self.input.len() {
@@ -138,7 +142,6 @@ impl<'a> TokenIter<'a> {
     let location = Location::new(
       self.get_position_from_char_index(start),
       self.get_position_from_char_index(stop),
-      // self.cursor, self.cursor + len
       start, stop
     );
     let meta = meta.unwrap();

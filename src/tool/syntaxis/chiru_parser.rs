@@ -435,7 +435,10 @@ impl ChiruParser {
     Ok(Box::new(result))
   } 
   pub fn compilation_unit(&self, token_stream: &mut TokenStream) -> Result<Box<dyn CompilationUnitContext>, Box<dyn Error>> {
-
+    if token_stream.peek_next_token()?.token_type == 0 {
+      token_stream.consume()?;
+    }
+    
     let result = ll1_analyze(token_stream, Self::COMPILATION_UNIT,
       &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
     Ok(Box::new(result))

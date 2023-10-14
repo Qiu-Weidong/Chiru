@@ -1,26 +1,26 @@
 
 use std::fmt::Display;
-use serde::Serialize;
+use serde::{Serialize, ser::SerializeStruct};
 use crate::runtime::token::Token;
 
 #[derive(Clone, Debug)]
 pub struct ErrorContext {
 
-  pub symbol: ErrorNode,
+  pub symbol: ErrorSymbol,
+
+  // 考虑添加一个 error_message
 }
 
 
 
 
 #[derive(Clone, Debug)]
-pub enum ErrorNode {
-  // 多余了一个 token, 放置识别到的 token 即可
+pub enum ErrorSymbol {
+
   Redundant(Token),
 
-  // 错误匹配了一个 token given expect
   Mistake(Token),
 
-  // 缺少一个 token
   Missing,
 }
 
@@ -28,51 +28,79 @@ pub enum ErrorNode {
 
 impl ErrorContext {
   pub fn get_text(&self) -> &str {
-    // &self.symbol.text
-    todo!()
+    use ErrorSymbol::*;
+    match &self.symbol {
+      Missing => "<missing>",
+      Redundant(symbol) | Mistake(symbol) => &symbol.text
+    }
   }
 
   pub fn to_string(&self) -> String {
-    todo!()
+    use ErrorSymbol::*;
+    match &self.symbol {
+      Redundant(symbol) | Mistake(symbol) => symbol.token_name.clone(),
+      Missing => "missing".to_string(),
+    }
   }
 
   pub fn redundant(symbol: &Token) -> Self {
     Self {
-      symbol: ErrorNode::Redundant(symbol.to_owned())
+      symbol: ErrorSymbol::Redundant(symbol.to_owned())
     }
   }
 
   pub fn mistake(symbol: &Token) -> Self {
     Self {
-      symbol: ErrorNode::Mistake(symbol.to_owned())
+      symbol: ErrorSymbol::Mistake(symbol.to_owned())
     }
   }
 
   pub fn missing() -> Self {
-    Self { symbol: ErrorNode::Missing }
+    Self { symbol: ErrorSymbol::Missing }
   }
 
 }
 
 impl Display for ErrorContext {
-  fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    // write!(f, "{}", self.symbol.token_name)
-    todo!()
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    use ErrorSymbol::*;
+    match &self.symbol {
+      Redundant(symbol) | Mistake(symbol) => write!(f, "{}", symbol.token_name),
+      Missing => write!(f, "missing"),
+    }
   }
 }
 
 impl Serialize for ErrorContext {
-  fn serialize<S>(&self, _serializer: S) -> Result<S::Ok, S::Error>
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
   where
     S: serde::Serializer {
-      
-    // let mut state = serializer.serialize_struct("ErrorContext", 3)?;
-    // state.serialize_field("token_name", &self.symbol.token_name)?;
-    // state.serialize_field("token_type", &self.symbol.token_type)?;
-    // state.serialize_field("text", &self.symbol.text)?;
-    // state.end()
-    todo!()
     
+    use ErrorSymbol::*;
+    match &self.symbol {
+      Redundant(symbol) | Mistake(symbol) => {
+        let mut state = serializer.serialize_struct("ErrorContext", 4)?;
+        state.serialize_field("token_name", &symbol.token_name)?;
+        state.serialize_field("token_type", &symbol.token_type)?;
+        state.serialize_field("text", &symbol.text)?;
+        
+        let mut error_type = "redundant";
+        if let Mistake(_) = self.symbol {
+          error_type = "mistake";
+        }
+
+        state.serialize_field("error_type", error_type)?;
+        
+        // 考虑添加 error message
+        state.end()
+      },
+      Missing => {
+        let mut state = serializer.serialize_struct("ErrorContext", 1)?;
+        state.serialize_field("error_type", "missing")?;
+        // 考虑添加 message
+        state.end()
+      },
+    }
   }
 }
 

@@ -59,16 +59,13 @@ impl ChiruVisitor for GrammarVisitor {
 
   fn visit_grammar_name(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::GrammarNameContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
 
-    let name;
     if let Some(name_) = ctx.token_ref() {
-      name = &name_.symbol.text;
+      self.grammar.name = name_.symbol.text.clone();
     } else if let Some(name_) = ctx.rule_ref() {
-      name = &name_.symbol.text;
+      self.grammar.name = name_.symbol.text.clone();
     } else {
-      todo!()
+      self.grammar.name = "<noname>".to_owned();
     }
-
-    self.grammar.name = name.to_owned();
     self.default_result()
   }
   

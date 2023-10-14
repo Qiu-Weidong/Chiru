@@ -45,8 +45,6 @@ fn parse_rule(value: &serde_json::Value) -> Result<RuleContext, Error> {
   }
 
   Ok(RuleContext { rule_name, rule_index, children: result })
-// 
-  // todo!()
 }
 
 fn parse_terminal(value: &serde_json::Value) -> Result<TerminalContext, Error> {

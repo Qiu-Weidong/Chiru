@@ -4,6 +4,7 @@ use std::io::Write;
 use std::path::PathBuf;
 
 use chiru::runtime::ast::rule_context::RuleContext;
+use chiru::runtime::ast::rule_context::ToRule;
 use chiru::runtime::lexer::Lexer;
 use clap::CommandFactory;
 use clap::Parser;
@@ -82,7 +83,8 @@ pub struct Cli {
   #[arg(long, default_value_t = false)]
   pub string_ast: bool,
 
-
+  #[arg(long, default_value_t = false)]
+  pub json_ast: bool,
   
 
 }
@@ -98,8 +100,6 @@ pub enum Analyzer {
 
 
 impl Cli {
-
-  // 代码生成
   fn generate_code(&self) -> Result<(), Box<dyn Error>> {
     
     let mut input_file = File::open(&self.input)?;
@@ -261,6 +261,25 @@ impl Cli {
     Ok(())
   }
 
+  fn dump_json_ast(&self) -> Result<(), Box<dyn Error>> {
+    let grammar = self.get_grammar()?;
+
+    let ast = self.parse_ast(&grammar)?;
+
+    if let Some(output) = &self.output {
+      let mut file;
+      if output.is_dir() {
+        let output = output.join("ast.json");
+        file = OpenOptions::new().write(true).create(true).open(output)?;
+      } else {
+        file = OpenOptions::new().write(true).create(true).open(output)?;
+      }
+      file.write_all(serde_json::to_string(ast.as_rule())?.as_bytes())?;
+    } else {
+      println!("{}", serde_json::to_string(ast.as_rule())?);
+    }
+    Ok(())
+  }
 
 
   fn get_grammar(&self) -> Result<Grammar, Box<dyn Error>> {
@@ -288,7 +307,7 @@ impl Cli {
 
   pub fn execute_command(&self) -> Result<(), Box<dyn Error>> {
     
-    if ! self.gui && ! self.tokens && ! self.string_ast {
+    if ! self.gui && ! self.tokens && ! self.string_ast  && ! self.json_ast {
       return self.generate_code();
     }
 
@@ -300,11 +319,16 @@ impl Cli {
     if self.tokens {
       // 输出 tokens
       self.dump_tokens()?;
-    }
-
+    } 
+    
     if self.string_ast {
       // 输出 string-ast
       self.dump_ast()?;
+    }
+
+    if self.json_ast {
+      // 输出 json 格式的语法树
+      self.dump_json_ast()?;
     }
     
 

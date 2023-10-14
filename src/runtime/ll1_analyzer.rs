@@ -28,17 +28,19 @@ pub fn ll1_analyze(
   let production_id = loop {
     // 先查看一下下一个token是什么
     let token = token_stream.peek_next_token()?;
+    println!("token = {}", token.token_type);
 
     if let Some(production_id) = table.get(&(rule_index, token.token_type)) {
       break *production_id;
     }
     else if sync.contains(&(rule_index, token.token_type)) {
       // 同步 这里表示整个非终结符都缺失了
-      result.children.push(AstContext::Error( ErrorContext::redundant(&token) ));
+      result.children.push(AstContext::Error( ErrorContext::missing() ));
       return Ok(result);
     }
     else {
       // 丢弃，将其添加到 error node, 这里认为该 token 是多余的
+      println!("43");
       result.children.push(AstContext::Error( ErrorContext::redundant(&token)  ));
       // 消耗掉该 token
       token_stream.consume()?;

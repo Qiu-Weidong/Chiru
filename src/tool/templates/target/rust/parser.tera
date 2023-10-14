@@ -99,6 +99,10 @@ impl {{grammar_name.pascal_case}}Parser {
   {% for nonterminal in rule_names %}
   pub fn {{nonterminal.snake_case}}(&self, token_stream: &mut TokenStream) -> Result<Box<dyn {{nonterminal.pascal_case}}Context>, Box<dyn Error>> {
 
+    if token_stream.peek_next_token()?.token_type == 0 {
+      token_stream.consume()?;
+    }
+    
     let result = ll1_analyze(token_stream, Self::{{nonterminal.screaming_snake_case}},
       &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
     Ok(Box::new(result))
