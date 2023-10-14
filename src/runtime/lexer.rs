@@ -9,6 +9,7 @@ use super::error::{Error, ErrorKind};
 
 use super::error_strategy::error_listener::ErrorListener;
 use super::lexer_rule::LexerRule;
+use super::location::Location;
 use super::position::Position;
 use super::token::Token;
 
@@ -95,7 +96,7 @@ impl<'a> TokenIter<'a> {
     }
     
     // 找到 start 最小的 len 最长的匹配
-    let mut len = 0;
+    let mut len: usize = 0;
     let mut start = self.input.len();
     let mut stop = start;
 
@@ -136,14 +137,14 @@ impl<'a> TokenIter<'a> {
     let text = String::from(&self.input[start..stop]);
 
 
-
-    let meta = meta.unwrap();
-    let token = Token::new(meta.token_type, &meta.token_name, &text, 
+    let location = Location::new(
       self.get_position_from_char_index(start),
-      self.get_position_from_char_index(stop), self.token_index, 
-      meta.channel, 
-      self.cursor, 
-      self.cursor + len);
+      self.get_position_from_char_index(stop),
+      // self.cursor, self.cursor + len
+      start, stop
+    );
+    let meta = meta.unwrap();
+    let token = Token::new(meta.token_type, &meta.token_name, &text, location, self.token_index, meta.channel);
 
     self.cursor = stop;
 

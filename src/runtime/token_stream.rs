@@ -4,6 +4,7 @@ use std::collections::VecDeque;
 use crate::runtime::error::ErrorKind;
 
 use super::lexer::TokenIter;
+use super::location::Location;
 use super::{token::Token, lexer::Lexer};
 use super::error::Error;
 
@@ -16,7 +17,7 @@ pub struct TokenStream<'a> {
   // 当前 token，初始化为 _START
   pub next_token: Option<Token>,
 
-  // 已消耗 token 的缓冲队列
+  // 已消耗 token 的缓冲队列, 暂时移除, 替换为 previous token, 也就是只缓存一个 token
   pub consumed_tokens: VecDeque<Token>,
 
   // 预查看 token 的缓冲队列
@@ -161,14 +162,12 @@ impl Iterator for TokenStream<'_> {
             Err(err) => { 
               match err.kind {
                 ErrorKind::LexerScanOverflow => {
+                  let location = Location::new(self.iter.get_current_position(), self.iter.get_current_position(), self.iter.cursor, self.iter.cursor);
                   // 添加 stop token
                   Token::new(1, "_STOP", "_STOP", 
-                    self.iter.get_current_position(),
-                    self.iter.get_current_position(), 
+                    location,
                     self.iter.token_index, 
-                    self.channel, 
-                    self.iter.cursor, 
-                    self.iter.cursor)
+                    self.channel)
                 },
                 _ => { return None; }
               }

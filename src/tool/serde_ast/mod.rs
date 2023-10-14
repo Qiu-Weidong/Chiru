@@ -60,13 +60,14 @@ fn parse_terminal(value: &serde_json::Value) -> Result<TerminalContext, Error> {
   let text = if let Some(text) = text { text } else { "<no text>" };
 
 
-  Ok(TerminalContext {
-    symbol: token::Token::new(token_type, token_name, text, 
-      Position { line: 0, char_position: 0 },
-      Position {line: 0, char_position: 0}, 0, 0,0, 0
+  // Ok(TerminalContext {
+  //   symbol: token::Token::new(token_type, token_name, text, 
+  //     Position { line: 0, char_position: 0 },
+  //     Position {line: 0, char_position: 0}, 0, 0,0, 0
 
-    )
-  })
+  //   )
+  // })
+  todo!()
   
   
 }

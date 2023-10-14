@@ -123,15 +123,17 @@ impl RuleContext {
     result
   }
 
+  pub fn get_test<'a>(&self, input: &'a str) -> Option<&'a str> {
+    if let Some(start) = self.get_start_token() {
+      if let Some(stop) = self.get_stop_token() {
+        Some(&input[start.location.byte_index_start..stop.location.byte_index_stop])
+      } else {
+        None
+      }
+    } else {
+      None
+    }
 
-  pub fn get_text<'a>(&self, input: &'a str) -> &'a str { 
-    let start = self.get_start_token();
-    if let None = start { return &input[0..0] }
-    let start = start.unwrap();
-    let stop = self.get_stop_token();
-    if let None = stop { return &input[0..0] }
-    let stop = stop.unwrap();
-    &input[start.char_start_index .. stop.char_stop_index]
   }
 
 
