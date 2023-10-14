@@ -5,7 +5,7 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::ops::Range;
 
-use super::error::{Error, ErrorKind};
+use super::error::Error;
 
 use super::error_strategy::error_listener::ErrorListener;
 use super::lexer_rule::LexerRule;
@@ -90,9 +90,7 @@ impl<'a> TokenIter<'a> {
   // 这个函数只管匹配，匹配不上就报一个 Error。且不会识别到 start 和 stop
   pub fn lexer_match(&mut self) -> Result<Token, Error> {
     if self.cursor >= self.input.len() {
-      return Err(Error::new(ErrorKind::LexerScanOverflow, "LexerScanOverflow", 
-      self.get_position_from_char_index(self.cursor), 
-      self.get_position_from_char_index(self.cursor)));
+      return Err(Error::lexer_scan_overflow());
     }
     
     // 找到 start 最小的 len 最长的匹配
@@ -119,9 +117,9 @@ impl<'a> TokenIter<'a> {
 
     // 如果都不匹配，则报错
     if let None = meta { 
-      return Err(Error::new(ErrorKind::LexerNoMatch, "", 
-      self.get_position_from_char_index(self.cursor), 
-      self.get_position_from_char_index(self.cursor))); 
+      let pos = self.get_position_from_char_index(self.cursor);
+      let location = Location::new(pos, pos, self.cursor, self.cursor);
+      return Err(Error::lexer_no_match(location)); 
     }
 
 

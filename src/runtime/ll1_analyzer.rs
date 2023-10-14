@@ -14,8 +14,10 @@ pub fn ll1_analyze(
   sync: &HashSet<(usize, usize)>,
   error_listeners: &[Box<dyn ErrorListener>],
 ) -> Result<RuleContext, Box<dyn Error>> {
+
+  // 获取名称
   let name = match rule_names.get(&rule_index) {
-    Some(name) => name.to_owned().to_string(),
+    Some(name) => name.to_owned(),
     None => rule_index.to_string(),
   };
   
@@ -25,33 +27,31 @@ pub fn ll1_analyze(
   // 获取 production_id
   let production_id = loop {
     // 先查看一下下一个token是什么
-    let token = token_stream.peek_next_token().unwrap();
+    let token = token_stream.peek_next_token()?;
 
     if let Some(production_id) = table.get(&(rule_index, token.token_type)) {
       break *production_id;
     }
     else if sync.contains(&(rule_index, token.token_type)) {
-      // 同步
-      result.children.push(AstContext::Error(ErrorContext { symbol: token.clone() }));
+      // 同步 这里表示整个非终结符都缺失了
+      result.children.push(AstContext::Error( ErrorContext::redundant(&token) ));
       return Ok(result);
     }
     else {
-      // 丢弃，将其添加到 error node
-      result.children.push(AstContext::Error(ErrorContext { symbol: token.clone() }));
+      // 丢弃，将其添加到 error node, 这里认为该 token 是多余的
+      result.children.push(AstContext::Error( ErrorContext::redundant(&token)  ));
       // 消耗掉该 token
-      token_stream.consume().unwrap();
+      token_stream.consume()?;
     }
   };
   
-  // let token = token_stream.peer_next_token().unwrap();
-  // let production_id = table.get(&(rule_index, token.token_type)).unwrap();
   let production = productions.get(&production_id).unwrap();
   
 
   
   
   for child in production.right.iter() {
-    let token = token_stream.peek_next_token().unwrap();
+    let token = token_stream.peek_next_token()?;
 
     match child {
       ProductionItem::NonTerminal(rule_id) => {
@@ -65,19 +65,16 @@ pub fn ll1_analyze(
       },
       ProductionItem::Terminal(token_type) => {
         while *token_type != token.token_type {
-          result.children.push(AstContext::Error(ErrorContext { symbol: token.clone() }));
-          token_stream.consume().unwrap();
+          result.children.push(AstContext::Error( ErrorContext::redundant(&token) ));
+          token_stream.consume()?;
         }
         // 匹配了
         result.children.push(AstContext::Terminal(TerminalContext { symbol: token.clone() }));
         // 消耗掉
-        token_stream.consume().unwrap();
+        token_stream.consume()?;
       },
     }
   }
-  
-  
-  // AstContext::Rule(result)
   Ok(result)
 }
 

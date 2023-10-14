@@ -23,11 +23,20 @@ pub struct Token {
   pub token_index: usize,
 }
 
-#[derive(Clone, Debug)]
-pub struct AbstractToken {
-  pub token_type: usize, 
-  pub token_name: String,
-}
+// #[derive(Clone, Debug)]
+// pub struct AbstractToken {
+//   pub token_type: usize, 
+//   pub token_name: String,
+// }
+
+// impl AbstractToken {
+//   pub fn new(token_type: usize, token_name: &str) -> Self {
+//     Self {
+//       token_name: token_name.to_owned(),
+//       token_type,
+//     }
+//   }
+// }
 
 
 

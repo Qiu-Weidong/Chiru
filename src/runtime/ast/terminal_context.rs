@@ -16,6 +16,10 @@ impl TerminalContext {
   pub fn to_string(&self) -> String {
     self.symbol.to_string()
   }
+
+  pub fn new(symbol: &Token) -> Self {
+    Self {  symbol: symbol.to_owned(), }
+  }
 }
 
 

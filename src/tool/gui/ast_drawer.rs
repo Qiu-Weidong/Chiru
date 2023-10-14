@@ -33,8 +33,7 @@ impl ASTDrawer {
         AstContext::Terminal(ctx) => children += &format!("{{ name:`{}`, text: `{}`, id: `{}`}}", 
           ASTDrawer::escape(&ctx.symbol.token_name), ASTDrawer::escape(&ctx.symbol.text), ctx.symbol.token_type),
         AstContext::Rule(ctx) => children += &ASTDrawer::dump(ctx),
-        AstContext::Error(ctx) => children += &format!("{{ name:`{}`, text: `{}`}}", 
-          ASTDrawer::escape(&ctx.symbol.token_name), ASTDrawer::escape(&ctx.symbol.text)),
+        AstContext::Error(ctx) => children += &ctx.to_string(),
       }
 
       children += ",";

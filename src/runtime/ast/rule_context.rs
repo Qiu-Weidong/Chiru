@@ -98,13 +98,14 @@ impl RuleContext {
   }
 
   pub fn get_errornodes(&self, token_type: usize) -> Vec<&ErrorContext> { 
-    let mut result = Vec::new();
-    for child in self.children.iter() {
-      if let AstContext::Error(child) = child {
-        if child.symbol.token_type == token_type { result.push(child) }
-      }
-    }
-    result
+    // let mut result = Vec::new();
+    // for child in self.children.iter() {
+    //   if let AstContext::Error(child) = child {
+    //     if child.symbol.token_type == token_type { result.push(child) }
+    //   }
+    // }
+    // result
+    todo!()
   }
 
   pub fn get_rule_context(&self, rule_type: usize, index: usize) -> Option<&RuleContext> {  
@@ -146,7 +147,8 @@ impl RuleContext {
       match child {
         AstContext::Terminal(ctx) => result += &ctx.symbol.token_name,
         AstContext::Rule(ctx) => result += &ctx.to_string(),
-        AstContext::Error(ctx) => result += &ctx.symbol.token_name,
+        // AstContext::Error(ctx) => result += &ctx.symbol.token_name,
+        AstContext::Error(ctx) => todo!(),
       }
     });
 
