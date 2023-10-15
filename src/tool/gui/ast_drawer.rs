@@ -24,7 +24,7 @@ impl ASTDrawer {
   }
 
   fn dump(ast: &RuleContext) -> String {
-  
+    // println!("{}", ast);
     let mut children = String::from("[");
     for child in ast.children.iter() {
       match child {
@@ -42,14 +42,12 @@ impl ASTDrawer {
 
   pub fn draw(&self, ast: &RuleContext, name: &str, file: &mut File) {
     let mut context = Context::new();
-    context.insert("ast", &format!("const ast = {};", ASTDrawer::dump(ast)));
+    let ast = ASTDrawer::dump(ast);
+    context.insert("ast", &format!("const ast = {};", ast));
     context.insert("name", name);
 
 
     let result = self.tera.render("ast", &context).unwrap();
-    
-
-    // let mut file = std::fs::File::create(filename).unwrap();
     file.write(result.as_bytes()).unwrap();
   }
 

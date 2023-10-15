@@ -22,7 +22,7 @@ impl Lexer for CommonLexer<'_> {
 
 impl<'a> CommonLexer<'a> {
   pub fn from_grammar(grammar: &Grammar, input: &'a str) -> Self {
-    let rules = grammar.lexer_rule_map.values().map(|v| {
+    let mut rules = grammar.lexer_rule_map.values().map(|v| {
       let re = regex::Regex::new(r####"(^r#*")|("#*$)"####).unwrap();
       let c = re.replace_all(&v.regex, "");
       let rule = regex::Regex::new(&c).unwrap();
@@ -35,6 +35,8 @@ impl<'a> CommonLexer<'a> {
       };
 
     }).collect::<Vec<_>>();
+  
+    rules.sort_by(|a, b| a.token_type.cmp(&b.token_type));
     
     Self {
       input, 
