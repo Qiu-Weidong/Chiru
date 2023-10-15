@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ name }}</title>
+  <title>Chiru</title>
   <style>
     * {
       margin: 0 0;
@@ -169,7 +169,9 @@
         // d.children = null;
 
         // 计算最小尺寸, 假设一个字符占12个像素
-        const tmp = d.depth * nodeSize + d.data.name.length * 13 + 6;
+        let len = 0;
+        if (d.data.rule_name) { len = d.data.rule_name.length } else if (d.data.token_name) { len  = d.data.token_name.length }
+        const tmp = d.depth * nodeSize + len * 13 + 6;
         width = tmp > width ? tmp : width;
       });
 
@@ -215,7 +217,7 @@
         nodeEnter.append("circle")
           .attr("cx", d => d.depth * nodeSize)
           .attr("r", 5)
-          .attr("fill", d => d._children ? null : "#999")
+          .attr("fill", d => d.data.rule_name ? null : "#999")
           .on("click", (event, d) => {
             d.children = d.children ? null : d._children;
             update(d, d.y);
@@ -224,7 +226,7 @@
         nodeEnter.append("text")
           .attr("dy", "0.32em")
           .attr("x", d => d.depth * nodeSize + 8)
-          .text(d => d.data.name)
+          .text(d => d.data.rule_name ? d.data.rule_name:d.data.text)
           .attr("cursor", "pointer")
           .on("click", (event, d) => {
             config.current = d.data;
@@ -358,16 +360,16 @@
           .attr("stroke-opacity", 0);
 
         nodeEnter.append("title")
-        .text(d => d._children ? d.data.id: d.data.name);
+        .text(d => d.data.rule_name ? d.data.rule_index: d.data.token_name);
 
         nodeEnter.append("text")
           .attr("y", 0)
           .attr('font-weight', 'bold')
           // .attr('font-style', d => d._children ? 'italic': 'normal')
           .attr("cursor", d => d._children ? "pointer" : "default")
-          .attr('fill', d => d._children ? "#333" : "#999")
+          .attr('fill', d => d.data.rule_name ? "#333" : "#999")
           .attr("text-anchor", "middle")
-          .text(d => d._children ? d.data.name: d.data.text)
+          .text(d => d.data.rule_name ? d.data.rule_name: d.data.text)
           .on("pointerdown", (event, d) => {
             d.children = d.children ? null : d._children;
             update(d, d.x, d.y);
