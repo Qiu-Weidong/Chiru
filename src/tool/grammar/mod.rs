@@ -13,6 +13,7 @@ pub mod lexer_rule;
 use std::{collections::{HashMap, HashSet}, fmt::Display, error::Error};
 
 use chiru::runtime::production::{Production, ProductionItem};
+use maplit::hashset;
 
 use crate::tool::visitor::{string_literal_to_token_visitor::StringLiteralToTokenVisitor, lexer_rule_visitor::LexerRuleVisitor, parser_rule_visitor::ParserRuleVisitor, grammar_visitor::GrammarVisitor};
 
@@ -217,11 +218,12 @@ impl Grammar {
     // 求 follow 集合
     let mut result = HashMap::new();
     for nonterminal in self.vocabulary.get_all_nonterminals().iter() {
-      result.insert(*nonterminal, HashSet::new());
+      // result.insert(*nonterminal, HashSet::new());
+      result.insert(*nonterminal, hashset! { 1 });
     }
     
-    // 将 stop 放入开始符号的follow集合
-    result.get_mut(&0).unwrap().insert(1);
+    // 将 stop 放入开始符号的follow集合, 注意, 我只将 stop 放入了开始符号的 stop 集合, 且默认第一个 rule 是开始符号
+    // 可以尝试将 stop 放入所有符号的 follow 集合
 
     let mut modified = true;
 

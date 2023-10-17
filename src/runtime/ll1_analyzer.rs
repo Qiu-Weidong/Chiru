@@ -67,7 +67,7 @@ pub fn ll1_analyze(
       ProductionItem::Terminal(token_type) => {
         while *token_type != token.token_type {
           result.children.push(AstContext::Error( ErrorContext::redundant(&token) ));
-          token_stream.consume()?;
+          token_stream.consume()?; // 是在这里报的错
         }
         // 匹配了
         result.children.push(AstContext::Terminal(TerminalContext { symbol: token.clone() }));
