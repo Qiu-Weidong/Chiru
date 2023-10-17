@@ -24,7 +24,7 @@ use chiru::runtime::{
 };
 
 use super::chiru_context::{
-   AnnotationContext, RegularContext, EpsilonContext, RulesContext, ElementContext, LexerRuleContext, EbnfSuffixContext, AlternativeContext, AttributeContext, AttributesContext, GrammarNameContext, ParserRuleContext, BlockContext, CompilationUnitContext,
+   BlockContext, AnnotationContext, LexerRuleContext, ParserRuleContext, RulesContext, AttributeContext, GrammarNameContext, RegularContext, ElementContext, AlternativeContext, EpsilonContext, EbnfSuffixContext, AttributesContext, CompilationUnitContext,
 };
 
 
@@ -36,98 +36,105 @@ pub struct ChiruParser {
 static LL1_TABLE: Lazy<HashMap<(usize, usize), usize>> = Lazy::new(|| { 
   hashmap!{
     
+    (23, 6) => 29,
+    (14, 4) => 1,
     (16, 4) => 7,
-    (21, 10) => 24,
-    (4, 4) => 13,
-    (3, 3) => 9,
-    (20, 3) => 21,
-    (7, 19) => 25,
-    (25, 7) => 38,
-    (11, 15) => 36,
-    (5, 13) => 16,
-    (16, 3) => 7,
-    (5, 3) => 16,
-    (21, 13) => 23,
-    (9, 16) => 34,
-    (15, 16) => 5,
+    (19, 6) => 14,
+    (15, 15) => 5,
+    (18, 14) => 11,
+    (23, 1) => 29,
+    (21, 1) => 23,
     (19, 13) => 15,
-    (21, 12) => 24,
-    (0, 2) => 0,
-    (4, 13) => 13,
-    (28, 18) => 43,
-    (28, 4) => 43,
-    (26, 7) => 40,
-    (21, 11) => 24,
+    (19, 4) => 15,
+    (19, 19) => 15,
+    (7, 4) => 25,
+    (11, 16) => 37,
+    (16, 3) => 7,
+    (19, 8) => 14,
+    (5, 3) => 16,
+    (26, 1) => 39,
+    (5, 13) => 16,
     (5, 19) => 16,
-    (2, 16) => 8,
+    (23, 3) => 29,
+    (23, 4) => 29,
+    (8, 10) => 31,
+    (23, 12) => 30,
+    (26, 7) => 40,
+    (16, 16) => 7,
+    (28, 7) => 43,
+    (15, 4) => 5,
+    (9, 15) => 34,
+    (9, 16) => 34,
+    (8, 11) => 31,
+    (21, 14) => 23,
+    (21, 19) => 23,
+    (20, 4) => 19,
     (18, 8) => 12,
     (19, 14) => 14,
-    (2, 15) => 8,
-    (17, 8) => 10,
     (22, 10) => 26,
-    (4, 19) => 13,
-    (7, 4) => 25,
-    (16, 15) => 7,
-    (27, 13) => 42,
-    (15, 3) => 4,
-    (14, 4) => 1,
-    (11, 16) => 37,
-    (26, 18) => 39,
+    (4, 4) => 13,
+    (24, 15) => 33,
+    (7, 3) => 25,
+    (28, 13) => 44,
+    (2, 1) => 8,
+    (21, 8) => 23,
+    (2, 15) => 8,
+    (2, 4) => 8,
+    (14, 3) => 2,
+    (21, 4) => 23,
+    (25, 7) => 38,
+    (23, 19) => 29,
+    (21, 10) => 24,
+    (7, 19) => 25,
+    (6, 9) => 18,
     (10, 20) => 35,
     (4, 3) => 13,
-    (6, 9) => 18,
-    (5, 4) => 16,
+    (21, 6) => 23,
+    (26, 18) => 39,
+    (0, 2) => 0,
+    (21, 11) => 24,
+    (2, 3) => 8,
+    (23, 14) => 29,
     (12, 3) => 41,
-    (8, 11) => 31,
-    (16, 16) => 7,
+    (19, 3) => 15,
+    (20, 19) => 20,
+    (15, 16) => 5,
+    (20, 3) => 21,
+    (1, 2) => 3,
+    (20, 13) => 22,
+    (13, 3) => 45,
+    (22, 11) => 27,
+    (9, 4) => 34,
+    (8, 12) => 31,
+    (18, 6) => 11,
+    (5, 4) => 16,
     (5, 9) => 17,
     (23, 13) => 29,
-    (23, 14) => 29,
-    (2, 4) => 8,
-    (1, 2) => 3,
-    (21, 8) => 23,
-    (2, 1) => 8,
-    (23, 12) => 30,
-    (19, 3) => 15,
-    (22, 12) => 28,
-    (21, 14) => 23,
-    (14, 3) => 2,
-    (9, 15) => 34,
-    (23, 3) => 29,
-    (21, 4) => 23,
-    (8, 10) => 31,
-    (4, 9) => 13,
-    (23, 4) => 29,
+    (27, 13) => 42,
+    (28, 1) => 43,
+    (17, 8) => 10,
     (16, 1) => 6,
-    (24, 16) => 33,
-    (2, 3) => 8,
-    (19, 6) => 14,
-    (20, 4) => 19,
-    (20, 13) => 22,
-    (15, 15) => 5,
-    (20, 19) => 20,
-    (19, 4) => 15,
-    (23, 6) => 29,
-    (23, 8) => 29,
-    (28, 13) => 44,
-    (23, 19) => 29,
-    (24, 15) => 33,
-    (21, 3) => 23,
-    (28, 7) => 43,
-    (22, 11) => 27,
-    (18, 14) => 11,
-    (19, 8) => 14,
-    (7, 3) => 25,
-    (15, 4) => 5,
-    (8, 12) => 31,
-    (24, 4) => 32,
-    (21, 19) => 23,
-    (9, 4) => 34,
-    (18, 6) => 11,
+    (21, 13) => 23,
+    (11, 15) => 36,
     (7, 13) => 25,
-    (21, 6) => 23,
-    (13, 3) => 45,
-    (19, 19) => 15,
+    (4, 13) => 13,
+    (15, 3) => 4,
+    (4, 19) => 13,
+    (2, 16) => 8,
+    (28, 18) => 43,
+    (4, 9) => 13,
+    (19, 1) => 14,
+    (24, 16) => 33,
+    (16, 15) => 7,
+    (21, 12) => 24,
+    (18, 1) => 11,
+    (3, 3) => 9,
+    (21, 3) => 23,
+    (22, 12) => 28,
+    (24, 1) => 32,
+    (23, 8) => 29,
+    (24, 4) => 32,
+    (28, 4) => 43,
   }
 });
 
@@ -135,52 +142,52 @@ static LL1_TABLE: Lazy<HashMap<(usize, usize), usize>> = Lazy::new(|| {
 static PRODUCTIONS: Lazy<HashMap<usize, Production>>  = Lazy::new(|| {
   hashmap!{
     
-    43 => Production::new(43, 28, &vec![]),
-    45 => Production::new(45, 13, &vec![ProductionItem::Terminal(3),ProductionItem::NonTerminal(28),]),
-    25 => Production::new(25, 7, &vec![ProductionItem::NonTerminal(20),ProductionItem::NonTerminal(21),]),
-    15 => Production::new(15, 19, &vec![ProductionItem::NonTerminal(7),ProductionItem::NonTerminal(19),]),
-    33 => Production::new(33, 24, &vec![ProductionItem::NonTerminal(11),]),
-    6 => Production::new(6, 16, &vec![]),
-    1 => Production::new(1, 14, &vec![ProductionItem::Terminal(4),]),
-    20 => Production::new(20, 20, &vec![ProductionItem::Terminal(19),]),
     44 => Production::new(44, 28, &vec![ProductionItem::NonTerminal(27),]),
-    35 => Production::new(35, 10, &vec![ProductionItem::Terminal(20),]),
-    24 => Production::new(24, 21, &vec![ProductionItem::NonTerminal(8),]),
-    32 => Production::new(32, 24, &vec![]),
-    37 => Production::new(37, 11, &vec![ProductionItem::Terminal(16),ProductionItem::Terminal(17),ProductionItem::NonTerminal(12),ProductionItem::Terminal(18),]),
-    30 => Production::new(30, 23, &vec![ProductionItem::Terminal(12),]),
-    21 => Production::new(21, 20, &vec![ProductionItem::Terminal(3),]),
-    41 => Production::new(41, 12, &vec![ProductionItem::NonTerminal(13),ProductionItem::NonTerminal(26),]),
-    38 => Production::new(38, 25, &vec![ProductionItem::Terminal(7),ProductionItem::NonTerminal(13),]),
-    23 => Production::new(23, 21, &vec![]),
-    19 => Production::new(19, 20, &vec![ProductionItem::Terminal(4),]),
-    16 => Production::new(16, 5, &vec![ProductionItem::NonTerminal(7),ProductionItem::NonTerminal(19),]),
-    42 => Production::new(42, 27, &vec![ProductionItem::Terminal(13),ProductionItem::Terminal(4),ProductionItem::Terminal(14),]),
-    27 => Production::new(27, 22, &vec![ProductionItem::Terminal(11),]),
-    34 => Production::new(34, 9, &vec![ProductionItem::NonTerminal(24),ProductionItem::Terminal(4),ProductionItem::Terminal(5),ProductionItem::NonTerminal(10),ProductionItem::Terminal(6),]),
-    36 => Production::new(36, 11, &vec![ProductionItem::Terminal(15),ProductionItem::NonTerminal(13),]),
-    31 => Production::new(31, 8, &vec![ProductionItem::NonTerminal(22),ProductionItem::NonTerminal(23),]),
-    40 => Production::new(40, 26, &vec![ProductionItem::NonTerminal(25),ProductionItem::NonTerminal(26),]),
     8 => Production::new(8, 2, &vec![ProductionItem::NonTerminal(16),]),
-    18 => Production::new(18, 6, &vec![ProductionItem::Terminal(9),]),
-    22 => Production::new(22, 20, &vec![ProductionItem::Terminal(13),ProductionItem::NonTerminal(4),ProductionItem::Terminal(14),]),
-    12 => Production::new(12, 18, &vec![ProductionItem::NonTerminal(17),ProductionItem::NonTerminal(18),]),
-    39 => Production::new(39, 26, &vec![]),
+    30 => Production::new(30, 23, &vec![ProductionItem::Terminal(12),]),
+    45 => Production::new(45, 13, &vec![ProductionItem::Terminal(3),ProductionItem::NonTerminal(28),]),
+    1 => Production::new(1, 14, &vec![ProductionItem::Terminal(4),]),
     11 => Production::new(11, 18, &vec![]),
-    14 => Production::new(14, 19, &vec![]),
-    28 => Production::new(28, 22, &vec![ProductionItem::Terminal(12),]),
-    10 => Production::new(10, 17, &vec![ProductionItem::Terminal(8),ProductionItem::NonTerminal(5),]),
-    0 => Production::new(0, 0, &vec![ProductionItem::NonTerminal(1),ProductionItem::NonTerminal(2),]),
-    5 => Production::new(5, 15, &vec![ProductionItem::NonTerminal(9),]),
-    4 => Production::new(4, 15, &vec![ProductionItem::NonTerminal(3),]),
-    26 => Production::new(26, 22, &vec![ProductionItem::Terminal(10),]),
+    16 => Production::new(16, 5, &vec![ProductionItem::NonTerminal(7),ProductionItem::NonTerminal(19),]),
     17 => Production::new(17, 5, &vec![ProductionItem::NonTerminal(6),]),
-    2 => Production::new(2, 14, &vec![ProductionItem::Terminal(3),]),
+    24 => Production::new(24, 21, &vec![ProductionItem::NonTerminal(8),]),
+    31 => Production::new(31, 8, &vec![ProductionItem::NonTerminal(22),ProductionItem::NonTerminal(23),]),
+    34 => Production::new(34, 9, &vec![ProductionItem::NonTerminal(24),ProductionItem::Terminal(4),ProductionItem::Terminal(5),ProductionItem::NonTerminal(10),ProductionItem::Terminal(6),]),
+    22 => Production::new(22, 20, &vec![ProductionItem::Terminal(13),ProductionItem::NonTerminal(4),ProductionItem::Terminal(14),]),
     3 => Production::new(3, 1, &vec![ProductionItem::Terminal(2),ProductionItem::NonTerminal(14),ProductionItem::Terminal(6),]),
-    13 => Production::new(13, 4, &vec![ProductionItem::NonTerminal(5),ProductionItem::NonTerminal(18),]),
+    10 => Production::new(10, 17, &vec![ProductionItem::Terminal(8),ProductionItem::NonTerminal(5),]),
+    23 => Production::new(23, 21, &vec![]),
+    28 => Production::new(28, 22, &vec![ProductionItem::Terminal(12),]),
+    36 => Production::new(36, 11, &vec![ProductionItem::Terminal(15),ProductionItem::NonTerminal(13),]),
     9 => Production::new(9, 3, &vec![ProductionItem::Terminal(3),ProductionItem::Terminal(5),ProductionItem::NonTerminal(4),ProductionItem::Terminal(6),]),
-    7 => Production::new(7, 16, &vec![ProductionItem::NonTerminal(15),ProductionItem::NonTerminal(16),]),
+    19 => Production::new(19, 20, &vec![ProductionItem::Terminal(4),]),
     29 => Production::new(29, 23, &vec![]),
+    7 => Production::new(7, 16, &vec![ProductionItem::NonTerminal(15),ProductionItem::NonTerminal(16),]),
+    25 => Production::new(25, 7, &vec![ProductionItem::NonTerminal(20),ProductionItem::NonTerminal(21),]),
+    12 => Production::new(12, 18, &vec![ProductionItem::NonTerminal(17),ProductionItem::NonTerminal(18),]),
+    42 => Production::new(42, 27, &vec![ProductionItem::Terminal(13),ProductionItem::Terminal(4),ProductionItem::Terminal(14),]),
+    15 => Production::new(15, 19, &vec![ProductionItem::NonTerminal(7),ProductionItem::NonTerminal(19),]),
+    32 => Production::new(32, 24, &vec![]),
+    41 => Production::new(41, 12, &vec![ProductionItem::NonTerminal(13),ProductionItem::NonTerminal(26),]),
+    40 => Production::new(40, 26, &vec![ProductionItem::NonTerminal(25),ProductionItem::NonTerminal(26),]),
+    2 => Production::new(2, 14, &vec![ProductionItem::Terminal(3),]),
+    20 => Production::new(20, 20, &vec![ProductionItem::Terminal(19),]),
+    43 => Production::new(43, 28, &vec![]),
+    14 => Production::new(14, 19, &vec![]),
+    21 => Production::new(21, 20, &vec![ProductionItem::Terminal(3),]),
+    5 => Production::new(5, 15, &vec![ProductionItem::NonTerminal(9),]),
+    38 => Production::new(38, 25, &vec![ProductionItem::Terminal(7),ProductionItem::NonTerminal(13),]),
+    6 => Production::new(6, 16, &vec![]),
+    26 => Production::new(26, 22, &vec![ProductionItem::Terminal(10),]),
+    13 => Production::new(13, 4, &vec![ProductionItem::NonTerminal(5),ProductionItem::NonTerminal(18),]),
+    0 => Production::new(0, 0, &vec![ProductionItem::NonTerminal(1),ProductionItem::NonTerminal(2),]),
+    18 => Production::new(18, 6, &vec![ProductionItem::Terminal(9),]),
+    33 => Production::new(33, 24, &vec![ProductionItem::NonTerminal(11),]),
+    27 => Production::new(27, 22, &vec![ProductionItem::Terminal(11),]),
+    4 => Production::new(4, 15, &vec![ProductionItem::NonTerminal(3),]),
+    35 => Production::new(35, 10, &vec![ProductionItem::Terminal(20),]),
+    37 => Production::new(37, 11, &vec![ProductionItem::Terminal(16),ProductionItem::Terminal(17),ProductionItem::NonTerminal(12),ProductionItem::Terminal(18),]),
+    39 => Production::new(39, 26, &vec![]),
   }
 }); 
 
@@ -188,19 +195,19 @@ static PRODUCTIONS: Lazy<HashMap<usize, Production>>  = Lazy::new(|| {
 pub static NONTERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
   hashmap! {
     
-    11 => String::from("annotation"),
-    10 => String::from("regular"),
-    6 => String::from("epsilon"),
-    2 => String::from("rules"),
-    7 => String::from("element"),
-    9 => String::from("lexer_rule"),
-    8 => String::from("ebnf_suffix"),
-    5 => String::from("alternative"),
-    13 => String::from("attribute"),
-    12 => String::from("attributes"),
-    1 => String::from("grammar_name"),
-    3 => String::from("parser_rule"),
     4 => String::from("block"),
+    11 => String::from("annotation"),
+    9 => String::from("lexer_rule"),
+    3 => String::from("parser_rule"),
+    2 => String::from("rules"),
+    13 => String::from("attribute"),
+    1 => String::from("grammar_name"),
+    10 => String::from("regular"),
+    7 => String::from("element"),
+    5 => String::from("alternative"),
+    6 => String::from("epsilon"),
+    8 => String::from("ebnf_suffix"),
+    12 => String::from("attributes"),
     0 => String::from("compilation_unit"),
   }
 });
@@ -209,138 +216,160 @@ pub static NONTERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
 pub static TERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
   hashmap! {
     
-    8 => String::from("OR"),
-    18 => String::from("RBRACKET"),
-    1 => String::from("_STOP"),
-    23 => String::from("BLOCK_COMMENT"),
-    5 => String::from("COLON"),
-    16 => String::from("SHARP"),
-    0 => String::from("_START"),
-    19 => String::from("STRING_LITERAL"),
-    6 => String::from("SEMI"),
-    9 => String::from("EPSILON"),
-    3 => String::from("RULE_REF"),
-    15 => String::from("AT"),
-    22 => String::from("LINE_COMMENT"),
-    11 => String::from("PLUS"),
     10 => String::from("STAR"),
-    14 => String::from("RPAREN"),
-    12 => String::from("QUESTION"),
-    21 => String::from("WHITE_SPACE"),
-    4 => String::from("TOKEN_REF"),
+    13 => String::from("LPAREN"),
+    6 => String::from("SEMI"),
+    0 => String::from("_START"),
+    5 => String::from("COLON"),
+    7 => String::from("COMMA"),
+    9 => String::from("EPSILON"),
     20 => String::from("REGULAR_LITERAL"),
     2 => String::from("GRAMMAR"),
-    7 => String::from("COMMA"),
+    15 => String::from("AT"),
+    18 => String::from("RBRACKET"),
+    4 => String::from("TOKEN_REF"),
+    22 => String::from("LINE_COMMENT"),
+    21 => String::from("WHITE_SPACE"),
+    1 => String::from("_STOP"),
     17 => String::from("LBRACKET"),
-    13 => String::from("LPAREN"),
+    23 => String::from("BLOCK_COMMENT"),
+    3 => String::from("RULE_REF"),
+    14 => String::from("RPAREN"),
+    19 => String::from("STRING_LITERAL"),
+    11 => String::from("PLUS"),
+    8 => String::from("OR"),
+    12 => String::from("QUESTION"),
+    16 => String::from("SHARP"),
   }
 });
 
 pub static SYNC: Lazy<HashSet<(usize, usize)>> = Lazy::new(|| {
   hashset! {
     
-    (1, 3),
-    (7, 4),
-    (22, 13),
-    (23, 14),
-    (20, 3),
-    (22, 8),
-    (8, 4),
-    (4, 6),
-    (28, 4),
-    (10, 6),
-    (23, 3),
-    (7, 13),
-    (17, 8),
-    (4, 14),
-    (9, 3),
-    (22, 19),
-    (22, 3),
-    (20, 14),
-    (23, 6),
-    (19, 6),
-    (22, 6),
-    (28, 7),
-    (7, 8),
-    (15, 15),
     (3, 16),
-    (6, 6),
-    (20, 12),
-    (27, 4),
-    (2, 1),
-    (20, 10),
-    (16, 1),
-    (14, 6),
-    (7, 3),
-    (23, 8),
-    (13, 7),
-    (23, 13),
-    (7, 19),
-    (21, 8),
-    (9, 16),
-    (15, 1),
-    (20, 8),
-    (3, 15),
-    (23, 4),
-    (20, 11),
-    (20, 4),
-    (1, 15),
-    (25, 7),
-    (5, 8),
-    (19, 8),
-    (15, 3),
-    (15, 4),
-    (26, 18),
-    (21, 13),
-    (5, 14),
-    (21, 3),
-    (1, 4),
-    (22, 4),
-    (6, 14),
-    (8, 6),
-    (3, 4),
-    (3, 1),
-    (15, 16),
+    (22, 19),
     (22, 12),
-    (20, 6),
-    (6, 8),
+    (25, 1),
+    (22, 4),
+    (21, 6),
+    (14, 1),
     (23, 19),
     (18, 14),
-    (21, 19),
-    (8, 8),
-    (11, 4),
-    (24, 4),
-    (8, 3),
-    (20, 19),
-    (7, 6),
-    (7, 14),
-    (1, 1),
-    (21, 6),
-    (18, 6),
-    (17, 6),
+    (23, 6),
     (13, 4),
+    (19, 1),
+    (21, 3),
+    (0, 1),
+    (1, 4),
+    (18, 1),
+    (19, 14),
+    (22, 13),
+    (3, 3),
+    (28, 1),
+    (20, 14),
+    (23, 8),
+    (17, 8),
+    (26, 18),
+    (14, 6),
+    (11, 4),
+    (27, 4),
+    (28, 4),
+    (25, 7),
+    (5, 8),
+    (22, 8),
+    (23, 4),
+    (21, 1),
+    (11, 1),
+    (12, 1),
+    (3, 15),
+    (8, 3),
+    (21, 14),
+    (7, 6),
+    (20, 12),
+    (23, 1),
+    (3, 4),
+    (1, 15),
+    (5, 6),
+    (27, 1),
+    (8, 8),
+    (20, 6),
+    (21, 8),
+    (6, 8),
+    (6, 6),
+    (9, 15),
+    (16, 1),
+    (9, 16),
+    (13, 7),
+    (4, 1),
+    (15, 15),
+    (5, 1),
+    (20, 3),
+    (20, 13),
+    (3, 1),
+    (17, 6),
+    (10, 1),
+    (20, 10),
+    (8, 4),
+    (6, 1),
+    (26, 1),
+    (5, 14),
+    (13, 1),
+    (21, 13),
+    (8, 14),
+    (1, 16),
+    (13, 18),
+    (4, 6),
+    (20, 11),
+    (15, 1),
+    (7, 8),
+    (8, 1),
+    (24, 4),
+    (20, 4),
+    (2, 1),
+    (28, 18),
     (17, 14),
+    (1, 3),
+    (15, 16),
+    (7, 4),
+    (7, 3),
+    (21, 19),
     (22, 14),
+    (9, 3),
+    (22, 6),
+    (18, 6),
+    (9, 4),
+    (20, 1),
+    (28, 7),
+    (7, 13),
+    (20, 8),
     (8, 19),
     (8, 13),
-    (9, 15),
-    (8, 14),
-    (12, 18),
-    (21, 14),
-    (5, 6),
-    (25, 18),
+    (6, 14),
+    (19, 8),
+    (23, 14),
     (21, 4),
-    (28, 18),
-    (9, 4),
+    (19, 6),
+    (12, 18),
+    (20, 19),
+    (15, 4),
+    (7, 1),
+    (22, 3),
+    (7, 19),
+    (8, 6),
+    (23, 3),
     (9, 1),
-    (27, 7),
-    (19, 14),
-    (1, 16),
-    (0, 1),
-    (20, 13),
+    (1, 1),
+    (10, 6),
     (27, 18),
-    (13, 18),
-    (3, 3),
+    (17, 1),
+    (7, 14),
+    (23, 13),
+    (22, 1),
+    (27, 7),
+    (25, 18),
+    (15, 3),
+    (24, 1),
+    (4, 14),
   }
 });
 
@@ -350,19 +379,19 @@ impl ChiruParser {
 
   // 使用模板生成 每个非终结符的编号
   
-  pub const ANNOTATION: usize = 11; 
-  pub const REGULAR: usize = 10; 
-  pub const EPSILON: usize = 6; 
-  pub const RULES: usize = 2; 
-  pub const ELEMENT: usize = 7; 
-  pub const LEXER_RULE: usize = 9; 
-  pub const EBNF_SUFFIX: usize = 8; 
-  pub const ALTERNATIVE: usize = 5; 
-  pub const ATTRIBUTE: usize = 13; 
-  pub const ATTRIBUTES: usize = 12; 
-  pub const GRAMMAR_NAME: usize = 1; 
-  pub const PARSER_RULE: usize = 3; 
   pub const BLOCK: usize = 4; 
+  pub const ANNOTATION: usize = 11; 
+  pub const LEXER_RULE: usize = 9; 
+  pub const PARSER_RULE: usize = 3; 
+  pub const RULES: usize = 2; 
+  pub const ATTRIBUTE: usize = 13; 
+  pub const GRAMMAR_NAME: usize = 1; 
+  pub const REGULAR: usize = 10; 
+  pub const ELEMENT: usize = 7; 
+  pub const ALTERNATIVE: usize = 5; 
+  pub const EPSILON: usize = 6; 
+  pub const EBNF_SUFFIX: usize = 8; 
+  pub const ATTRIBUTES: usize = 12; 
   pub const COMPILATION_UNIT: usize = 0; 
 
 
@@ -376,6 +405,16 @@ impl ChiruParser {
 
   // 使用模板生成
   
+  pub fn block(&self, token_stream: &mut TokenStream) -> Result<Box<dyn BlockContext>, Box<dyn Error>> {
+
+    if token_stream.peek_next_token()?.token_type == 0 {
+      token_stream.consume()?;
+    }
+    
+    let result = ll1_analyze(token_stream, Self::BLOCK,
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
+    Ok(Box::new(result))
+  } 
   pub fn annotation(&self, token_stream: &mut TokenStream) -> Result<Box<dyn AnnotationContext>, Box<dyn Error>> {
 
     if token_stream.peek_next_token()?.token_type == 0 {
@@ -383,46 +422,6 @@ impl ChiruParser {
     }
     
     let result = ll1_analyze(token_stream, Self::ANNOTATION,
-      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
-    Ok(Box::new(result))
-  } 
-  pub fn regular(&self, token_stream: &mut TokenStream) -> Result<Box<dyn RegularContext>, Box<dyn Error>> {
-
-    if token_stream.peek_next_token()?.token_type == 0 {
-      token_stream.consume()?;
-    }
-    
-    let result = ll1_analyze(token_stream, Self::REGULAR,
-      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
-    Ok(Box::new(result))
-  } 
-  pub fn epsilon(&self, token_stream: &mut TokenStream) -> Result<Box<dyn EpsilonContext>, Box<dyn Error>> {
-
-    if token_stream.peek_next_token()?.token_type == 0 {
-      token_stream.consume()?;
-    }
-    
-    let result = ll1_analyze(token_stream, Self::EPSILON,
-      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
-    Ok(Box::new(result))
-  } 
-  pub fn rules(&self, token_stream: &mut TokenStream) -> Result<Box<dyn RulesContext>, Box<dyn Error>> {
-
-    if token_stream.peek_next_token()?.token_type == 0 {
-      token_stream.consume()?;
-    }
-    
-    let result = ll1_analyze(token_stream, Self::RULES,
-      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
-    Ok(Box::new(result))
-  } 
-  pub fn element(&self, token_stream: &mut TokenStream) -> Result<Box<dyn ElementContext>, Box<dyn Error>> {
-
-    if token_stream.peek_next_token()?.token_type == 0 {
-      token_stream.consume()?;
-    }
-    
-    let result = ll1_analyze(token_stream, Self::ELEMENT,
       &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
     Ok(Box::new(result))
   } 
@@ -436,23 +435,23 @@ impl ChiruParser {
       &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
     Ok(Box::new(result))
   } 
-  pub fn ebnf_suffix(&self, token_stream: &mut TokenStream) -> Result<Box<dyn EbnfSuffixContext>, Box<dyn Error>> {
+  pub fn parser_rule(&self, token_stream: &mut TokenStream) -> Result<Box<dyn ParserRuleContext>, Box<dyn Error>> {
 
     if token_stream.peek_next_token()?.token_type == 0 {
       token_stream.consume()?;
     }
     
-    let result = ll1_analyze(token_stream, Self::EBNF_SUFFIX,
+    let result = ll1_analyze(token_stream, Self::PARSER_RULE,
       &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
     Ok(Box::new(result))
   } 
-  pub fn alternative(&self, token_stream: &mut TokenStream) -> Result<Box<dyn AlternativeContext>, Box<dyn Error>> {
+  pub fn rules(&self, token_stream: &mut TokenStream) -> Result<Box<dyn RulesContext>, Box<dyn Error>> {
 
     if token_stream.peek_next_token()?.token_type == 0 {
       token_stream.consume()?;
     }
     
-    let result = ll1_analyze(token_stream, Self::ALTERNATIVE,
+    let result = ll1_analyze(token_stream, Self::RULES,
       &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
     Ok(Box::new(result))
   } 
@@ -466,16 +465,6 @@ impl ChiruParser {
       &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
     Ok(Box::new(result))
   } 
-  pub fn attributes(&self, token_stream: &mut TokenStream) -> Result<Box<dyn AttributesContext>, Box<dyn Error>> {
-
-    if token_stream.peek_next_token()?.token_type == 0 {
-      token_stream.consume()?;
-    }
-    
-    let result = ll1_analyze(token_stream, Self::ATTRIBUTES,
-      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
-    Ok(Box::new(result))
-  } 
   pub fn grammar_name(&self, token_stream: &mut TokenStream) -> Result<Box<dyn GrammarNameContext>, Box<dyn Error>> {
 
     if token_stream.peek_next_token()?.token_type == 0 {
@@ -486,23 +475,63 @@ impl ChiruParser {
       &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
     Ok(Box::new(result))
   } 
-  pub fn parser_rule(&self, token_stream: &mut TokenStream) -> Result<Box<dyn ParserRuleContext>, Box<dyn Error>> {
+  pub fn regular(&self, token_stream: &mut TokenStream) -> Result<Box<dyn RegularContext>, Box<dyn Error>> {
 
     if token_stream.peek_next_token()?.token_type == 0 {
       token_stream.consume()?;
     }
     
-    let result = ll1_analyze(token_stream, Self::PARSER_RULE,
+    let result = ll1_analyze(token_stream, Self::REGULAR,
       &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
     Ok(Box::new(result))
   } 
-  pub fn block(&self, token_stream: &mut TokenStream) -> Result<Box<dyn BlockContext>, Box<dyn Error>> {
+  pub fn element(&self, token_stream: &mut TokenStream) -> Result<Box<dyn ElementContext>, Box<dyn Error>> {
 
     if token_stream.peek_next_token()?.token_type == 0 {
       token_stream.consume()?;
     }
     
-    let result = ll1_analyze(token_stream, Self::BLOCK,
+    let result = ll1_analyze(token_stream, Self::ELEMENT,
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
+    Ok(Box::new(result))
+  } 
+  pub fn alternative(&self, token_stream: &mut TokenStream) -> Result<Box<dyn AlternativeContext>, Box<dyn Error>> {
+
+    if token_stream.peek_next_token()?.token_type == 0 {
+      token_stream.consume()?;
+    }
+    
+    let result = ll1_analyze(token_stream, Self::ALTERNATIVE,
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
+    Ok(Box::new(result))
+  } 
+  pub fn epsilon(&self, token_stream: &mut TokenStream) -> Result<Box<dyn EpsilonContext>, Box<dyn Error>> {
+
+    if token_stream.peek_next_token()?.token_type == 0 {
+      token_stream.consume()?;
+    }
+    
+    let result = ll1_analyze(token_stream, Self::EPSILON,
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
+    Ok(Box::new(result))
+  } 
+  pub fn ebnf_suffix(&self, token_stream: &mut TokenStream) -> Result<Box<dyn EbnfSuffixContext>, Box<dyn Error>> {
+
+    if token_stream.peek_next_token()?.token_type == 0 {
+      token_stream.consume()?;
+    }
+    
+    let result = ll1_analyze(token_stream, Self::EBNF_SUFFIX,
+      &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
+    Ok(Box::new(result))
+  } 
+  pub fn attributes(&self, token_stream: &mut TokenStream) -> Result<Box<dyn AttributesContext>, Box<dyn Error>> {
+
+    if token_stream.peek_next_token()?.token_type == 0 {
+      token_stream.consume()?;
+    }
+    
+    let result = ll1_analyze(token_stream, Self::ATTRIBUTES,
       &LL1_TABLE, &PRODUCTIONS,&NONTERMINALS,&SYNC, &self.error_listeners)?;
     Ok(Box::new(result))
   } 
