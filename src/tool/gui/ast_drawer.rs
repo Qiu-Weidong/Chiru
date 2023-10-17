@@ -31,7 +31,20 @@ impl ASTDrawer {
         AstContext::Terminal(ctx) => children += &format!("{{ token_name:`{}`, text: `{}`, token_type: `{}` }}", 
           ASTDrawer::escape(&ctx.symbol.token_name), ASTDrawer::escape(&ctx.symbol.text), ctx.symbol.token_type),
         AstContext::Rule(ctx) => children += &ASTDrawer::dump(ctx),
-        AstContext::Error(ctx) => children += &ctx.to_string(),
+        AstContext::Error(ctx) => {
+          use chiru::runtime::ast::error_context::ErrorSymbol::*;
+          match &ctx.symbol {
+            Redundant(token) => {
+              children += &format!("{{ token_name: `{}`, text: `{}`, token_type: `{}`, error_type: `redundant` }}", 
+                ASTDrawer::escape(&token.token_name), ASTDrawer::escape(&token.text), token.token_type
+              )
+            },
+            Mistake(token) => children += &format!("{{ token_name: `{}`, text: `{}`, token_type: `{}`, error_type: `mistake` }}", 
+              ASTDrawer::escape(&token.token_name), ASTDrawer::escape(&token.text), token.token_type
+            ),
+            Missing => children += "{ error_type: `missing` }",
+          }
+        },
       }
 
       children += ",";

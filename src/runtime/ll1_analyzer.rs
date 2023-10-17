@@ -52,7 +52,6 @@ pub fn ll1_analyze(
   
   
   for child in production.right.iter() {
-    let token = token_stream.peek_next_token()?;
 
     match child {
       ProductionItem::NonTerminal(rule_id) => {
@@ -65,10 +64,20 @@ pub fn ll1_analyze(
         }
       },
       ProductionItem::Terminal(token_type) => {
-        while *token_type != token.token_type {
+        let mut token = token_stream.peek_next_token()?;
+        while *token_type != token.token_type && token.token_type != 1 {
           result.children.push(AstContext::Error( ErrorContext::redundant(&token) ));
           token_stream.consume()?; // 是在这里报的错
+          token = token_stream.peek_next_token()?;
         }
+
+        if token.token_type == 1 {
+          result.children.push(AstContext::Error(ErrorContext::missing()));
+          break;
+        }
+
+
+
         // 匹配了
         result.children.push(AstContext::Terminal(TerminalContext { symbol: token.clone() }));
         // 消耗掉
