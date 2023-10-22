@@ -8,6 +8,7 @@ use std::collections::{HashMap, HashSet};
  * 文法由终结符、非终结符、产生式和开始符号组成
  * Vocabulay 用于管理终结符和非终结符
  */
+#[derive(Clone)]
 pub struct Vocabulary {
 
 

@@ -5,7 +5,7 @@
 
 pub mod vocabulary;
 pub mod lexer_rule;
-
+mod utils;
 
 
 // 定义一个数据结构来表示文法
@@ -23,7 +23,7 @@ use super::syntaxis::chiru_context::CompilationUnitContext;
 
 
 
-
+#[derive(Clone)]
 pub struct Grammar {
   
   // 文法的名称
@@ -35,8 +35,6 @@ pub struct Grammar {
   pub productions: HashMap<usize, Production>, 
 
   pub lexer_rule_map: HashMap<String, LexerRule>,
-
-  // 开始符号 ?
 }
 
 // 定义一个存放 first、follow 集合的数据结构, follow 集一定不会包含 epsilon

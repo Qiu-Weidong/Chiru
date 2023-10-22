@@ -2,14 +2,14 @@
 
 
 
-#[derive(PartialEq, Eq, Clone, Hash, Debug, Copy)]
+#[derive(PartialEq, Eq, Clone, Hash, Debug, Copy, PartialOrd, Ord)]
 pub enum ProductionItem {
   NonTerminal(usize),
   Terminal(usize),
 }
 
 
-#[derive(PartialEq, Eq, Clone, Hash, Debug)]
+#[derive(PartialEq, Eq, Clone, Hash, Debug, PartialOrd, Ord)]
 pub struct Production {
   pub id: usize, // 添加一个产生式的编号
   pub left: usize, 
