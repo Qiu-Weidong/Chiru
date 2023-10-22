@@ -10,11 +10,24 @@ use super::{Grammar, ActionTableElement};
 
 
 // 项目
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Copy)]
 pub struct Item<'a> {
   pub production: &'a Production,
   pub dot: usize,
   // 增加一个字段 state, 表示所属的项目集闭包的编号
+  pub state: usize,
+}
+
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Copy)]
+pub struct ItemWithLookAhead<'a> {
+  pub production: &'a Production,
+  pub dot: usize,
+  pub look_ahead: usize,
+}
+
+// 求 first(βa)
+pub fn first(beta: &[ProductionItem], a: usize) -> BTreeSet<usize> {
+  todo!()
 }
 
 // 求项目集闭包
@@ -34,7 +47,7 @@ pub fn closure<'a>(item_set: BTreeSet<Item<'a>>, productions: &'a HashMap<usize,
           for production in productions.values().filter(|production| {
             production.left == rule_id
           }) {
-            let item = Item { production, dot: 0 };
+            let item = Item { production, dot: 0, state: 0 };
             if ! result_set.contains(&item) {
               k.insert(item);
             }
@@ -54,50 +67,98 @@ pub fn closure<'a>(item_set: BTreeSet<Item<'a>>, productions: &'a HashMap<usize,
   result_set
 }
 
+#[allow(unused_doc_comments)]
+pub fn closure_with_look_ahead<'a>(item_set: BTreeSet<ItemWithLookAhead<'a>>, productions: &'a HashMap<usize, Production>) -> BTreeSet<ItemWithLookAhead<'a>> {
+  /**
+   * closure(I):
+   *   repeat
+   *     for [A->α·Bβ, a] in I
+   *       for B -> γ in G'
+   *         for b in first(βa)
+   *           I.insert([B->·γ, b])
+   *   until 不能加入更多的项
+   *   return I
+   */
+  let mut result_set = item_set.to_owned();
+  let mut j = item_set.clone();
+  loop {
+    let mut k: BTreeSet<ItemWithLookAhead> = BTreeSet::new();
+    for /*[A->α·Bβ, a] */ item in j.iter() {
+      if item.dot >= item.production.right.len() { continue; }
+      else if let ProductionItem::NonTerminal(rule_id) = item.production.right[item.dot] {
+        for /*B -> γ */ production in productions.values().filter(|production| {
+          production.left == rule_id
+        }) {
+          for b in first(&item.production.right[item.dot+1..], item.look_ahead) {
+            let item = ItemWithLookAhead { production, dot:0, look_ahead: b };
+            if ! result_set.contains(&item) {
+              k.insert(item);
+            }
+          }
+        }
+      }
+    }
+    
+    let before = result_set.len();
+    result_set.extend(k.clone());
+    if result_set.len() <= before { break; }
+    j = k;
+  }
+  result_set
+}
+
 // goto 转换函数
 pub fn goto<'a>(item_set: BTreeSet<Item<'a>>, x: ProductionItem, productions: &'a HashMap<usize, Production>) -> BTreeSet<Item<'a>> {
   let mut j: BTreeSet<Item> = BTreeSet::new();
   for item in item_set.iter() {
     if item.dot >= item.production.right.len() { continue; }
     else if x == item.production.right[item.dot] {
-      j.insert(Item { production: item.production, dot: item.dot + 1 });
+      j.insert(Item { production: item.production, dot: item.dot + 1, state: 0 });
     }
   }
   closure(j, productions)
 }
 
+// 直接求出 action 和 goto 表
+#[allow(unused_doc_comments)]
+pub fn lalr_table(grammar: &Grammar) -> (BTreeMap<(usize, usize), ActionTableElement>, BTreeMap<(usize, usize), usize>) {
+  // 用于记录命名非终结符对应的初始状态
+  let mut nonterminal_to_start_state: BTreeMap<usize, usize> = BTreeMap::new();
+  
 
-// #[allow(unused)]
-pub fn canonical_lr0_collection(grammar: &mut Grammar) -> BTreeMap<BTreeSet<Item>, usize> {
-  // 首先, 对文法做增广, 需要真正修改 grammar 只需要对所有的命名非终结符做增广
-  let mut next_production_id = grammar.productions.iter().map(|(_, production)| production.id).max().unwrap_or(0) + 1;
-  let mut next_nonterminal_id = grammar.vocabulary.nonterminals.iter().max().unwrap_or(&0) + 1;
-
-  // 增广的产生式 ()
-  let mut production_id: Vec<(usize, usize)> = Vec::new();
-
-  // 扩充了非终结符和产生式
+  // 对文法做增广, 给每个命名非终结符增加一条产生式
+  let mut /*下一个产生式的id */ next_production_id = grammar.productions.iter().map(|(_, production)| production.id).max().unwrap_or(0) + 1;
+  let mut /*下一个非终结符id */ next_nonterminal_id = grammar.vocabulary.nonterminals.iter().max().unwrap_or(&0) + 1;
+  let mut /*产生式 */ productions = grammar.productions.clone();
+  let first_augmented_production_id = next_production_id;
   for (nonterminal, _) in grammar.vocabulary.named_nonterminals.iter() {
     let p = Production::new(next_production_id, next_nonterminal_id, &vec![ProductionItem::NonTerminal(*nonterminal)]);
-    grammar.productions.insert(next_production_id, p);
-    production_id.push((next_production_id, next_nonterminal_id));
+    productions.insert(next_production_id, p);
     next_nonterminal_id += 1;
     next_production_id += 1;
   }
+  let productions = productions;/*重新绑定为不可变 */
 
 
-  // 先求所有增广产生式的闭包, 并编号, todo 还需要记录每个非终结符对应的初始项目集编号 非终结符 -> 初始项目集编号
-  let mut c: BTreeMap<BTreeSet<Item>, usize> = BTreeMap::new();
-  let mut next_closure_id = 0;
-  for (id, _) in production_id.iter() {
-    let production = grammar.productions.get(id).unwrap();
-    let item = Item { production, dot: 0 };
-    let closure = closure(btreeset! { item }, &grammar.productions);
-    c.insert(closure, next_closure_id); // 一定不会重复
+
+  // 求所有增广产生式的闭包并编号
+  let mut /*项目集闭包编号 */ next_closure_id = 0;
+  let mut /*lr0 项目集族 */ c: BTreeMap<BTreeSet<Item>, usize> = BTreeMap::new();
+  for production_id in first_augmented_production_id..next_production_id {
+    let production = productions.get(&production_id).unwrap();
+    let item = Item { production, dot: 0, state: 0 };
+    let closure = closure(btreeset! { item }, &productions);
+    c.insert(closure, next_closure_id);
+    if let ProductionItem::NonTerminal(nonterminal_id) = production.right[0] {
+      nonterminal_to_start_state.insert(nonterminal_id, next_closure_id);
+    }
     next_closure_id += 1;
   }
+  let nonterminal_to_start_state = nonterminal_to_start_state; /*重新绑定为不可变 */
 
-  // 构造所有的文法符号
+
+
+  // 构造文法符号集合
   let mut symbols: Vec<ProductionItem> = Vec::new();
   for (terminal, _) in grammar.vocabulary.terminals.iter() {
     symbols.push(ProductionItem::Terminal(*terminal));
@@ -105,18 +166,21 @@ pub fn canonical_lr0_collection(grammar: &mut Grammar) -> BTreeMap<BTreeSet<Item
   for nonterminal in grammar.vocabulary.nonterminals.iter() {
     symbols.push(ProductionItem::NonTerminal(*nonterminal));
   }
+  let symbols = symbols;
 
-  // 构造 lr0 项目集族, 以及goto函数
+
+  // 构造 lr0 项目集族, 以及 goto 表
+  let mut goto_table: BTreeMap<(usize, ProductionItem), usize> = BTreeMap::new();
   let mut j = c.clone();
   loop {
     let mut k: BTreeMap<BTreeSet<Item>, usize> = BTreeMap::new();
-    for (closure, _id) in j.iter() {
+    for (closure, id) in j.iter() {
       for x in symbols.iter() {
-        let n = goto(closure.clone(), *x, &grammar.productions);
+        let n = goto(closure.clone(), *x, &productions);
         if n.len() > 0 && ! c.contains_key(&n) {
           k.insert(n, next_closure_id);
           // 这里可以顺便把 goto 表也完成了
-          // (id, x) -> next_closure_id 
+          goto_table.insert((*id, *x), next_closure_id);
           next_closure_id += 1;
         }
       }
@@ -127,25 +191,81 @@ pub fn canonical_lr0_collection(grammar: &mut Grammar) -> BTreeMap<BTreeSet<Item
     if c.len() <= before { break; }  
     j = k;
   }
+  let c = c;
+  let goto_table = goto_table;
 
+  // 所有状态的集合
+  let state_set = c.values().collect::<BTreeSet<_>>();
 
-  c
+  // 初始化扩散关系映射和展望符映射
+  let mut look_ahead_map: BTreeMap<Item, BTreeSet<usize>> = BTreeMap::new();
+  let mut dissemination_map: BTreeMap<Item, BTreeSet<Item>> = BTreeMap::new();
+  for (closure, state) in c.iter() {
+    for item in closure.iter() {
+      // todo 裁剪掉非内核项
+      let item = Item { dot: item.dot, production: item.production, state: *state };
+      look_ahead_map.insert(item, BTreeSet::new());
+      dissemination_map.insert(item, BTreeSet::new());
+    }
+  }
+  let items = look_ahead_map.keys().cloned().collect::<Vec<_>>();
+  /**
+   * for [state, A -> α·β] in 所有的内核项
+   *   J := closure({ [A -> α·β, #] })
+   *   for [B -> γ·Xδ, a] in J
+   *     if a != #
+   *       look_ahead_map[goto(state, X), B->γX·δ].insert(a)
+   *     else
+   *       dissemination_map[state, A -> α·β].insert([goto(state, X), B->γX·δ])
+   */
+  let sharp = grammar.vocabulary.terminals.keys().cloned().max().unwrap_or(0);
+  for item in items {
+    let j = closure_with_look_ahead(
+      btreeset! { ItemWithLookAhead { production: item.production, dot: item.dot, look_ahead: sharp } }, &productions
+    );
+    for /*[B -> γ·Xδ, a] */ item2 in j {
+      if item2.dot >= item2.production.right.len() { continue; }
+      let y = goto_table.get(&(item.state, item2.production.right[item2.dot])).unwrap();
+      if sharp != item2.look_ahead {
+        look_ahead_map.get_mut(&Item { production: item2.production, dot: item2.dot + 1, state: *y })
+          .unwrap().insert(item2.look_ahead);
+      }
+      else {
+        dissemination_map.get_mut(&item)
+          .unwrap().insert(Item { production: item2.production, dot: item2.dot + 1, state: *y });
+      }
+    }
+  }
 
-}
+  let dissemination_map = dissemination_map;
+  
+  // 将 $ 添加到初始状态中
+  dissemination_map.keys().filter(| item | { item.dot == 0 }).for_each(|item| {
+    look_ahead_map.get_mut(item).unwrap().insert(0);
+  });
 
+  let mut modified = false;
+  loop {
+    // 不断向前传播即可
+    for (k, v) in dissemination_map.iter() {
+      let look_ahead = look_ahead_map.get(k).unwrap().clone();
+      for item in v.iter() {
+        let t = look_ahead_map.get_mut(item).unwrap();
+        let before = t.len();
+        t.extend(&look_ahead);
+        if t.len() > before { modified = true }
+      }
+    }
 
-// 直接求出 action 和 goto 表
-pub fn lalr_table(grammar: &Grammar) -> (BTreeMap<(usize, usize), ActionTableElement>, BTreeMap<(usize, usize), usize>) {
-  // 对文法做增广, 给每个命名非终结符增加一条产生式
-  // augmented 增广的产生式
+    if ! modified { break }
+  }
 
-  // 将增广的产生式和原本的产生式合并
-  // 对增广的产生式求闭包, 并编号, 记录下每个命名非终结符对应的闭包id, 相当于是完成了 lr0 项目集族的初始化
+  let look_ahead_map = look_ahead_map;
+  drop(dissemination_map);
 
-  // 构造文法符号集合
-  // 构造 lr0 项目集族, 以及 goto 表
+  // 最后, 构造 action 和 goto 表
 
-
+  
   todo!()
 }
 
