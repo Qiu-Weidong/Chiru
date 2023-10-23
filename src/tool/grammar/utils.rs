@@ -3,11 +3,13 @@
 use std::{collections::{BTreeSet, HashMap, BTreeMap}, vec};
 use chiru::runtime::production::{Production, ProductionItem};
 use maplit::btreeset;
-
 use super::{Grammar, ActionTableElement};
 
 
-
+pub struct Collection {
+  pub allow_epsilon: bool,
+  pub set: BTreeSet<usize>,
+}
 
 // 项目
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Copy)]
@@ -26,9 +28,111 @@ pub struct ItemWithLookAhead<'a> {
 }
 
 // 求 first(βa)
-pub fn first(beta: &[ProductionItem], a: usize) -> BTreeSet<usize> {
-  todo!()
+pub fn first(beta: &[ProductionItem], a: usize, first_set_of_nonterminals: &BTreeMap<usize, Collection>) -> BTreeSet<usize> {
+  let mut result: Collection = Collection { allow_epsilon: true, set: BTreeSet::new(), };
+  for item in beta.iter() {
+    match item {
+      ProductionItem::NonTerminal(rule_id) => {
+        let c = first_set_of_nonterminals.get(rule_id).unwrap();
+        for item in c.set.iter() { result.set.insert(*item) ; }
+        if !c.allow_epsilon {
+          result.allow_epsilon = false;
+          break;
+        }
+      },
+      ProductionItem::Terminal(token_type) => {
+        result.allow_epsilon = false;
+        result.set.insert(*token_type);
+        break;
+      },
+    }
+  }
+
+  if result.allow_epsilon { result.set.insert(a); }
+
+  result.set
 }
+
+pub fn get_first_set_for_non_epsilon_rule(production: &Production, result: &mut Collection, first_set: &BTreeMap<usize, Collection>) -> bool {
+  
+  let mut modified = false; // 标识 result 是否被修改
+
+  // 首先判断是否可以为 epsilon 
+  let mut allow_epsilon = true;
+  for item in production.right.iter() {
+    match item {
+      ProductionItem::NonTerminal(id) => {
+        let set = first_set.get(id).unwrap();
+        if !set.allow_epsilon {
+          allow_epsilon = false;
+          break;
+        }
+      },
+      ProductionItem::Terminal(_) => {
+        allow_epsilon = false;
+        break;
+      },
+    }
+  }
+
+  if result.allow_epsilon != allow_epsilon {
+    modified = true; // 标记为已经修改
+    result.allow_epsilon = allow_epsilon;
+  }
+
+  for item in production.right.iter() {
+    match item {
+      ProductionItem::NonTerminal(rule_id) => {
+        let c = first_set.get(rule_id).unwrap();
+        for item in c.set.iter() { modified = result.set.insert(*item) || modified; }
+
+        if ! c.allow_epsilon {
+          break;
+        }
+      },
+      ProductionItem::Terminal(token_type) => {
+        modified = result.set.insert(*token_type) || modified;
+        
+        // 遇到终结符就退出
+        break;
+      },
+    }
+  }
+
+
+  modified
+}
+
+pub fn first_set_for_nonterminal_and_production(grammar: &Grammar) -> (BTreeMap<usize, Collection>, BTreeMap<usize, Collection>) {
+  let mut /*非终结符的first集合 */ result:BTreeMap<usize, Collection> = BTreeMap::new();
+  for nonterminal in grammar.vocabulary.get_all_nonterminals().iter() {
+    result.insert(*nonterminal, Collection { allow_epsilon: false, set: BTreeSet::new() });
+  }
+  let mut modified = true;
+  let mut /*产生式的first集合 */ cache: BTreeMap<usize, Collection> = BTreeMap::new();
+  
+  for production in grammar.productions.values() {
+    cache.insert(production.id, Collection { allow_epsilon: false, set: BTreeSet::new() });
+  }
+  
+  while modified {
+    modified = false;
+    for production in grammar.productions.values() {
+      let t = cache.get_mut(&production.id).unwrap();
+      modified = get_first_set_for_non_epsilon_rule(production, t, &result);
+      
+      let r = result.get_mut(&production.left).unwrap();
+      if t.allow_epsilon && ! r.allow_epsilon {
+        r.allow_epsilon = t.allow_epsilon;
+        modified = true;
+      }
+
+      for item in t.set.iter() { modified = r.set.insert(*item) || modified }
+    }
+  }
+  (result, cache)
+}
+
 
 // 求项目集闭包
 pub fn closure<'a>(item_set: BTreeSet<Item<'a>>, productions: &'a HashMap<usize, Production>) -> BTreeSet<Item<'a>> {
@@ -68,7 +172,7 @@ pub fn closure<'a>(item_set: BTreeSet<Item<'a>>, productions: &'a HashMap<usize,
 }
 
 #[allow(unused_doc_comments)]
-pub fn closure_with_look_ahead<'a>(item_set: BTreeSet<ItemWithLookAhead<'a>>, productions: &'a HashMap<usize, Production>) -> BTreeSet<ItemWithLookAhead<'a>> {
+pub fn closure_with_look_ahead<'a>(item_set: BTreeSet<ItemWithLookAhead<'a>>, productions: &'a HashMap<usize, Production>, first_set_of_nonterminals: &BTreeMap<usize, Collection>) -> BTreeSet<ItemWithLookAhead<'a>> {
   /**
    * closure(I):
    *   repeat
@@ -89,7 +193,7 @@ pub fn closure_with_look_ahead<'a>(item_set: BTreeSet<ItemWithLookAhead<'a>>, pr
         for /*B -> γ */ production in productions.values().filter(|production| {
           production.left == rule_id
         }) {
-          for b in first(&item.production.right[item.dot+1..], item.look_ahead) {
+          for b in first(&item.production.right[item.dot+1..], item.look_ahead, first_set_of_nonterminals) {
             let item = ItemWithLookAhead { production, dot:0, look_ahead: b };
             if ! result_set.contains(&item) {
               k.insert(item);
@@ -207,6 +311,9 @@ pub fn lalr_table(grammar: &Grammar) -> (BTreeMap<(usize, usize), ActionTableEle
   drop(symbols);
   
   let items = look_ahead_map.keys().cloned().collect::<Vec<_>>();
+  // 求所有非终结符的 first 集合
+  let (first_set, _) = first_set_for_nonterminal_and_production(grammar);
+
   /**
    * for [state, A -> α·β] in 所有的内核项
    *   J := closure({ [A -> α·β, #] })
@@ -219,7 +326,7 @@ pub fn lalr_table(grammar: &Grammar) -> (BTreeMap<(usize, usize), ActionTableEle
   let sharp = grammar.vocabulary.terminals.keys().cloned().max().unwrap_or(0) + 114514;
   for item in items {
     let j = closure_with_look_ahead(
-      btreeset! { ItemWithLookAhead { production: item.production, dot: item.dot, look_ahead: sharp } }, &productions
+      btreeset! { ItemWithLookAhead { production: item.production, dot: item.dot, look_ahead: sharp } }, &productions, &first_set
     );
     for /*[B -> γ·Xδ, a] */ item2 in j {
       if item2.dot >= item2.production.right.len() { continue; }
@@ -234,6 +341,7 @@ pub fn lalr_table(grammar: &Grammar) -> (BTreeMap<(usize, usize), ActionTableEle
       }
     }
   }
+  drop(first_set);
 
   let dissemination_map = dissemination_map;
   

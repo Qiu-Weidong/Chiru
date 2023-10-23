@@ -5,7 +5,7 @@
 
 pub mod vocabulary;
 pub mod lexer_rule;
-mod utils;
+pub mod utils;
 
 
 // 定义一个数据结构来表示文法
@@ -91,9 +91,9 @@ impl Grammar {
 
 
 
-  // 根据非终结符的first集合求一个串的first集合
+  // 根据非终结符的first集合求一个串的first集合, 传入参数为非终结符的first集合
   fn get_first_for_string(slice: &[ProductionItem], first_set: &HashMap<usize, Collection>) -> Collection {
-    let mut result = Collection { allow_epsilon: true, set: HashSet::new(), };
+    let mut result: Collection = Collection { allow_epsilon: true, set: HashSet::new(), };
     for item in slice.iter() {
       match item {
         ProductionItem::NonTerminal(rule_id) => {

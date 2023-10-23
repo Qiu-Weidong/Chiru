@@ -2,7 +2,7 @@ use std::{collections::{HashMap, HashSet}, error::Error};
 
 use chiru::runtime::{error_strategy::error_listener::{ErrorListener, ConsoleErrorListener}, lexer_rule::LexerRule, lexer::{Lexer, TokenIter}, production::Production, token_stream::TokenStream, ast::rule_context::RuleContext, ll1_analyzer::ll1_analyze};
 
-use super::grammar::Grammar;
+use super::grammar::{Grammar, utils::lalr_table};
 
 
 
@@ -88,7 +88,9 @@ impl CommonParser {
 
     let nonterminals = grammar.vocabulary.named_nonterminals.clone();
 
-
+    // 生成 action 和 goto 表格, 有了这两个表格, 就可以进行 lalr 分析了
+    let (action, goto, _) = lalr_table(grammar);
+    println!("{:?}, {:?}",  action, goto);
     Self {
       table, productions, sync, nonterminals, error_listeners: vec![Box::new(ConsoleErrorListener::new())],
     }
