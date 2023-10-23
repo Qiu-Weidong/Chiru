@@ -121,7 +121,7 @@ pub fn goto<'a>(item_set: BTreeSet<Item<'a>>, x: ProductionItem, productions: &'
 
 // 直接求出 action 和 goto 表
 #[allow(unused_doc_comments)]
-pub fn lalr_table(grammar: &Grammar) -> (BTreeMap<(usize, usize), ActionTableElement>, BTreeMap<(usize, usize), usize>) {
+pub fn lalr_table(grammar: &Grammar) -> (BTreeMap<(usize, usize), ActionTableElement>, BTreeMap<(usize, usize), usize>, BTreeMap<usize, usize>) {
   // 用于记录命名非终结符对应的初始状态
   let mut nonterminal_to_start_state: BTreeMap<usize, usize> = BTreeMap::new();
   
@@ -154,9 +154,7 @@ pub fn lalr_table(grammar: &Grammar) -> (BTreeMap<(usize, usize), ActionTableEle
     }
     next_closure_id += 1;
   }
-  let nonterminal_to_start_state = nonterminal_to_start_state; /*重新绑定为不可变 */
-
-
+  let nonterminal_to_start_state: BTreeMap<usize, usize> = nonterminal_to_start_state; /*重新绑定为不可变 */
 
   // 构造文法符号集合
   let mut symbols: Vec<ProductionItem> = Vec::new();
@@ -191,23 +189,23 @@ pub fn lalr_table(grammar: &Grammar) -> (BTreeMap<(usize, usize), ActionTableEle
     if c.len() <= before { break; }  
     j = k;
   }
-  let c = c;
-  let goto_table = goto_table;
-
-  // 所有状态的集合
-  let state_set = c.values().collect::<BTreeSet<_>>();
+  drop(j);
+  let c: BTreeMap<BTreeSet<Item<'_>>, usize> = c;
+  let goto_table: BTreeMap<(usize, ProductionItem), usize> = goto_table;
 
   // 初始化扩散关系映射和展望符映射
   let mut look_ahead_map: BTreeMap<Item, BTreeSet<usize>> = BTreeMap::new();
   let mut dissemination_map: BTreeMap<Item, BTreeSet<Item>> = BTreeMap::new();
   for (closure, state) in c.iter() {
-    for item in closure.iter() {
-      // todo 裁剪掉非内核项
+    for item in closure.iter().filter(| item | item.dot != 0 || item.dot == 0 && first_augmented_production_id <= item.production.id && next_production_id > item.production.id ) {
       let item = Item { dot: item.dot, production: item.production, state: *state };
       look_ahead_map.insert(item, BTreeSet::new());
       dissemination_map.insert(item, BTreeSet::new());
     }
   }
+  drop(c);
+  drop(symbols);
+  
   let items = look_ahead_map.keys().cloned().collect::<Vec<_>>();
   /**
    * for [state, A -> α·β] in 所有的内核项
@@ -218,7 +216,7 @@ pub fn lalr_table(grammar: &Grammar) -> (BTreeMap<(usize, usize), ActionTableEle
    *     else
    *       dissemination_map[state, A -> α·β].insert([goto(state, X), B->γX·δ])
    */
-  let sharp = grammar.vocabulary.terminals.keys().cloned().max().unwrap_or(0);
+  let sharp = grammar.vocabulary.terminals.keys().cloned().max().unwrap_or(0) + 114514;
   for item in items {
     let j = closure_with_look_ahead(
       btreeset! { ItemWithLookAhead { production: item.production, dot: item.dot, look_ahead: sharp } }, &productions
@@ -264,8 +262,32 @@ pub fn lalr_table(grammar: &Grammar) -> (BTreeMap<(usize, usize), ActionTableEle
   drop(dissemination_map);
 
   // 最后, 构造 action 和 goto 表
+  let mut action: BTreeMap<(usize, usize), ActionTableElement> = BTreeMap::new(); 
+  let mut goto_table2: BTreeMap<(usize, usize), usize> = BTreeMap::new();
+  for item in look_ahead_map.keys() {
+    if item.dot >= item.production.right.len() {
+      // 是归约项目
+      for look_ahead in look_ahead_map.get(item).unwrap() {
+        action.insert((item.state, *look_ahead), ActionTableElement::Reduce(item.production.id));
+      }
+    }
+    else {
+      let d = goto_table.get(&(item.state, item.production.right[item.dot])).unwrap();
+      match item.production.right[item.dot] {
+        ProductionItem::NonTerminal(rule_id) => {
+          goto_table2.insert((item.state, rule_id), *d);
+        },
+        ProductionItem::Terminal(terminal_id) => {
+          action.insert((item.state, terminal_id), ActionTableElement::Shift(*d));
+        },
+      }
+    }
+  }
+  drop(look_ahead_map);
 
+  let action = action;
+  let goto_table = goto_table2;
   
-  todo!()
+  (action, goto_table, nonterminal_to_start_state)
 }
 
