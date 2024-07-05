@@ -5,10 +5,8 @@ use crate::tool::{grammar::Grammar, syntaxis::chiru_context::CompilationUnitCont
 
 
 
-
 #[derive(serde::Serialize, Clone)]
 pub struct NameCase {
-  
   // 全大写, 用下划线连接
   pub screaming_snake_case: String,
 
@@ -417,6 +415,27 @@ impl<'a> ParserGenData<'a> {
       package_name, grammar_name,
       rule_names, table: table.clone(), sync_list: sync_list.clone(),terminal_names,
       grammar, ast,
+    }
+  }
+}
+
+pub struct VocabularyGenData {
+  pub rule_names: Vec<NameCaseWithId>,
+  pub terminal_names: Vec<NameCaseWithId>,
+  pub unnamed_nonterminal_ids: Vec<usize>
+}
+
+impl<'a> VocabularyGenData {
+  pub fn new(grammar: &'a Grammar) -> Self {
+    let terminal_names: Vec<_> = grammar.vocabulary.terminals.iter().map(|(id, name)| NameCaseWithId::new(name, *id)).collect();
+    let rule_names: Vec<NameCaseWithId> = grammar.vocabulary.named_nonterminals.iter().map(|(k, v)| {
+      NameCaseWithId::new(v, *k)
+    }).collect::<Vec<_>>();
+
+    let unnamed_nonterminal_ids = grammar.vocabulary.get_all_nonterminals();
+    
+    Self {
+      terminal_names, rule_names, unnamed_nonterminal_ids
     }
   }
 }

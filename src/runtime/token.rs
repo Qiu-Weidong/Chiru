@@ -8,8 +8,6 @@ pub struct Token {
   pub token_type: usize, 
   pub token_name: String,
 
-
-  
   // token 所在的位置
   pub location: Location,
   

@@ -16,6 +16,7 @@ use chiru::maplit::hashmap;
 use chiru::maplit::hashset;
 use chiru::once_cell::sync::Lazy;
 
+use chiru::runtime::vocabulary::Vocabulary;
 use chiru::runtime::{
   token_stream::TokenStream, 
   error_strategy::error_listener::ConsoleErrorListener,
@@ -191,6 +192,7 @@ static PRODUCTIONS: Lazy<HashMap<usize, Production>>  = Lazy::new(|| {
   }
 }); 
 
+// 删掉终结符和非终结符这两个全局静态变量，改用 Vocabulary 管理
 // 非终结符
 pub static NONTERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
   hashmap! {
@@ -212,36 +214,63 @@ pub static NONTERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
   }
 });
 
-// 终结符
-pub static TERMINALS: Lazy<HashMap<usize, String>> = Lazy::new(|| {
-  hashmap! {
-    
-    10 => String::from("STAR"),
-    13 => String::from("LPAREN"),
-    6 => String::from("SEMI"),
-    0 => String::from("_START"),
-    5 => String::from("COLON"),
-    7 => String::from("COMMA"),
-    9 => String::from("EPSILON"),
-    20 => String::from("REGULAR_LITERAL"),
-    2 => String::from("GRAMMAR"),
-    15 => String::from("AT"),
-    18 => String::from("RBRACKET"),
-    4 => String::from("TOKEN_REF"),
-    22 => String::from("LINE_COMMENT"),
-    21 => String::from("WHITE_SPACE"),
-    1 => String::from("_STOP"),
-    17 => String::from("LBRACKET"),
-    23 => String::from("BLOCK_COMMENT"),
-    3 => String::from("RULE_REF"),
-    14 => String::from("RPAREN"),
-    19 => String::from("STRING_LITERAL"),
-    11 => String::from("PLUS"),
-    8 => String::from("OR"),
-    12 => String::from("QUESTION"),
-    16 => String::from("SHARP"),
-  }
+
+
+
+pub static VOCABULARY: Lazy<Vocabulary> = Lazy::new(|| {
+  let mut result = Vocabulary::new();
+
+  // 添加匿名非终结符
+  result.add_unnamed_nonterminals(&vec![7, 17, 13, 4, 5, 6, 10, 1, 3, 16, 18, 11, 9, 15, 0, 8, 27, 21, 19, 26, 28, 24, 23, 22, 14, 20, 12, 2, 25]);
+
+  // 添加命名非终结符
+  result.add_named_nonterminal(4, "block");
+  result.add_named_nonterminal(13, "attribute");
+  result.add_named_nonterminal(9, "lexer_rule");
+  result.add_named_nonterminal(0, "compilation_unit");
+  result.add_named_nonterminal(11, "annotation");
+  result.add_named_nonterminal(7, "element");
+  result.add_named_nonterminal(1, "grammar_name");
+  result.add_named_nonterminal(5, "alternative");
+  result.add_named_nonterminal(12, "attributes");
+  result.add_named_nonterminal(2, "rules");
+  result.add_named_nonterminal(10, "regular");
+  result.add_named_nonterminal(3, "parser_rule");
+  result.add_named_nonterminal(6, "epsilon");
+  result.add_named_nonterminal(8, "ebnf_suffix");
+
+  // 添加终结符
+  
+  result.add_terminal(10 ,"STAR");
+  result.add_terminal(13 ,"LPAREN");
+  result.add_terminal(6 ,"SEMI");
+  result.add_terminal(0 ,"_START");
+  result.add_terminal(5 ,"COLON");
+  result.add_terminal(7 ,"COMMA");
+  result.add_terminal(9 ,"EPSILON");
+  result.add_terminal(20 ,"REGULAR_LITERAL");
+  result.add_terminal(2 ,"GRAMMAR");
+  result.add_terminal(15 ,"AT");
+  result.add_terminal(18 ,"RBRACKET");
+  result.add_terminal(4 ,"TOKEN_REF");
+  result.add_terminal(22 ,"LINE_COMMENT");
+  result.add_terminal(21 ,"WHITE_SPACE");
+  result.add_terminal(1 ,"_STOP");
+  result.add_terminal(17 ,"LBRACKET");
+  result.add_terminal(23 ,"BLOCK_COMMENT");
+  result.add_terminal(3 ,"RULE_REF");
+  result.add_terminal(14 ,"RPAREN");
+  result.add_terminal(19 ,"STRING_LITERAL");
+  result.add_terminal(11 ,"PLUS");
+  result.add_terminal(16 ,"SHARP");
+  result.add_terminal(8 ,"OR");
+  result.add_terminal(12 ,"QUESTION");
+
+
+  result
 });
+
+
 
 pub static SYNC: Lazy<HashSet<(usize, usize)>> = Lazy::new(|| {
   hashset! {

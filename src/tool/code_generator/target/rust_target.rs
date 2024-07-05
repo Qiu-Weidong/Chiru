@@ -4,7 +4,7 @@ use std::{error::Error, path::Path, fs::File, io::Write};
 use chiru::runtime::production::{Production, ProductionItem};
 use tera::{Tera, Context};
 
-use crate::tool::code_generator::{name_case::{VisitorOrListenerGenData, WalkerGenData, ContextGenData, ParserGenData, LexerGenData, WriteFileData}, language::Language};
+use crate::tool::code_generator::{language::Language, name_case::{ContextGenData, LexerGenData, ParserGenData, VisitorOrListenerGenData, VocabularyGenData, WalkerGenData, WriteFileData}};
 use super::Target;
 
 
@@ -25,6 +25,7 @@ impl RustTarget {
     template.add_raw_template("visitor", include_str!("../../templates/target/rust/visitor.tera")).unwrap();
     template.add_raw_template("walker", include_str!("../../templates/target/rust/walker.tera")).unwrap();
     template.add_raw_template("header", include_str!("../../templates/target/rust/header.tera")).unwrap();
+    template.add_raw_template("vocabulary", include_str!("../../templates/target/rust/vocabulary.tera")).unwrap();
     template.autoescape_on(vec![]);
 
     let template = template;
@@ -169,6 +170,16 @@ impl Target for RustTarget {
     context.insert("lexer_rule_list", &data.lexer_rule_list);
 
     let result = self.template.render("lexer", &context)?;
+    Ok(result)
+  }
+
+  fn generate_vocabulary(&self, data: &VocabularyGenData) -> Result<String, Box<dyn Error>> {
+    let mut context = Context::new();
+    context.insert("terminal_names", &data.terminal_names);
+    context.insert("rule_names", &data.rule_names);
+    context.insert("unnamed_nonterminals", &data.unnamed_nonterminal_ids);
+
+    let result = self.template.render("vocabulary", &context)?;
     Ok(result)
   }
 

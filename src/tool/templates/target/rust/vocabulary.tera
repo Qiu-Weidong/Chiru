@@ -1,0 +1,42 @@
+use chiru::once_cell::sync::Lazy;
+
+
+
+pub static VOCABULARY: Lazy<ChiruVocabulary> = Lazy::new(|| {
+  let mut result = ChiruVocabulary { 
+    terminals: BTreeSet::new(), 
+    nonterminals: BTreeSet::new(), 
+    nonterminal_name_map: BTreeMap::new(), 
+    nonterminal_id_map: BTreeMap::new(), 
+    terminal_name_map: BTreeMap::new(), 
+    terminal_id_map: BTreeMap::new(),
+  };
+
+  // 添加命名非终结符
+  result.add_named_nonterminal(4, "block");
+  result.add_named_nonterminal(13, "attribute");
+  result.add_named_nonterminal(9, "lexer_rule");
+  result.add_named_nonterminal(0, "compilation_unit");
+  result.add_named_nonterminal(11, "anotation");
+  result.add_named_nonterminal(7, "element");
+  result.add_named_nonterminal(1, "grammar_name");
+  result.add_named_nonterminal(5, "alternative");
+  result.add_named_nonterminal(12, "attributes");
+  result.add_named_nonterminal(2, "rules");
+  result.add_named_nonterminal(10, "regular");
+  result.add_named_nonterminal(3, "parser_rule");
+  result.add_named_nonterminal(6, "epsilon");
+  result.add_named_nonterminal(8, "ebnf_suffix");
+
+  // 添加匿名非终结符
+  // result.add_unnamed_nonterminal(14);
+  // result.add_unnamed_nonterminals(&[0;14]);
+
+  // 添加终结符
+  result.add_terminal(1, "_STOP");
+  // ...
+
+
+  result
+});
+

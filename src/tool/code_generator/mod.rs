@@ -7,7 +7,6 @@ pub mod name_case;
 
 use std::{path::Path, error::Error, collections::HashSet};
 
-
 use crate::tool::{grammar::Grammar, syntaxis::chiru_context::CompilationUnitContext};
 
 
@@ -84,9 +83,19 @@ impl<'a> CodeGenerator<'a> {
   pub fn toggle_walker_generation(&mut self, flag: bool) { self.walker = flag; }
 
 
+  // 先生成一个 Vocabulary
+  // let x = self.generate_vocabulary();
+
 
   // 直接写文件即可
   pub fn generate(&self) -> Result<(), Box<dyn Error>> {
+    // let vocabulary = self.target.generate_vocabulary(&VocabularyGenData::new(&self.grammar))?;
+    // println!("{}", vocabulary);
+
+    println!("{:?}", self.grammar.vocabulary.nonterminals);
+
+
+    
     let grammar_file_name = match self.input_file.as_os_str().to_str() {
       Some(name) => name,
       None => "<unknown>",

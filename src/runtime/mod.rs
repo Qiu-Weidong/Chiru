@@ -4,6 +4,7 @@ pub mod token_stream;
 pub mod error;
 pub mod position;
 pub mod location;
+pub mod vocabulary;
 
 
 pub mod error_strategy;

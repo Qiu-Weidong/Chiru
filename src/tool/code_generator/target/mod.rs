@@ -5,7 +5,7 @@ pub mod rust_target;
 
 use std::error::Error;
 
-use super::{name_case::{VisitorOrListenerGenData, WalkerGenData, ContextGenData, ParserGenData, LexerGenData, WriteFileData}, language::Language};
+use super::{language::Language, name_case::{ContextGenData, LexerGenData, ParserGenData, VisitorOrListenerGenData, VocabularyGenData, WalkerGenData, WriteFileData}};
 
 
 
@@ -28,6 +28,7 @@ pub trait Target {
 
   fn generate_lexer(&self, data: &LexerGenData) -> Result<String, Box<dyn Error>>;
 
+  fn generate_vocabulary(&self, data: &VocabularyGenData) -> Result<String, Box<dyn Error>>;
 
   fn write_file(&self, data: &WriteFileData)  ;
 

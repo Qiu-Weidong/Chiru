@@ -4,6 +4,11 @@
 use std::collections::{HashMap, HashSet};
 
 
+
+// 终结符一定有名字, 但是这里采用字符串的引用而非持有所有权的字符串
+
+
+
 /**
  * 文法由终结符、非终结符、产生式和开始符号组成
  * Vocabulay 用于管理终结符和非终结符
@@ -17,12 +22,6 @@ pub struct Vocabulary {
 
   // 根据终结符的名称来查询其id
   terminal_name_to_id: HashMap<String, usize>,
-
-
-
-
-
-
 
   // 所有命名非终结符
   pub named_nonterminals: HashMap<usize, String>,
@@ -46,9 +45,6 @@ impl Vocabulary {
   pub fn get_terminal_name_by_id(&self, id: usize) -> Option<String> {
     self.terminals.get(&id).cloned()
   }
-
-
-
 
   pub fn get_nonterminal_id_by_name(&self, name: &str) -> Option<usize> {
     self.non_terminal_name_to_id.get(name).cloned()

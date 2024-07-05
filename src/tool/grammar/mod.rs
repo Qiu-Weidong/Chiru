@@ -29,6 +29,7 @@ pub struct Grammar {
   // 文法的名称
   pub name: String,
   
+  // 终结符和非终结符
   pub vocabulary: Vocabulary,
   
   // 所有产生式
