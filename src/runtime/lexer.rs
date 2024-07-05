@@ -15,32 +15,32 @@ use super::token::Token;
 
 
 // lexer 都不识别 start 和 stop，所有 start 和 stop 都交给 tokenstream 来添加
-pub trait Lexer {
-  fn iter(&self) -> TokenIter ;
+// pub trait Lexer {
+//   fn iter(&self) -> TokenIter ;
 
 
-  fn get_all_on_channel_tokens(&self, channel: usize) -> Vec<Token> {
-    self.iter().filter(|token| token.channel == channel).collect::<Vec<_>>()
-  }
+//   fn get_all_on_channel_tokens(&self, channel: usize) -> Vec<Token> {
+//     self.iter().filter(|token| token.channel == channel).collect::<Vec<_>>()
+//   }
 
-  fn get_all_tokens(&self) -> Vec<Token> {
-    self.iter().collect::<Vec<_>>()
-  }
+//   fn get_all_tokens(&self) -> Vec<Token> {
+//     self.iter().collect::<Vec<_>>()
+//   }
 
-  fn scan_all_tokens_and_group_by_channel(&mut self) -> HashMap<usize, Vec<Token>> {
-    let mut ret: HashMap<usize, Vec<Token>> = HashMap::new();
-    for token in self.iter() {
-      if ret.contains_key(&token.channel) {
-        ret.get_mut(&token.channel).unwrap().push(token);
-      } else {
-        ret.insert(token.channel, vec![token]);
-      }
-    }
-    ret
-  }
+//   fn scan_all_tokens_and_group_by_channel(&mut self) -> HashMap<usize, Vec<Token>> {
+//     let mut ret: HashMap<usize, Vec<Token>> = HashMap::new();
+//     for token in self.iter() {
+//       if ret.contains_key(&token.channel) {
+//         ret.get_mut(&token.channel).unwrap().push(token);
+//       } else {
+//         ret.insert(token.channel, vec![token]);
+//       }
+//     }
+//     ret
+//   }
 
 
-}
+// }
 
 
 // 这里不管 start 和 stop，需要 Token_Stream 自己处理
@@ -185,14 +185,14 @@ impl<'a> TokenIter<'a> {
 }
 
 
-impl Iterator for TokenIter<'_> {
-  type Item = Token;
+// impl<'a> Iterator for TokenIter<'a> {
+//   type Item = Token<'a>;
 
-  fn next(&mut self) -> Option<Self::Item> {
-    match self.lexer_match() {
-      Ok(token) => Some(token), 
-      Err(_) => None,
-    }
-  }
-}
+//   fn next(&mut self) -> Option<Self::Item> {
+//     match self.lexer_match() {
+//       Ok(token) => Some(token), 
+//       Err(_) => None,
+//     }
+//   }
+// }
 

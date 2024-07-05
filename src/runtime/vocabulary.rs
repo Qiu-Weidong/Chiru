@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use once_cell::sync::Lazy;
+use serde::Serialize;
 
 
 
@@ -16,7 +17,7 @@ impl<'a> Terminal<'a> {
   }
 }
 
-#[derive(Clone, PartialEq, PartialOrd, Eq, Ord, Debug, Hash, Copy)]
+#[derive(Clone, PartialEq, PartialOrd, Eq, Ord, Debug, Hash, Copy, Serialize)]
 pub struct NonTerminal<'a> {
   pub name: Option<&'a str>,
   pub id: usize,

@@ -1,35 +1,34 @@
 use std::fmt::Display;
 
 
-use crate::runtime::token::Token;
+use crate::runtime::{token::Token, vocabulary::NonTerminal};
 use serde::Serialize;
 use super::{terminal_context::TerminalContext, ast_context::AstContext, error_context::ErrorContext};
 
 
-pub trait ToRule {
-  fn as_rule(&self) -> &RuleContext;
+pub trait ToRule<'a> {
+  fn as_rule(&self) -> &RuleContext<'a>;
 
-  fn as_mut_rule(&mut self) -> &mut RuleContext;
+  fn as_mut_rule(&mut self) -> &mut RuleContext<'a>;
 }
 
 
 
 #[derive(Clone, Debug, Serialize)]
-pub struct RuleContext {
+pub struct RuleContext<'a> {
   // 非终结符 rule 的编号
-  pub rule_index: usize,
-  pub rule_name: String,
-  pub children: Vec<AstContext>,
+  pub symbol: NonTerminal<'a>,
+  pub children: Vec<AstContext<'a>>,
 
   
 }
 
-impl ToRule for RuleContext {
-  fn as_mut_rule(&mut self) -> &mut RuleContext {
+impl<'a> ToRule<'a> for RuleContext<'a> {
+  fn as_mut_rule(&mut self) -> &mut RuleContext<'a> {
     self
   }
 
-  fn as_rule(&self) -> &RuleContext {
+  fn as_rule(&self) -> &RuleContext<'a> {
     self
   }
 
@@ -37,12 +36,12 @@ impl ToRule for RuleContext {
 
 
 // 其他函数
-impl RuleContext {
+impl<'a> RuleContext<'a> {
   pub fn get_children(&self) -> &[AstContext] { &self.children }
 
   pub fn get_child_count(&self) -> usize { self.children.len() }
 
-  pub fn get_rule_index(&self) -> usize { self.rule_index }
+  pub fn get_rule_index(&self) -> usize { self.symbol.id }
 
   pub fn get_first_terminal(&self) -> Option<&TerminalContext> { 
     match self.children.first()? {
@@ -86,7 +85,7 @@ impl RuleContext {
     let mut result = Vec::new();
     for child in self.children.iter() {
       if let AstContext::Terminal(child) = child {
-        if child.symbol.token_type == token_type { result.push(child) }
+        if child.symbol.terminal.id == token_type { result.push(child) }
       }
     }
     result
@@ -125,28 +124,35 @@ impl RuleContext {
     result
   }
 
-  pub fn get_test<'a>(&self, input: &'a str) -> Option<&'a str> {
-    if let Some(start) = self.get_start_token() {
-      if let Some(stop) = self.get_stop_token() {
-        Some(&input[start.location.byte_index_start..stop.location.byte_index_stop])
-      } else {
-        None
-      }
-    } else {
-      None
-    }
+  // pub fn get_test<'a>(&self, input: &'a str) -> Option<&'a str> {
+  //   if let Some(start) = self.get_start_token() {
+  //     if let Some(stop) = self.get_stop_token() {
+  //       Some(&input[start.location.byte_index_start..stop.location.byte_index_stop])
+  //     } else {
+  //       None
+  //     }
+  //   } else {
+  //     None
+  //   }
 
-  }
+  // }
 
 
 
 
   pub fn to_string(&self) -> String {
-    let mut result = format!("({}", self.rule_name);
+    let mut result;
+    if let Some(name) = self.symbol.name {
+      result = format!("({}", name);
+    } else {
+      result = self.symbol.id.to_string();
+    }
+    
+    
     self.children.iter().for_each(|child| {
       result += " ";
       match child {
-        AstContext::Terminal(ctx) => result += &ctx.symbol.token_name,
+        AstContext::Terminal(ctx) => result += &ctx.symbol.terminal.name,
         AstContext::Rule(ctx) => result += &ctx.to_string(),
         AstContext::Error(ctx) => result += &ctx.to_string(),
       }
@@ -158,14 +164,14 @@ impl RuleContext {
 
 }
 
-impl Display for RuleContext {
+impl<'a> Display for RuleContext<'a> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     let mut result = String::new();
     for child in self.children.iter() {
       result += &format!("{} ", child);
     }
 
-
-    write!(f, "{} ({})", self.rule_name, result)
+    let t = if let Some(name) = self.symbol.name { name.to_string() } else { self.symbol.id.to_string() };
+    write!(f, "{} ({})", t, result)
   }
 }

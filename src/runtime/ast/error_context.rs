@@ -4,9 +4,9 @@ use serde::{Serialize, ser::SerializeStruct};
 use crate::runtime::token::Token;
 
 #[derive(Clone, Debug)]
-pub struct ErrorContext {
+pub struct ErrorContext<'a> {
 
-  pub symbol: ErrorSymbol,
+  pub symbol: ErrorSymbol<'a>,
 
   // 考虑添加一个 error_message
 }
@@ -15,18 +15,18 @@ pub struct ErrorContext {
 
 
 #[derive(Clone, Debug)]
-pub enum ErrorSymbol {
+pub enum ErrorSymbol<'a> {
 
-  Redundant(Token),
+  Redundant(Token<'a>),
 
-  Mistake(Token),
+  Mistake(Token<'a>),
 
   Missing,
 }
 
 
 
-impl ErrorContext {
+impl<'a> ErrorContext<'a> {
   pub fn get_text(&self) -> &str {
     use ErrorSymbol::*;
     match &self.symbol {
@@ -38,18 +38,18 @@ impl ErrorContext {
   pub fn to_string(&self) -> String {
     use ErrorSymbol::*;
     match &self.symbol {
-      Redundant(symbol) | Mistake(symbol) => symbol.token_name.clone(),
+      Redundant(symbol) | Mistake(symbol) => symbol.terminal.name.to_string(),
       Missing => "missing".to_string(),
     }
   }
 
-  pub fn redundant(symbol: &Token) -> Self {
+  pub fn redundant(symbol: &Token<'a>) -> Self {
     Self {
       symbol: ErrorSymbol::Redundant(symbol.to_owned())
     }
   }
 
-  pub fn mistake(symbol: &Token) -> Self {
+  pub fn mistake(symbol: &Token<'a>) -> Self {
     Self {
       symbol: ErrorSymbol::Mistake(symbol.to_owned())
     }
@@ -61,17 +61,17 @@ impl ErrorContext {
 
 }
 
-impl Display for ErrorContext {
+impl<'a> Display for ErrorContext<'a> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     use ErrorSymbol::*;
     match &self.symbol {
-      Redundant(symbol) | Mistake(symbol) => write!(f, "{}", symbol.token_name),
+      Redundant(symbol) | Mistake(symbol) => write!(f, "{}", symbol.terminal.name),
       Missing => write!(f, "missing"),
     }
   }
 }
 
-impl Serialize for ErrorContext {
+impl<'a> Serialize for ErrorContext<'a> {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
   where
     S: serde::Serializer {
@@ -80,8 +80,8 @@ impl Serialize for ErrorContext {
     match &self.symbol {
       Redundant(symbol) | Mistake(symbol) => {
         let mut state = serializer.serialize_struct("ErrorContext", 4)?;
-        state.serialize_field("token_name", &symbol.token_name)?;
-        state.serialize_field("token_type", &symbol.token_type)?;
+        state.serialize_field("token_name", &symbol.terminal.name)?;
+        state.serialize_field("token_type", &symbol.terminal.id)?;
         state.serialize_field("text", &symbol.text)?;
         
         let mut error_type = "redundant";

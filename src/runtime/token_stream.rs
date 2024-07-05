@@ -3,7 +3,7 @@ use std::collections::VecDeque;
 
 use super::lexer::TokenIter;
 use super::location::Location;
-use super::{token::Token, lexer::Lexer};
+use super::token::Token;
 use super::error::Error;
 
 // 词法分析的时候，直接丢弃掉 skip 的 token, 并将不同频道的 token 放入相应的 vector 。
@@ -12,13 +12,13 @@ pub struct TokenStream<'a> {
   pub iter: TokenIter<'a>,
 
   // 当前 token，初始化为 _START
-  pub next_token: Option<Token>,
+  pub next_token: Option<Token<'a>>,
 
   // 上一个 token
-  pub previous_token: Option<Token>,
+  pub previous_token: Option<Token<'a>>,
 
   // 预查看 token 的缓冲队列
-  pub cached_tokens: VecDeque<Token>,
+  pub cached_tokens: VecDeque<Token<'a>>,
 
   // 该 stream 对应的通道
   pub channel: usize,
@@ -39,7 +39,7 @@ impl<'a> TokenStream<'a> {
       if self.cached_tokens.len() > 0 {
         // 如果缓存中还有token
         self.next_token = self.cached_tokens.pop_front();
-      } else if token.token_type == 1 {
+      } else if token.terminal.id == 1 {
 
         self.next_token = None;
       } else {
@@ -139,18 +139,19 @@ impl<'a> TokenStream<'a> {
 }
 
 
-// 直接为 TokenStream 实现 Iterator，无需再定义一个 Iter
-impl Iterator for TokenStream<'_> {
+// // 直接为 TokenStream 实现 Iterator，无需再定义一个 Iter
+// impl<'a, 'b> Iterator for TokenStream<'b> {
 
-  fn next(&mut self) -> Option<Self::Item> {
-    match self.consume() {
-      Ok(token) => Some(token),
-      Err(_) => None,
-    }
-  }
+//   fn next(&mut self) -> Option<Self::Item> {
+//     match self.consume() {
+//       Ok(token) => Some(token),
+//       Err(_) => None,
+//     }
+//   }
 
-  type Item = Token;
-}
+//   // type Item<'next> = Token<'next> where Self: 'next;
+//   type Item = Token<'a>;
+// }
 
 
 

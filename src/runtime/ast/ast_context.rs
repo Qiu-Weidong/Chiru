@@ -5,13 +5,13 @@ use super::{terminal_context::TerminalContext, rule_context::RuleContext, error_
 
 
 #[derive(Clone, Debug)]
-pub enum AstContext {
-  Terminal(TerminalContext),
-  Rule(RuleContext),
-  Error(ErrorContext),
+pub enum AstContext<'a> {
+  Terminal(TerminalContext<'a>),
+  Rule(RuleContext<'a>),
+  Error(ErrorContext<'a>),
 }
 
-impl AstContext {
+impl<'a> AstContext<'a> {
   pub fn to_string(&self) -> String {
     use AstContext::{Terminal, Rule, Error};
 
@@ -23,7 +23,7 @@ impl AstContext {
   }
 }
 
-impl Display for AstContext {
+impl<'a> Display for AstContext<'a> {
   
 
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -36,7 +36,7 @@ impl Display for AstContext {
   }
 }
 
-impl Serialize for AstContext {
+impl<'a> Serialize for AstContext<'a> {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
   where
     S: serde::Serializer {
