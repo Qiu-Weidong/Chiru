@@ -1,8 +1,8 @@
-use std::{collections::{HashMap, HashSet}, error::Error};
+use std::{collections::{BTreeMap, HashMap, HashSet}, error::Error};
 
-use chiru::runtime::{error_strategy::error_listener::{ErrorListener, ConsoleErrorListener}, lexer_rule::LexerRule, lexer::{Lexer, TokenIter}, production::Production, token_stream::TokenStream, ast::rule_context::RuleContext, ll1_analyzer::ll1_analyze};
+use chiru::runtime::{ast::rule_context::RuleContext, error_strategy::error_listener::{ConsoleErrorListener, ErrorListener}, lexer::{Lexer, TokenIter}, lexer_rule::LexerRule, ll1_analyzer::ll1_analyze, production::Production, token_stream::TokenStream, vocabulary::{NonTerminal, Terminal}};
 
-use super::grammar::{Grammar, utils::lalr_table};
+use super::grammar::Grammar;
 
 
 
@@ -10,6 +10,7 @@ pub struct CommonLexer<'a> {
   pub input: &'a str,
   pub error_listeners: Vec<Box<dyn ErrorListener>>,
 
+  // 只需要自定义词法分析规则即可
   pub rules: Vec<LexerRule>,
 }
 
@@ -48,16 +49,15 @@ impl<'a> CommonLexer<'a> {
 
 
 
-pub struct CommonParser {
+pub struct CommonParser<'a> {
   pub error_listeners: Vec<Box<dyn ErrorListener>>,
-  pub table: HashMap<(usize, usize), usize>,
-  pub productions: HashMap<usize, Production>,
+  pub table: BTreeMap<(NonTerminal<'a>, Terminal<'a>), usize>,
+  pub productions: HashMap<usize, Production<'a>>,
   pub nonterminals: HashMap<usize, String>,
-  // pub terminals: HashMap<usize, String>,
   pub sync: HashSet<(usize, usize)>,
 }
 
-impl CommonParser {
+impl<'a> CommonParser<'a> {
   pub fn parse(&self, token_stream: &mut TokenStream, rule_index: usize) -> Result<RuleContext, Box<dyn Error>> {
     if token_stream.peek_next_token()?.token_type == 0 {
       token_stream.consume()?;
@@ -78,7 +78,7 @@ impl CommonParser {
 
     let productions = grammar.productions.clone();
 
-    let mut sync: HashSet<(usize, usize)> = HashSet::new();
+    let mut sync: HashSet<(NonTerminal, Terminal)> = HashSet::new();
     // 根据 follow 集合来生成 sync
     for (id, followers) in follow.iter() {
       for x in followers.iter() {
@@ -86,11 +86,13 @@ impl CommonParser {
       }
     }
 
-    let nonterminals = grammar.vocabulary.named_nonterminals.clone();
+    let nonterminals = grammar.vocabulary.nonterminals.iter().map(|item| {
+      (item.id, item.name.clone())
+    }).collect();
+
+
 
     // 生成 action 和 goto 表格, 有了这两个表格, 就可以进行 lalr 分析了
-    let (action, goto, _) = lalr_table(grammar);
-    println!("{:?}, {:?}",  action, goto);
     Self {
       table, productions, sync, nonterminals, error_listeners: vec![Box::new(ConsoleErrorListener::new())],
     }

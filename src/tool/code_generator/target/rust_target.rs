@@ -59,16 +59,16 @@ impl RustTarget {
     for item in production.right.iter() {
       match item {
         ProductionItem::NonTerminal(id) => {
-          result += &format!("ProductionItem::NonTerminal({}),", id);
+          result += &format!("ProductionItem::NonTerminal({}),", id.id);
         },
         ProductionItem::Terminal(id) => {
-          result += &format!("ProductionItem::Terminal({}),", id);
+          result += &format!("ProductionItem::Terminal({}),", id.id);
         },
       }
     }
     result += "]";
     
-    format!("Production::new({}, {}, &{})", production.id, production.left, result)
+    format!("Production::new({}, {}, &{})", production.id, production.left.id, result)
   }
   
 }

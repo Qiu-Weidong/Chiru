@@ -4,7 +4,7 @@ use once_cell::sync::Lazy;
 
 
 
-#[derive(Clone, PartialEq, PartialOrd, Eq, Ord)]
+#[derive(Clone, PartialEq, PartialOrd, Eq, Ord, Debug, Hash, Copy)]
 pub struct Terminal<'a> {
   pub name: &'a str,
   pub id: usize,
@@ -16,7 +16,7 @@ impl<'a> Terminal<'a> {
   }
 }
 
-#[derive(Clone, PartialEq, PartialOrd, Eq, Ord)]
+#[derive(Clone, PartialEq, PartialOrd, Eq, Ord, Debug, Hash, Copy)]
 pub struct NonTerminal<'a> {
   pub name: Option<&'a str>,
   pub id: usize,

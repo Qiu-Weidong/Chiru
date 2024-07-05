@@ -17,7 +17,7 @@ use super::{cli::Analyzer, visitor::context_visitor::ContextVisitor};
 
 pub struct CodeGenerator<'a> {
   // 解析出来的语法
-  grammar: &'a Grammar,
+  grammar: &'a Grammar<'a>,
   // 还需要 ast ，持有引用
   ast: &'a dyn CompilationUnitContext,
   
@@ -89,10 +89,8 @@ impl<'a> CodeGenerator<'a> {
 
   // 直接写文件即可
   pub fn generate(&self) -> Result<(), Box<dyn Error>> {
-    // let vocabulary = self.target.generate_vocabulary(&VocabularyGenData::new(&self.grammar))?;
-    // println!("{}", vocabulary);
 
-    println!("{:?}", self.grammar.vocabulary.nonterminals);
+    // println!("{:?}", self.grammar.vocabulary.nonterminals);
 
 
     

@@ -6,6 +6,7 @@ use std::path::PathBuf;
 use chiru::runtime::ast::rule_context::RuleContext;
 use chiru::runtime::ast::rule_context::ToRule;
 use chiru::runtime::lexer::Lexer;
+use chiru::runtime::vocabulary::NonTerminal;
 use clap::CommandFactory;
 use clap::Parser;
 use clap::ValueEnum;
@@ -230,7 +231,7 @@ impl Cli {
     // 获取开始符号
     let start_rule_id;
     if let Some(start_rule) = &self.start_rule {
-      start_rule_id = grammar.vocabulary.get_nonterminal_id_by_name(start_rule).unwrap_or(0);
+      start_rule_id = grammar.vocabulary.get_nonterminal_by_name(start_rule).unwrap_or(NonTerminal::new(None, 0)).id;
     } else { start_rule_id = 0; }
 
     let lexer = CommonLexer::from_grammar(&grammar, &content);

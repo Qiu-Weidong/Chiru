@@ -1,7 +1,7 @@
 // 构造分析相关的函数都写在这里, 这个模块不需要暴露出去
 
 use std::{collections::{BTreeSet, HashMap, BTreeMap}, vec};
-use chiru::runtime::production::{Production, ProductionItem};
+use chiru::runtime::{production::{Production, ProductionItem}, vocabulary::{NonTerminal, Terminal}};
 use maplit::btreeset;
 use super::{Grammar, ActionTableElement};
 
@@ -14,7 +14,7 @@ pub struct Collection {
 // 项目
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Copy)]
 pub struct Item<'a> {
-  pub production: &'a Production,
+  pub production: &'a Production<'a>,
   pub dot: usize,
   // 增加一个字段 state, 表示所属的项目集闭包的编号
   pub state: usize,
@@ -22,7 +22,7 @@ pub struct Item<'a> {
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Copy)]
 pub struct ItemWithLookAhead<'a> {
-  pub production: &'a Production,
+  pub production: &'a Production<'a>,
   pub dot: usize,
   pub look_ahead: usize,
 }
@@ -33,7 +33,7 @@ pub fn first(beta: &[ProductionItem], a: usize, first_set_of_nonterminals: &BTre
   for item in beta.iter() {
     match item {
       ProductionItem::NonTerminal(rule_id) => {
-        let c = first_set_of_nonterminals.get(rule_id).unwrap();
+        let c = first_set_of_nonterminals.get(&rule_id.id).unwrap();
         for item in c.set.iter() { result.set.insert(*item) ; }
         if !c.allow_epsilon {
           result.allow_epsilon = false;
@@ -42,7 +42,7 @@ pub fn first(beta: &[ProductionItem], a: usize, first_set_of_nonterminals: &BTre
       },
       ProductionItem::Terminal(token_type) => {
         result.allow_epsilon = false;
-        result.set.insert(*token_type);
+        result.set.insert(token_type.id);
         break;
       },
     }
@@ -62,7 +62,7 @@ pub fn get_first_set_for_non_epsilon_rule(production: &Production, result: &mut 
   for item in production.right.iter() {
     match item {
       ProductionItem::NonTerminal(id) => {
-        let set = first_set.get(id).unwrap();
+        let set = first_set.get(&id.id).unwrap();
         if !set.allow_epsilon {
           allow_epsilon = false;
           break;
@@ -83,7 +83,7 @@ pub fn get_first_set_for_non_epsilon_rule(production: &Production, result: &mut 
   for item in production.right.iter() {
     match item {
       ProductionItem::NonTerminal(rule_id) => {
-        let c = first_set.get(rule_id).unwrap();
+        let c = first_set.get(&rule_id.id).unwrap();
         for item in c.set.iter() { modified = result.set.insert(*item) || modified; }
 
         if ! c.allow_epsilon {
@@ -91,7 +91,7 @@ pub fn get_first_set_for_non_epsilon_rule(production: &Production, result: &mut 
         }
       },
       ProductionItem::Terminal(token_type) => {
-        modified = result.set.insert(*token_type) || modified;
+        modified = result.set.insert(token_type.id) || modified;
         
         // 遇到终结符就退出
         break;
@@ -121,7 +121,7 @@ pub fn first_set_for_nonterminal_and_production(grammar: &Grammar) -> (BTreeMap<
       let t = cache.get_mut(&production.id).unwrap();
       modified = get_first_set_for_non_epsilon_rule(production, t, &result);
       
-      let r = result.get_mut(&production.left).unwrap();
+      let r = result.get_mut(&production.left.id).unwrap();
       if t.allow_epsilon && ! r.allow_epsilon {
         r.allow_epsilon = t.allow_epsilon;
         modified = true;
@@ -236,7 +236,8 @@ pub fn lalr_table(grammar: &Grammar) -> (BTreeMap<(usize, usize), ActionTableEle
   let mut /*产生式 */ productions = grammar.productions.clone();
   let first_augmented_production_id = next_production_id;
   for (nonterminal, _) in grammar.vocabulary.named_nonterminals.iter() {
-    let p = Production::new(next_production_id, next_nonterminal_id, &vec![ProductionItem::NonTerminal(*nonterminal)]);
+    let p = Production::new(next_production_id, NonTerminal::new(None, next_nonterminal_id), 
+      &vec![ProductionItem::NonTerminal(NonTerminal::new(None, *nonterminal))]);
     productions.insert(next_production_id, p);
     next_nonterminal_id += 1;
     next_production_id += 1;
@@ -254,7 +255,7 @@ pub fn lalr_table(grammar: &Grammar) -> (BTreeMap<(usize, usize), ActionTableEle
     let closure = closure(btreeset! { item }, &productions);
     c.insert(closure, next_closure_id);
     if let ProductionItem::NonTerminal(nonterminal_id) = production.right[0] {
-      nonterminal_to_start_state.insert(nonterminal_id, next_closure_id);
+      nonterminal_to_start_state.insert(nonterminal_id.id, next_closure_id);
     }
     next_closure_id += 1;
   }
@@ -263,7 +264,7 @@ pub fn lalr_table(grammar: &Grammar) -> (BTreeMap<(usize, usize), ActionTableEle
   // 构造文法符号集合
   let mut symbols: Vec<ProductionItem> = Vec::new();
   for (terminal, _) in grammar.vocabulary.terminals.iter() {
-    symbols.push(ProductionItem::Terminal(*terminal));
+    symbols.push(ProductionItem::Terminal(Terminal::new(name, id)));
   }
   for nonterminal in grammar.vocabulary.nonterminals.iter() {
     symbols.push(ProductionItem::NonTerminal(*nonterminal));

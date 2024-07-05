@@ -16,11 +16,12 @@ pub trait ToRule {
 
 #[derive(Clone, Debug, Serialize)]
 pub struct RuleContext {
+  // 非终结符 rule 的编号
+  pub rule_index: usize,
   pub rule_name: String,
   pub children: Vec<AstContext>,
 
-  // 非终结符 rule 的编号
-  pub rule_index: usize,
+  
 }
 
 impl ToRule for RuleContext {

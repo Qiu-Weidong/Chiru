@@ -273,7 +273,7 @@ pub struct VisitorOrListenerGenData<'a> {
 
   pub rule_names: Vec<NameCaseWithId>,
 
-  pub grammar: &'a Grammar,
+  pub grammar: &'a Grammar<'a>,
   pub ast: &'a dyn CompilationUnitContext,
 }
 
@@ -302,7 +302,7 @@ pub struct ContextGenData<'a> {
 
   pub context_list: Vec<ContextCase>,
 
-  pub grammar: &'a Grammar,
+  pub grammar: &'a Grammar<'a>,
   pub ast: &'a dyn CompilationUnitContext,
 }
 
@@ -328,7 +328,7 @@ pub struct WalkerGenData<'a> {
   pub package_name: Option<NameCase>,
   pub grammar_name: NameCase,
 
-  pub grammar: &'a Grammar,
+  pub grammar: &'a Grammar<'a>,
   pub ast: &'a dyn CompilationUnitContext,
 }
 
@@ -356,7 +356,7 @@ pub struct LexerGenData<'a> {
 
 
   pub lexer_rule_list: Vec<LexerCase>,
-  pub grammar: &'a Grammar,
+  pub grammar: &'a Grammar<'a>,
   pub ast: &'a dyn CompilationUnitContext,
   
 }
@@ -391,7 +391,7 @@ pub struct ParserGenData<'a> {
   pub terminal_names: Vec<NameCaseWithId>,
   pub sync_list: HashSet<(usize, usize)>,
 
-  pub grammar: &'a Grammar,
+  pub grammar: &'a Grammar<'a>,
   pub ast: &'a dyn CompilationUnitContext,
 }
 
@@ -425,23 +425,23 @@ pub struct VocabularyGenData {
   pub unnamed_nonterminal_ids: Vec<usize>
 }
 
-impl<'a> VocabularyGenData {
-  pub fn new(grammar: &'a Grammar) -> Self {
-    let terminal_names: Vec<_> = grammar.vocabulary.terminals.iter().map(|(id, name)| NameCaseWithId::new(name, *id)).collect();
-    let rule_names: Vec<NameCaseWithId> = grammar.vocabulary.named_nonterminals.iter().map(|(k, v)| {
-      NameCaseWithId::new(v, *k)
-    }).collect::<Vec<_>>();
+// impl<'a> VocabularyGenData {
+//   pub fn new(grammar: &'a Grammar) -> Self {
+//     let terminal_names: Vec<_> = grammar.vocabulary.terminals.iter().map(|(id, name)| NameCaseWithId::new(name, *id)).collect();
+//     let rule_names: Vec<NameCaseWithId> = grammar.vocabulary.named_nonterminals.iter().map(|(k, v)| {
+//       NameCaseWithId::new(v, *k)
+//     }).collect::<Vec<_>>();
 
-    let unnamed_nonterminal_ids = grammar.vocabulary.get_all_nonterminals();
+//     let unnamed_nonterminal_ids = grammar.vocabulary.get_all_nonterminals();
     
-    Self {
-      terminal_names, rule_names, unnamed_nonterminal_ids
-    }
-  }
-}
+//     Self {
+//       terminal_names, rule_names, unnamed_nonterminal_ids
+//     }
+//   }
+// }
 
 pub struct WriteFileData<'a> {
-  pub grammar: &'a Grammar,
+  pub grammar: &'a Grammar<'a>,
   pub ast: &'a dyn CompilationUnitContext,
 
   pub grammar_file_name: String, 

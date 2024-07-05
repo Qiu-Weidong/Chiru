@@ -17,20 +17,20 @@ use crate::tool::{grammar::{Grammar, lexer_rule::LexerRule}, syntaxis::{chiru_vi
 
 
 // 负责生成产生式
-pub struct GrammarVisitor {
-  pub grammar: Grammar,
+pub struct GrammarVisitor<'a> {
+  pub grammar: Grammar<'a>,
   
   pub next_rule_id: usize, // 为匿名非终结符编号
   pub next_production_id: usize, // 产生式的编号
 
   // 先在 visitor 中维护一个匿名非终结符产生式的集合，最后再添加到 grammar 中去。map 的键为产生式右部列表
-  block_cache: HashMap<Vec<Vec<ProductionItem>>, usize>,
-  star_cache: HashMap<ProductionItem, usize>,
-  plus_cache: HashMap<ProductionItem, usize>,
-  question_cache: HashMap<ProductionItem, usize>,
+  block_cache: HashMap<Vec<Vec<ProductionItem<'a>>>, usize>,
+  star_cache: HashMap<ProductionItem<'a>, usize>,
+  plus_cache: HashMap<ProductionItem<'a>, usize>,
+  question_cache: HashMap<ProductionItem<'a>, usize>,
 }
 
-impl GrammarVisitor {
+impl<'a> GrammarVisitor<'a> {
   pub fn new(name: &str, parser_rule_map: &HashMap<String, usize>, lexer_rule_map: &HashMap<String, LexerRule>) -> Self {
     let mut grammar = Grammar::new(name);
 
@@ -55,7 +55,7 @@ impl GrammarVisitor {
   }
 }
 
-impl ChiruVisitor for GrammarVisitor {
+impl<'a> ChiruVisitor for GrammarVisitor<'a> {
 
   fn visit_grammar_name(&mut self, ctx: &dyn crate::tool::syntaxis::chiru_context::GrammarNameContext) -> Result<Box<dyn Any>, Box<dyn Error>> {
 
